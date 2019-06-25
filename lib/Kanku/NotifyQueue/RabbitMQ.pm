@@ -69,12 +69,6 @@ sub prepare {
 
     $kmq->shutdown_file($self->shutdown_file);
     $kmq->connect();
-    $kmq->queue->exchange_declare(
-      $kmq->channel,
-      'kanku.notify',
-      { exchange_type => 'fanout' }
-    );
-
     $self->_queue($kmq);
     return $kmq;
 }
@@ -90,7 +84,11 @@ $notification can be a json string or a reference
 sub send {
   my ($self, $msg) = @_;
   $msg = encode_json($msg) if ref($msg);
-  $self->_queue->publish('',$msg,{exchange=>'kanku.notify'});
+  $self->_queue->publish(
+    'kanku.notify',
+    $msg,
+    {exchange => 'amq.direct'}
+  );
 }
 
 __PACKAGE__->meta->make_immutable();

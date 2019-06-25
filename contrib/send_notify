@@ -13,7 +13,7 @@ my $user = "kanku";
 my $password = "kanku";
 
 my $channel = 1;
-my $exchange = "kanku.notify";  # This exchange must exist already
+my $exchange = "amq.direct";
 
 my $messages= { 
   1 => {
@@ -51,7 +51,7 @@ while (1) {
   if ( $messages->{$in} ) {
     my $data = $messages->{$in};
     print "Publishing message: $data->{msg}\n";
-    $mq->publish($channel, '#', $data->{msg}, { exchange => $exchange });
+    $mq->publish($channel, 'kanku.notify', $data->{msg}, { exchange => $exchange });
   }
 }
 $mq->disconnect();

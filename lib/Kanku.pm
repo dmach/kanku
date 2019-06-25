@@ -387,9 +387,15 @@ websocket_on_open sub {
       $qn = $mq->queue->queue_declare(1,'');
       debug "declared queue $qn successfully";
       $mq->queue_name($qn);
-      debug "starting queue bind $qn -> kanku.notify";
-      $mq->queue->queue_bind(1, $qn, 'kanku.notify', '');
-      debug "queue bind succeed $qn -> kanku.notify";
+      debug "starting queue bind $qn";
+      # Try::Tiny->try does not work here
+      eval {
+        $mq->queue->queue_bind(1, $qn, 'amq.direct', 'kanku.notify');
+      };
+
+      debug $@;
+      die $@ if $@;
+      debug "queue bind succeed $qn";
       $mq->queue->consume(1, $qn);
       debug "started consuming $qn";
       my $oldperms=10000;
@@ -406,7 +412,7 @@ websocket_on_open sub {
 	  $ws_session->cleanup_session();
           if ($mq->queue->is_connected) {
             $log->debug('Unbinding queue');
-	    $mq->queue->queue_unbind(1, $qn, 'kanku.notify', '');
+	    $mq->queue->queue_unbind(1, $qn, 'amq.direct', '');
             $log->debug('Disconnecting queue');
 	    $mq->queue->disconnect();
             $log->debug("Deleting queue");
