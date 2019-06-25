@@ -266,7 +266,7 @@ sub get_json {
 
   if ($response->is_success) {
     my $result;
-    $self->logger->debug("decoded_content: ".$response->decoded_content);
+    $self->logger->trace("decoded_content: ".$response->decoded_content);
     $result = decode_json($response->decoded_content);
     return $result;
   } else {
