@@ -51,7 +51,7 @@ sub run {
     $self->local_job_queue_name($hn) if ($hn);
     $self->listen_on_queue(
       queue_name    => $self->local_job_queue_name,
-      exchange_name => 'kanku.to_all_hosts'
+      routing_key   => 'kanku.to_all_hosts'
     );
   } else {
     push(@childs,$pid);
@@ -63,7 +63,7 @@ sub run {
   if (! $pid ) {
     $self->listen_on_queue(
       queue_name    => $self->worker_id,
-      exchange_name => 'kanku.to_all_workers'
+      routing_key   => 'kanku.to_all_workers'
     );
   } else {
     push(@childs,$pid);
@@ -88,10 +88,9 @@ sub listen_on_queue {
     $kmq = Kanku::RabbitMQ->new(%{$rabbit_config});
     $kmq->shutdown_file($self->shutdown_file);
     $kmq->connect();
-    $kmq->setup_worker();
     my $qn = $kmq->create_queue(
       queue_name    => $opts{queue_name},
-      exchange_name => $opts{exchange_name}
+      routing_key   => $opts{routing_key},
     );
     $self->local_job_queue_name($qn);
   } catch {
@@ -125,7 +124,6 @@ sub listen_on_queue {
 	  $kmq->publish(
 	    $self->remote_job_queue_name,
 	    encode_json($answer),
-	    { exchange => 'kanku.to_dispatcher'}
 	  );
 
 	  $self->handle_task($data,$kmq);
@@ -183,7 +181,8 @@ sub handle_advertisement {
 
       my $job_kmq = Kanku::RabbitMQ->new(
         %{$kmq->connect_info},
-        queue_name =>$self->local_job_queue_name
+        queue_name  => $self->local_job_queue_name,
+        routing_key => $self->local_job_queue_name,
       );
       $job_kmq->connect();
       $job_kmq->create_queue();
@@ -204,7 +203,6 @@ sub handle_advertisement {
       $kmq->publish(
         $self->remote_job_queue_name,
         $json,
-        { exchange => 'kanku.to_dispatcher' }
       );
 
       # TODO: Need timeout
@@ -259,7 +257,6 @@ sub handle_job {
     $job_kmq->publish(
       $self->remote_job_queue_name,
       encode_json($answer),
-      { exchange => 'kanku.to_dispatcher'}
     );
 
     exit 0;
@@ -279,7 +276,6 @@ sub handle_job {
 	$job_kmq->publish(
 	  $self->remote_job_queue_name,
 	  encode_json($answer),
-	  { exchange => 'kanku.to_dispatcher'}
 	);
 
 	exit 0;
@@ -320,7 +316,6 @@ sub handle_job {
         action        => 'finished_task',
         error_message => $e
       }),
-      { exchange => 'kanku.to_dispatcher' }
     );
     my $task_msg = $job_kmq->recv(10000);
     my $task_body = decode_json($task_msg->{body});
@@ -381,8 +376,7 @@ sub _send_task_result {
 
   $job_kmq->publish(
     $self->remote_job_queue_name,
-	encode_json($answer),
-    { exchange => 'kanku.to_dispatcher'}
+    encode_json($answer),
   );
 
   return;

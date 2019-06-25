@@ -87,11 +87,7 @@ sub run {
     }
   );
 
-  $kmq->publish(
-	'',
-	$data,
-	{ exchange => 'kanku.to_all_hosts' }
-  );
+  $kmq->publish('kanku.to_all_hosts', $data);
 
   sleep($self->wait_for_workers);
 

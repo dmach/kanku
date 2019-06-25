@@ -27,7 +27,7 @@ Kanku::RabbitMQ - A helper class for Net::AMQP::RabbitMQ
     $kmq->setup_worker();
     $kmq->create_queue(
       queue_name    => $self->worker_id,
-      exchange_name =>'kanku.to_all_workers'
+      routing_key   =>'kanku.to_all_workers'
     );
 
 =cut
@@ -57,7 +57,7 @@ with 'Kanku::Roles::Helpers';
 =cut
 
 has 'channel' => (is=>'rw',isa=>'Int',default => 1);
-has 'port'	  => (is=>'rw',isa=>'Int',default => 5671);
+has 'port'    => (is=>'rw',isa=>'Int',default => 5671);
 
 has [qw/ssl ssl_verify_host ssl_init/]	=> (is=>'rw',isa=>'Bool',default => 1);
 
@@ -156,7 +156,7 @@ sub connect_info {
     vhost           => $self->vhost,
     user            => $self->user,
     password        => $self->password,
-    port	        => $self->port,
+    port            => $self->port,
     ssl             => $self->ssl,
     ssl_cacert      => $self->ssl_cacert,
     ssl_verify_host => $self->ssl_verify_host,
@@ -164,25 +164,6 @@ sub connect_info {
   };
 }
 #
-=head2 setup_worker -
-
-=cut
-
-sub setup_worker {
-  my ($self, $mq) = @_;
-
-  $self->queue->exchange_declare(
-    $self->channel,
-    'kanku.to_all_workers',
-    { exchange_type => 'fanout' }
-  );
-
-  $self->queue->exchange_declare(
-    $self->channel,
-    'kanku.to_all_hosts',
-    { exchange_type => 'fanout' }
-  );
-}
 =head2 recv - wait and read new incomming messages
 
 =cut
@@ -212,15 +193,17 @@ sub recv {
 sub publish {
   my ($self, $rk, $data, $opts) = @_;
 
+  $self->routing_key($rk) if $rk;
+  $opts = {exchange => $self->exchange_name} unless $opts;
   my $logger = $self->logger;
 
   $logger->trace("Publishing for message:");
-  $logger->trace("  channel    : '".$self->channel."'");
-  $logger->trace("  routing_key: '$rk'");
-  $logger->trace("  data       : ".$self->dump_it($data));
-  $logger->trace("  opts       : ".$self->dump_it($opts));
+  $logger->trace("  channel    : '" . $self->channel        . "'");
+  $logger->trace("  routing_key: '" . $self->routing_key    . "'");
+  $logger->trace("  data       : '" . $self->dump_it($data) . "'");
+  $logger->trace("  opts       : '" . $self->dump_it($opts) . "'");
 
-  return $self->queue->publish($self->channel, $rk, $data, $opts);
+  return $self->queue->publish($self->channel, $self->routing_key, $data, $opts);
 }
 
 =head2 create_queue -
@@ -233,7 +216,12 @@ sub create_queue {
 
   $self->logger->debug(
     "Creating new queue ('".
-    join("','",$self->channel,($self->queue_name ||''),$self->exchange_name,($self->queue_name||'')).
+    join("','",
+      $self->channel,
+      ($self->queue_name ||''),
+      $self->exchange_name,
+      ($self->routing_key||'')
+    ).
     "')"
   );
 
@@ -250,9 +238,10 @@ sub create_queue {
     $self->channel,
     $self->queue_name,
     $self->exchange_name,
-    $self->queue_name,
+    $self->routing_key,
     {}
   );
+
   $self->consumer_id(
       $mq->consume(
         $self->channel,
@@ -288,7 +277,7 @@ sub destroy_queue {
     $self->channel,
     $self->queue_name,
     $self->exchange_name,
-    $self->queue_name,
+    $self->routing_key,
     {}
   );
 
@@ -299,9 +288,9 @@ sub destroy_queue {
   );
 }
 
-=head2 destroy_queue - unbind and delete queue (if_unused=>0,if_empty=>0)
+=head2 reconnect - Try to disconnect and reconnect to rabbitmq
 
-   $kmq->destroy_queue;
+   $kmq->reconnect();
 
 =cut
 

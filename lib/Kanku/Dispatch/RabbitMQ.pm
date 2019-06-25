@@ -102,8 +102,7 @@ sub run_job {
   $rmq->shutdown_file($self->shutdown_file);
   $rmq->connect() || die "Could not connect to rabbitmq\n";
   $rmq->queue_name($queue);
-  $rmq->exchange_name('kanku.to_dispatcher');
-  $rmq->create_queue();
+  $rmq->create_queue(routing_key=>$queue);
   $self->job_queue($rmq);
 
   my $applications={};;
@@ -289,7 +288,6 @@ sub send_job_offer {
 		  answer_queue		=> $prefered_application->{answer_queue}
 		}
 	),
-    { exchange => 'amq.direct' }
   );
 }
 
@@ -302,13 +300,10 @@ sub send_finished_job {
 
   $self->job_queue->publish(
     $aq,
-	encode_json(
-		{
-		  action  => 'finished_job',
+    encode_json({
+          action  => 'finished_job',
           job_id  => $job_id
-		}
-	),
-    { exchange => 'amq.direct' }
+    }),
   );
 }
 
@@ -345,9 +340,8 @@ sub advertise_job {
   while(! %$all_applications ) {
 
     $rmq->publish(
-      '',
+      'kanku.to_all_workers',
       $data,
-      { exchange => 'kanku.to_all_workers' }
     );
 
     sleep($self->wait_for_workers);
@@ -383,18 +377,6 @@ sub cleanup_on_startup {
 
 sub cleanup_on_exit {
   my ($self) = @_;
-  my $rmq = Kanku::RabbitMQ->new(%{$self->rabbit_config});
-  $rmq->shutdown_file($self->shutdown_file);
-  $rmq->connect() || die "Could not connect to rabbitmq\n";
-
-  my $exchange='kanku.to_dispatcher';
-
-  $self->logger->info("Deleting exchange $exchange");
-
-  $rmq->queue->exchange_delete(
-    $rmq->channel,
-    $exchange
-  );
 }
 
 sub initialize {
@@ -402,16 +384,6 @@ sub initialize {
   my $rmq = Kanku::RabbitMQ->new(%{$self->rabbit_config});
   $rmq->shutdown_file($self->shutdown_file);
   $rmq->connect() || die "Could not connect to rabbitmq\n";
-
-  my $exchange='kanku.to_dispatcher';
-
-  $self->logger->info("Declaring exchange $exchange");
-
-  $rmq->queue->exchange_declare(
-    $rmq->channel,
-    $exchange
-  );
-
 }
 
 1;
