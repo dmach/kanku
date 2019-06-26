@@ -1,6 +1,6 @@
 package Kanku::Schema::Result::WsToken;
 use base qw/DBIx::Class::Core/;
-__PACKAGE__->table('wstoken');
+__PACKAGE__->table('ws_token');
 __PACKAGE__->add_columns(
     user_id        => { data_type => 'integer' },
     auth_token     => { data_type => 'varchar', size => 32 },

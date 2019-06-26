@@ -4,10 +4,6 @@
    },
    "sets" : [
       {
-         "class" : "WsToken",
-         "quantity" : "all"
-      },
-      {
          "class" : "RoleRequest",
          "quantity" : "all"
       },

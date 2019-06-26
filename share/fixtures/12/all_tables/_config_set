@@ -1,0 +1,53 @@
+$VAR1 = {
+          'has_many' => {
+                          'fetch' => 0
+                        },
+          'sets' => [
+                      {
+                        'quantity' => 'all',
+                        'class' => 'RoleRequest'
+                      },
+                      {
+                        'quantity' => 'all',
+                        'class' => 'User'
+                      },
+                      {
+                        'class' => 'ObsCheckHistory',
+                        'quantity' => 'all'
+                      },
+                      {
+                        'quantity' => 'all',
+                        'class' => 'JobHistory'
+                      },
+                      {
+                        'quantity' => 'all',
+                        'class' => 'ImageDownloadHistory'
+                      },
+                      {
+                        'quantity' => 'all',
+                        'class' => 'Role'
+                      },
+                      {
+                        'quantity' => 'all',
+                        'class' => 'WsSession'
+                      },
+                      {
+                        'class' => 'JobHistoryComment',
+                        'quantity' => 'all'
+                      },
+                      {
+                        'quantity' => 'all',
+                        'class' => 'UserRole'
+                      },
+                      {
+                        'quantity' => 'all',
+                        'class' => 'JobHistorySub'
+                      }
+                    ],
+          'belongs_to' => {
+                            'fetch' => 0
+                          },
+          'might_have' => {
+                            'fetch' => 0
+                          }
+        };
