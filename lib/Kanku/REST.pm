@@ -25,6 +25,7 @@ use Kanku::REST::Admin::Role;
 use Kanku::REST::JobComment;
 use Kanku::REST::Guest;
 use Kanku::REST::Job;
+use Kanku::REST::Worker;
 
 prepare_serializer_for_format;
 
@@ -220,6 +221,10 @@ get '/gui_config/job.:format' => sub {
 
 get '/test.:format' => sub {  return {test=>'success'} };
 
+get '/worker/list.:format' => sub {
+  my $jo = Kanku::REST::Worker->new(app_opts());
+  return $jo->list;
+};
 
 __PACKAGE__->meta->make_immutable();
 
