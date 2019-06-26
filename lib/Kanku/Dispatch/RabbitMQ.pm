@@ -150,6 +150,12 @@ sub run {
               delete $data->{action};
               my $hn = delete $data->{hostname};
               $self->active_workers->{$hn} = $data;
+              $self->schema->resultset('StateWorker')->update_or_create({
+                 hostname    => $hn,
+                 last_seen   => $data->{current_time},
+                 last_update => time(),
+                 info        => encode_json($data),
+              })
             } else {
               $logger->error("Unknown action recived: $data->{action}");
             }
