@@ -383,6 +383,7 @@ websocket_on_open sub {
       debug 'Create mq object sucessfully';
       my $log = $mq->logger;
       $mq->connect(no_retry=>1);
+      $mq->routing_key("kanku.notify");
       debug 'connected successfully';
       $qn = $mq->queue->queue_declare(1,'');
       debug "declared queue $qn successfully";
@@ -390,7 +391,7 @@ websocket_on_open sub {
       debug "starting queue bind $qn";
       # Try::Tiny->try does not work here
       eval {
-        $mq->queue->queue_bind(1, $qn, 'amq.direct', 'kanku.notify');
+        $mq->queue->queue_bind(1, $qn, $mq->exchange_name, $mq->routing_key);
       };
 
       debug $@;
