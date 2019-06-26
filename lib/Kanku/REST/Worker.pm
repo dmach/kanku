@@ -19,7 +19,7 @@ sub list {
     push @{$rv}, $data;
   }
 
-  return $rv
+  return {workers=>$rv};
 }
 
 

@@ -1,0 +1,19 @@
+[% USE Filter::ANSIColor 'color' %]
+[% USE date(format = '%Y/%m/%d %H:%M:%S') %]
+##### Worker List:
+[% FOREACH worker IN workers %]
+================================================================================
+[% IF worker.state == 'succeed' %]
+[% worker.hostname | color 'green' +%]
+[% ELSIF worker.state == 'failed' %]
+[% worker.hostname | color 'red' +%]
+[% ELSIF worker.state == 'running' %]
+[% worker.hostname | color 'blue' +%]
+[% ELSE %]
+[% worker.hostname | color 'yellow' +%]
+[% END %]
+
+  Last Seen    : [% date.format(worker.last_seen) +%] ([% worker.last_seen +%])
+  Last Updated : [% date.format(worker.last_update) +%] ([% worker.last_update +%])
+
+[% END %]
