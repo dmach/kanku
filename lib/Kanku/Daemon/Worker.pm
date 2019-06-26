@@ -37,6 +37,9 @@ has job_queue_name        => (is=>'rw', isa => 'Str');
 has remote_job_queue_name => (is=>'rw', isa => 'Str');
 has local_job_queue_name  => (is=>'rw', isa => 'Str');
 
+has hostname              => (is=>'rw', isa => 'Str'
+                              , default => sub {hostfqdn()});
+
 sub run {
   my $self          = shift;
   my $logger        = $self->logger();
@@ -47,11 +50,11 @@ sub run {
   $pid = fork();
 
   if (! $pid ) {
-    my $hn = hostfqdn();
+    my $hn = $self->hostname;
     $self->local_job_queue_name($hn) if ($hn);
     $self->listen_on_queue(
-      queue_name    => $self->local_job_queue_name,
-      routing_key   => 'kanku.to_all_hosts'
+      queue_name     => "worker-to_all_hosts-". $self->worker_id,
+      routing_key    => 'kanku.to_all_hosts',
     );
   } else {
     push(@childs,$pid);
@@ -62,16 +65,33 @@ sub run {
 
   if (! $pid ) {
     $self->listen_on_queue(
-      queue_name    => $self->worker_id,
+      queue_name    => "worker-to_all_workers-" . $self->worker_id,
       routing_key   => 'kanku.to_all_workers'
     );
   } else {
     push(@childs,$pid);
   }
 
+  my $rabbit_config = Kanku::Config->instance->config->{'Kanku::RabbitMQ'};
+  my $kmq = Kanku::RabbitMQ->new(%{$rabbit_config});
+  $kmq->shutdown_file($self->shutdown_file);
+  $kmq->connect();
+
   while (@childs) {
     @childs = grep { waitpid($_,WNOHANG) == 0 } @childs;
     $logger->trace("Active Childs: (@childs)");
+
+    $logger->trace("Sending heartbeat");
+    $kmq->publish(
+      'kanku.to_dispatcher',
+      encode_json({
+        action        => 'worker_heartbeat',
+        hostname      => $self->hostname,
+        current_time  => time(),
+        active_childs => \@childs
+      }),
+    );
+
     sleep(1);
   }
 
@@ -217,7 +237,6 @@ sub handle_advertisement {
           $logger->trace("\$body =".$self->dump_it($body));
 
           $self->handle_job($job_id,$job_kmq);
-          return;
         } elsif ( $body->{action} eq 'decline_application' ) {
           $logger->debug("Nothing to do - application declined");
           $self->remote_job_queue_name('');
@@ -292,7 +311,7 @@ sub handle_job {
         }
         if ( $task_body->{action} eq 'finished_job' and $task_body->{job_id} == $job_id) {
           $logger->debug("Got finished_job for job_id: $job_id");
-          last;
+          return;
         }
         $logger->debug("Waiting for next task");
       }

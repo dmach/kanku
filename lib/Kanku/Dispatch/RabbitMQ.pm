@@ -29,6 +29,7 @@ use Moose;
 our $VERSION = "0.0.1";
 
 use JSON::XS;
+use POSIX;
 use Kanku::RabbitMQ;
 use Kanku::Task;
 use Kanku::Task::Local;
@@ -72,6 +73,112 @@ has rabbit_config => (
   lazy    => 1,
   default => sub { Kanku::Config->instance->config->{"Kanku::RabbitMQ"} || {}; }
 );
+
+has active_workers => (
+  is      => 'rw',
+  isa     => 'HashRef',
+  lazy    => 1,
+  default => sub { {} },
+);
+
+sub run {
+  my ($self) = @_;
+  my $logger = $self->logger;
+  my @child_pids;
+
+  $self->initialize();
+
+  $self->cleanup_dead_jobs();
+
+  try {
+    $self->cleanup_on_startup();
+  } catch {
+    $logger->warn($_);
+  };
+
+  my $rmq = Kanku::RabbitMQ->new(%{$self->rabbit_config});
+  $rmq->shutdown_file($self->shutdown_file);
+  $rmq->connect() || die "Could not connect to rabbitmq\n";
+  $rmq->queue_name("dispatcher");
+  $rmq->create_queue(routing_key=>'kanku.to_dispatcher');
+
+  while (1) {
+    my $job_list = $self->get_todo_list();
+
+    while (my $job = shift(@$job_list)) {
+      my $pid = fork();
+
+      if (! $pid ) {
+        $SIG{'INT'} = $SIG{'TERM'} = sub { exit 0 };
+        $logger->debug("Child starting with pid $$ -- $self");
+        try {
+          my $res = $self->run_job($job);
+          $logger->debug("Got result from run_job");
+          $logger->trace($self->dump_it($res));
+        }
+        catch {
+          $logger->error("raised exception");
+          my $e = shift;
+          $logger->error($e);
+        };
+        $logger->debug("Before exit: $$");
+        exit 0;
+      } else {
+        push (@child_pids,$pid);
+
+        # wait for childs to exit
+        while ( @child_pids >= $self->max_processes ) {
+          @child_pids = grep { waitpid($_,WNOHANG) == 0 } @child_pids;
+          last if ( $self->detect_shutdown );
+          sleep(1);
+          $logger->trace("ChildPids: (@child_pids) max_processes: ".$self->max_processes."\n");
+        }
+      }
+      last if ( $self->detect_shutdown );
+    }
+    last if ( $self->detect_shutdown );
+    while (my $msg = $rmq->recv(1000)) {
+      if ($msg ) {
+          my $data;
+          $logger->trace("got message: ".$self->dump_it($msg));
+          my $body = $msg->{body};
+          try {
+            $data = decode_json($body);
+            $logger->trace("Received data for dispatcher: ".$self->dump_it($data));
+            if ($data->{action} eq "worker_heartbeat") {
+              $logger->trace("Received heartbeat from worker: $data->{hostname} sent at $data->{current_time}");
+              delete $data->{action};
+              my $hn = delete $data->{hostname};
+              $self->active_workers->{$hn} = $data;
+            } else {
+              $logger->error("Unknown action recived: $data->{action}");
+            }
+          } catch {
+            $logger->debug("Error in JSON:\n$_\n$body\n");
+          };
+      }
+    }
+    $logger->trace('Active Workers('.time().'): ' . $self->dump_it($self->active_workers));
+  }
+
+  kill('TERM',@child_pids);
+
+  my $wcnt = 0;
+
+  while ( @child_pids ) {
+    # log only every minute
+    $logger->debug("Waiting for childs to exit: (@child_pids)") if (! $wcnt % 60);
+    $wcnt++;
+    @child_pids = grep { waitpid($_,WNOHANG) == 0 } @child_pids;
+    sleep(1);
+  }
+
+  $self->cleanup_on_exit();
+
+  $self->cleanup_dead_jobs();
+
+  return;
+}
 
 sub run_job {
   my ($self, $job) = @_;
@@ -182,7 +289,7 @@ sub run_job {
 
   $self->run_notifiers($job,$last_task);
 
-  $rmq->destroy_queue;
+  $rmq->destroy_queue();
   $rmq->queue->disconnect;
 
   return $job->state;
@@ -197,8 +304,6 @@ sub run_task {
   my $logger = $self->logger;
 
   $logger->debug("Starting with new task");
-
-  $logger->trace($self->dump_it(\%opts));
 
   my %defaults = (
     job         => $opts{job},
