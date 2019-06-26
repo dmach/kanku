@@ -176,11 +176,14 @@ sub recv {
   $logger->trace("                       queue:       '".$self->queue_name."'");
   $logger->trace("                       routing_key: '".$self->routing_key."'");
   $logger->trace("                       opts:        '@opts'");
-
-  my $msg = $self->queue->recv(@opts);
-  if ($msg) {
-    $logger->trace("Recieved data:".$self->dump_it($msg));
-  }
+  my $msg;
+  try {
+    $msg = $self->queue->recv(@opts);
+    $logger->trace("Recieved data:".$self->dump_it($msg)) if $msg;
+  } catch {
+    $logger->error('Error while receiving message on queue "'.$self->queue_name.'": '.$_);
+    $self->reconnect();
+  };
   return $msg;
 }
 
@@ -203,7 +206,13 @@ sub publish {
   $logger->trace("  data       : '" . $self->dump_it($data) . "'");
   $logger->trace("  opts       : '" . $self->dump_it($opts) . "'");
 
-  return $self->queue->publish($self->channel, $self->routing_key, $data, $opts);
+  try {
+    $self->queue->publish($self->channel, $self->routing_key, $data, $opts);
+  } catch {
+    $logger->error('Error while publishing message (routing_key: '.$self->routing_key.'): '.$_);
+    $self->reconnect();
+    $self->queue->publish($self->channel, $self->routing_key, $data, $opts);
+  };
 }
 
 =head2 create_queue -
@@ -263,9 +272,6 @@ sub create_queue {
 sub destroy_queue {
   my ($self) = @_;
   my $mq = $self->queue;
-  my %opts = @_;
-
-  while ( my ($key, $value) = each(%opts)) { $self->$key($opts{$key}) if defined($value) }
 
   $self->logger->debug(
     "Destroying queue ('".
