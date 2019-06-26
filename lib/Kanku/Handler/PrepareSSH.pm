@@ -43,22 +43,29 @@ sub prepare {
   my $file_counter = 0;
 
   if ( ! @{$self->public_keys} and ! @{$self->public_key_files} ) {
-    my $key_file = "$ENV{HOME}/.ssh/id_rsa.pub";
-    ( -f $key_file ) && push @{$self->public_key_files}, $key_file;
-
-    $key_file = "$ENV{HOME}/.ssh/id_dsa.pub";
-    ( -f $key_file ) && push @{$self->public_key_files}, $key_file;
-
+    $self->logger->debug("No public_keys found, checking home dir");
+    for my $kf (
+      "$ENV{HOME}/.ssh/id_rsa.pub",
+      "$ENV{HOME}/.ssh/id_dsa.pub",
+      "/etc/kanku/ssh/id_rsa.pub",
+      "/etc/kanku/ssh/id_dsa.pub",
+    ) {
+      $self->logger->debug("-- Checking $kf");
+      if ( -f $kf) {
+        $self->logger->debug("-- Using $kf");
+        push @{$self->public_key_files}, $kf;
+      }
+    }
   }
 
   if ( $self->public_key_files ) {
     foreach my $file ( @{ $self->public_key_files } ) {
+      $self->logger->debug("-- Reading public_key_files: $file");
       $file_counter++;
       my $fh = file($file);
 
       my $key = $fh->slurp();
       push(@{ $self->public_keys },$key);
-
     }
   }
 
