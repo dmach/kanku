@@ -137,32 +137,34 @@ sub run {
       last if ( $self->detect_shutdown );
     }
     last if ( $self->detect_shutdown );
-    while (my $msg = $rmq->recv(1000)) {
-      if ($msg ) {
-          my $data;
-          $logger->trace("got message: ".$self->dump_it($msg));
-          my $body = $msg->{body};
-          try {
-            $data = decode_json($body);
-            $logger->trace("Received data for dispatcher: ".$self->dump_it($data));
-            if ($data->{action} eq "worker_heartbeat") {
-              $logger->trace("Received heartbeat from worker: $data->{hostname} sent at $data->{current_time}");
-              delete $data->{action};
-              my $hn = delete $data->{hostname};
-              $self->active_workers->{$hn} = $data;
-              $self->schema->resultset('StateWorker')->update_or_create({
-                 hostname    => $hn,
-                 last_seen   => $data->{current_time},
-                 last_update => time(),
-                 info        => encode_json($data),
-              })
-            } else {
-              $logger->error("Unknown action recived: $data->{action}");
-            }
-          } catch {
-            $logger->debug("Error in JSON:\n$_\n$body\n");
-          };
-      }
+    my $msg = $rmq->recv(1000);
+    if ($msg ) {
+	my $data;
+	$logger->trace("got message: ".$self->dump_it($msg));
+	my $body = $msg->{body};
+	try {
+	  $data = decode_json($body);
+	  $logger->trace("Received data for dispatcher: ".$self->dump_it($data));
+	  if ($data->{action} eq "worker_heartbeat") {
+	    $logger->trace("Received heartbeat from worker: $data->{hostname} sent at $data->{current_time}");
+	    delete $data->{action};
+	    my $hn = delete $data->{hostname};
+	    $self->active_workers->{$hn} = $data;
+	  } else {
+	    $logger->error("Unknown action recived: $data->{action}");
+	  }
+	} catch {
+	  $logger->debug("Error in JSON:\n$_\n$body\n");
+	};
+    }
+    foreach my $hn (keys(%{$self->active_workers})) {
+      my $data = $self->active_workers->{$hn};
+      $self->schema->resultset('StateWorker')->update_or_create({
+         hostname    => $hn,
+         last_seen   => $data->{current_time},
+         last_update => time(),
+         info        => encode_json($data),
+      });
     }
     $logger->trace('Active Workers('.time().'): ' . $self->dump_it($self->active_workers));
   }
