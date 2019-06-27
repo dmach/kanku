@@ -389,7 +389,6 @@ TODO:
 /usr/share/kanku/views/pwreset.tt
 /usr/share/kanku/views/reset_password.tt
 /usr/share/kanku/views/worker.tt
-/usr/share/kanku/views/cli/rworker.tt
 
 %dir /etc/apache2
 %dir /etc/apache2/conf.d
