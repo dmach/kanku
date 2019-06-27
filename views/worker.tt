@@ -1,0 +1,14 @@
+<h1>Worker</h1>
+
+<div id="vue_app">
+    <div
+      v-for="worker in workers"
+      v-bind:key="worker.id"
+      v-bind:worker="worker"
+    >
+      <worker-card v-bind:worker="worker"></worker-card>
+    </div>
+</div>
+<script src="[% request.uri_base %]/js/kanku/worker.js"></script>
+
+<!-- vim: set ft=html -->

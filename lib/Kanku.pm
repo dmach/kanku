@@ -66,6 +66,10 @@ get '/guest' => sub {
     template 'guest' , { %{ get_defaults_for_views() }, kanku => { module => 'Guest' } };
 };
 
+get '/worker' => sub {
+    template 'worker' , { %{ get_defaults_for_views() }, kanku => { module => 'Worker' } };
+};
+
 get '/login/denied' => sub {
     template 'login/denied' , { %{ get_defaults_for_views() } };
 };
