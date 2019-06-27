@@ -388,6 +388,8 @@ TODO:
 /usr/share/kanku/views/signup.tt
 /usr/share/kanku/views/pwreset.tt
 /usr/share/kanku/views/reset_password.tt
+/usr/share/kanku/views/worker.tt
+/usr/share/kanku/views/cli/rworker.tt
 
 %dir /etc/apache2
 %dir /etc/apache2/conf.d
@@ -398,15 +400,7 @@ TODO:
 /usr/share/kanku/public/
 /usr/lib/kanku/lib/Kanku.pm
 /usr/lib/kanku/lib/Kanku/REST.pm
-%dir /usr/lib/kanku/lib/Kanku/REST
-%dir /usr/lib/kanku/lib/Kanku/REST/Admin
-/usr/lib/kanku/lib/Kanku/REST/Admin/Role.pm
-/usr/lib/kanku/lib/Kanku/REST/Admin/Task.pm
-/usr/lib/kanku/lib/Kanku/REST/Admin/User.pm
-/usr/lib/kanku/lib/Kanku/REST/Guest.pm
-/usr/lib/kanku/lib/Kanku/REST/Job.pm
-/usr/lib/kanku/lib/Kanku/REST/JobComment.pm
-
+/usr/lib/kanku/lib/Kanku/REST
 
 %package worker
 Summary: Worker daemon for kanku
