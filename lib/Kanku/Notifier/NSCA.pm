@@ -99,7 +99,7 @@ sub notify {
   $output = substr($output, 0 , $max_size - 5).' ... ';
 
   my $nsca_config = Net::NSCA::Client::ServerConfig->new(
-    max_pluginoutput_length => $max_size, # 4 KiB!
+    max_service_message_length => $max_size, # 4 KiB!
   );
   $iopts{'server_config'} = $nsca_config;
 
