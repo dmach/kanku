@@ -96,11 +96,48 @@ sub run {
     $logger->warn($_);
   };
 
-  my $rmq = Kanku::RabbitMQ->new(%{$self->rabbit_config});
-  $rmq->shutdown_file($self->shutdown_file);
-  $rmq->connect() || die "Could not connect to rabbitmq\n";
-  $rmq->queue_name("dispatcher");
-  $rmq->create_queue(routing_key=>'kanku.to_dispatcher');
+  my $pid1 = fork();
+  if (!$pid1) {
+    $logger->debug("Started watcher $$ ");
+    my $rmq = Kanku::RabbitMQ->new(%{$self->rabbit_config});
+    $rmq->shutdown_file($self->shutdown_file);
+    $rmq->connect() || die "Could not connect to rabbitmq\n";
+    $rmq->queue_name("dispatcher");
+    $rmq->create_queue(routing_key=>'kanku.to_dispatcher');
+    while (1) {
+      my $msg = $rmq->recv(1000);
+      if ($msg ) {
+	  my $data;
+	  $logger->trace("got message: ".$self->dump_it($msg));
+	  my $body = $msg->{body};
+	  try {
+	    $data = decode_json($body);
+	    $logger->trace("Received data for dispatcher: ".$self->dump_it($data));
+	    if ($data->{action} eq "worker_heartbeat") {
+	      $logger->trace("Received heartbeat from worker: $data->{hostname} sent at $data->{current_time}");
+	      delete $data->{action};
+	      my $hn = delete $data->{hostname};
+	      $self->active_workers->{$hn} = $data;
+	    } else {
+	      $logger->error("Unknown action recived: $data->{action}");
+	    }
+	  } catch {
+	    $logger->debug("Error in JSON:\n$_\n$body\n");
+	  };
+      }
+      foreach my $hn (keys(%{$self->active_workers})) {
+	my $data = $self->active_workers->{$hn};
+	$self->schema->resultset('StateWorker')->update_or_create({
+	   hostname    => $hn,
+	   last_seen   => $data->{current_time},
+	   last_update => time(),
+	   info        => encode_json($data),
+	});
+      }
+      $logger->trace('Active Workers('.time().'): ' . $self->dump_it($self->active_workers));
+      last if ( $self->detect_shutdown );
+    }
+  }
 
   while (1) {
     my $job_list = $self->get_todo_list();
@@ -137,36 +174,7 @@ sub run {
       last if ( $self->detect_shutdown );
     }
     last if ( $self->detect_shutdown );
-    my $msg = $rmq->recv(1000);
-    if ($msg ) {
-	my $data;
-	$logger->trace("got message: ".$self->dump_it($msg));
-	my $body = $msg->{body};
-	try {
-	  $data = decode_json($body);
-	  $logger->trace("Received data for dispatcher: ".$self->dump_it($data));
-	  if ($data->{action} eq "worker_heartbeat") {
-	    $logger->trace("Received heartbeat from worker: $data->{hostname} sent at $data->{current_time}");
-	    delete $data->{action};
-	    my $hn = delete $data->{hostname};
-	    $self->active_workers->{$hn} = $data;
-	  } else {
-	    $logger->error("Unknown action recived: $data->{action}");
-	  }
-	} catch {
-	  $logger->debug("Error in JSON:\n$_\n$body\n");
-	};
-    }
-    foreach my $hn (keys(%{$self->active_workers})) {
-      my $data = $self->active_workers->{$hn};
-      $self->schema->resultset('StateWorker')->update_or_create({
-         hostname    => $hn,
-         last_seen   => $data->{current_time},
-         last_update => time(),
-         info        => encode_json($data),
-      });
-    }
-    $logger->trace('Active Workers('.time().'): ' . $self->dump_it($self->active_workers));
+    sleep 1;
   }
 
   kill('TERM',@child_pids);
