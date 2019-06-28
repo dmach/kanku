@@ -1,7 +1,7 @@
 Vue.component('worker-card',{
   props: ['worker'],
   template: '<div class="card worker_card">'
-    + '  <div class="card-header alert">'
+    + '  <div :class="worker.header_class">'
     + '    <div class="row">'
     + '      <div class="col-md-12">'
     + '        Hostname: {{ worker.hostname }}'
@@ -54,10 +54,14 @@ var vm = new Vue({
           worker.last_seen_date = new Date(worker.last_seen * 1000);
           worker.last_update_date = new Date(worker.last_update * 1000);
           worker.pids_string = worker.info.active_childs.join(',');
-          console.log(worker.hostname)
+          var ts = Math.round((new Date()).getTime() / 1000);
+          if ( worker.last_seen < ts - 600 ) {
+            worker.header_class = 'card-header alert-danger';
+          } else {
+            worker.header_class = 'card-header alert-success';
+          }
 	});
 	self.workers = response.data.workers;
-        console.log(self.workers);
       })
     }
   },
