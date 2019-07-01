@@ -294,6 +294,7 @@ Requires: libvirt-client
 Requires(pre): libvirt-daemon libvirt-daemon-driver-qemu qemu-kvm
 Requires(pre): sudo
 Requires: perl(Net::AMQP::RabbitMQ)
+Requires: perl(IO::Interactive)
 
 %description cli
 Command line client for kanku, mainly used for setup tasks
