@@ -40,6 +40,7 @@ install: install_dirs install_full_dirs install_services install_docs configs pu
 	install -m 644 ./dist/kanku.logrotate $(DESTDIR)/etc/logrotate.d/kanku-common
 	install -m 644 dist/profile.d-kanku.sh $(DESTDIR)/etc/profile.d/kanku.sh
 	install -m 644 dist/tmpfiles.d-kanku $(DESTDIR)/usr/lib/tmpfiles.d/kanku.conf
+	install -m 644 dist/bash_completion.d-kanku.sh $(DESTDIR)/etc/bash_completion.d/kanku.sh
 
 configs:
 	#

@@ -16,7 +16,7 @@
 #
 package Kanku::Cli;
 
-use MooseX::App qw(Color);
+use MooseX::App qw(Color BashCompletion);
 
 use Log::Log4perl;
 use Kanku::Config;
