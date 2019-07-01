@@ -304,8 +304,8 @@ and in developer mode
 %dir /usr/share/kanku/views/cli/rjob
 /usr/share/kanku/views/cli/*.tt
 /usr/share/kanku/views/cli/rjob/*.tt
-/usr/lib/kanku/lib/Kanku/Cmd/
-/usr/lib/kanku/lib/Kanku/Cmd.pm
+/usr/lib/kanku/lib/Kanku/Cli/
+/usr/lib/kanku/lib/Kanku/Cli.pm
 
 %package common-server
 Summary: Common server files or settings for kanku
