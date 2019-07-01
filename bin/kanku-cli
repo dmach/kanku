@@ -1,0 +1,3 @@
+#!/usr/bin/env perl
+use Kanku::Cli;
+Kanku::Cli->new_with_command->run;

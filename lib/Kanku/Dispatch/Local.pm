@@ -66,7 +66,8 @@ sub run_job {
     $logger->debug("--- trigger_user $un");
     $defaults{final_args}->{domain_name} =~ s{^($un-)?}{$un-}smx if ($un && exists $defaults{final_args}->{domain_name});
     $logger->debug('--- final_args'.$self->dump_it($defaults{final_args}));
-
+use Data::Dumper;
+print Dumper(\%defaults);
     $task = Kanku::Task->new(
       %defaults,
       options   => $sub_task->{options} || {},
@@ -105,6 +106,7 @@ sub cleanup_on_exit {
 sub initialize {
 
 }
+
 __PACKAGE__->meta->make_immutable();
 
 1;
