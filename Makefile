@@ -79,6 +79,7 @@ lib:
 	cp -av ./lib/ $(DESTDIR)/usr/lib/kanku/
 
 install_dirs:
+	[ -d $(DESTDIR)/etc/bash_completion.d/ ] || mkdir -p $(DESTDIR)/etc/bash_completion.d/
 	[ -d $(DESTDIR)/etc/logrotate.d/ ]       || mkdir -p $(DESTDIR)/etc/logrotate.d/
 	[ -d $(DESTDIR)/etc/apache2/conf.d ]     || mkdir -p $(DESTDIR)/etc/apache2/conf.d
 	[ -d $(DESTDIR)/etc/profile.d ]          || mkdir -p $(DESTDIR)/etc/profile.d
