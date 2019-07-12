@@ -96,16 +96,19 @@ sub execute {
     $con->logout();
   }
 
+  my $new_ip;
+
   if ($self->allow_ip_change) {
     $ctx->{ipaddress} = $con->get_ipaddress(
       interface => $ctx->{management_interface},
       timeout   => $self->timeout,
     );
+    $new_ip = " New IP: $ctx->{ipaddress}";
   }
 
   return {
     code    => 0,
-    message => 'Rebooted domain '. $self->domain_name .' successfully',
+    message => 'Rebooted domain '. $self->domain_name ." successfully.$new_ip",
   };
 }
 
