@@ -92,6 +92,7 @@ sub execute {
   $con->cmd_timeout($self->timeout);
   if ($self->wait_for_console) {
     # Wait for reboot to complete
+    $self->logger->debug("Waiting for console for ".$con->cmd_timeout."sec!");
     $con->login();
     $con->logout();
   }
