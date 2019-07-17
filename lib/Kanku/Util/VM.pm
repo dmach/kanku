@@ -178,7 +178,7 @@ sub process_template {
   my $logger = $self->logger;
 
   # some useful options (see below for full list)
-  my $template_path = '/etc/kanku/templates/';
+  my $template_path = '/etc/kanku/templates';
   my $config = {
     INCLUDE_PATH => $template_path,
     INTERPOLATE  => 1,               # expand "$var" in plain text
@@ -260,9 +260,9 @@ sub process_template {
 
   my $template_file;
   $self->logger->debug("Checking for template file '$template_path/default-vm.tt2'");
-  $template_file = "$template_path/default-vm.tt2" if (-f "$template_path/default-vm.tt2");
-  $self->logger->debug("Checking for template file '$template_path$input'");
-  $template_file = $template_path.$input if (-f $template_path.$input);
+  $template_file = "default-vm.tt2" if (-f "$template_path/default-vm.tt2");
+  $self->logger->debug("Checking for template file '$template_path/$input'");
+  $template_file = $input if (-f "$template_path/$input");
 
   if ( ! $template_file ) {
     $self->logger->warn("No template file found!");
@@ -274,6 +274,7 @@ sub process_template {
     $input = \$template;
     $self->logger->trace("template:\n${$input}");
   } else {
+    $input = $template_file;
     $self->logger->info("Using template file '$template_file'");
   }
   my $output = '';
@@ -380,8 +381,8 @@ sub create_domain {
   my $xml   = $self->process_template($disk_xml);
   my $vmm;
   my $dom;
-
-  $self->logger->trace("disk_xml:\n$xml");
+  $self->logger->trace("disk_xml:\n$disk_xml");
+  $self->logger->trace("domain_xml:\n$xml");
 
   # connect to libvirtd
   try {

@@ -186,8 +186,11 @@ sub execute {
     $self->network_name($cfg->{'Kanku::Handler::CreateDomain'}->{name} || 'default'),
   }
 
-  if ( ! $self->network_bridge ) {
+  if ($self->network_bridge) {
+    $self->logger->debug("Using option network_bridge : '".$self->network_bridge."'");
+  } else {
     $self->network_bridge($cfg->{'Kanku::Handler::CreateDomain'}->{bridge} || 'virbr0'),
+    $self->logger->debug("Using default network_bridge : '".$self->network_bridge."'");
   }
 
   $self->logger->debug("additional_disks:".Dumper($self->additional_disks));
@@ -220,6 +223,7 @@ sub execute {
       additional_disks      => $self->additional_disks,
       job_id                => $self->job->id,
       network_name          => $self->network_name,
+      network_bridge        => $self->network_bridge,
       running_remotely      => $self->running_remotely,
       image_file            => $final_file,
       root_disk             => $image,
@@ -436,6 +440,7 @@ sub _create_image_file_from_cache {
   );
   my $supported_formats = join('|', keys %suffix2format);
   my $in = Path::Class::File->new($self->cache_dir,$file);
+  $self->logger->debug("Using file ".$in->stringify);
   $self->logger->info("Resizing to new root_disk_size: $size");
   if ( $file =~ /\.($supported_formats)(\.(gz|bz2|xz))?$/ ) {
     my $fmt      = $1;
