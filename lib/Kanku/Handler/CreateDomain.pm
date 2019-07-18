@@ -538,9 +538,17 @@ If configured a port_forward_list, it tries to find the next free port and confi
 
     images_dir            : directory where the images can be found
 
-    management_interface  :
+    management_interface  : Primary network interface on guest.
+                            Used to get guest ip address via console.
 
-    management_network    :
+    management_network    : Name of virtual network on host.
+                            Used to get guest ip address from DHCP server.
+
+    network_name          : Name of virtual network on host (default: default)
+                            Used as domain.network_name in guests xml template
+
+    network_bridge        : Name of bridge interface on host (default: br0)
+                            Used as domain.network_bridge in guests xml template
 
     forward_port_list     : list of ports to forward from host_interface`s IP to VM
                             DONT USE IN DISTRIBUTED ENV - SEE Kanku::Handler::PortForward

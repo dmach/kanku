@@ -21,6 +21,7 @@ use File::Copy;
 use Digest::MD5;
 use Kanku::Config;
 
+use deprecate;
 use feature 'say';
 
 with 'Kanku::Roles::Handler';
@@ -142,4 +143,17 @@ sub _prepare_dst {
 
   # TODO: make_path
 }
+
 1;
+
+__END__
+
+=head1 NAME
+
+Kanku::Handler::FileCopy
+
+=head1 Description
+
+DEPRECATED - This handler will be removed in future versions
+
+=cut

@@ -19,6 +19,8 @@ package Kanku::Handler::FileMove;
 use Moose;
 use Path::Class qw/file/;
 
+use deprecate;
+
 with 'Kanku::Roles::Handler';
 with 'Kanku::Roles::Logger';
 
@@ -64,7 +66,7 @@ Here is an example how to configure the module in your jobs file or KankuFile
 
 =head1 DESCRIPTION
 
-This handler moves a file in the filesystem.
+DEPRECATED - This handler moves a file in the filesystem.
 
 =head1 OPTIONS
 
