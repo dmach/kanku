@@ -53,6 +53,10 @@ sub list {
 
     $data->{pwrand} = $ds->pwrand if $self->has_role('Admin');
 
+    my ($workerhost, $workerpid, $workerqueue) = split /:/smx, $ds->workerinfo;
+    $data->{workerhost}  = $workerhost;
+    $data->{workerpid}   = $workerpid;
+    $data->{workerqueue} = $workerqueue;
     push @{$rv}, $data;
   }
 

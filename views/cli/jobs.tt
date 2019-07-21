@@ -3,15 +3,19 @@
 ##### Job List:
 [% FOREACH job IN jobs %]
 ================================================================================
+[% job.id %]
 [% IF job.state == 'succeed' %]
-[% job.name | color 'green' +%] ([% job.id %])
+ [% job.name | color 'green' %]
 [% ELSIF job.state == 'failed' %]
-[% job.name | color 'red' +%] ([% job.id %])
+ [% job.name | color 'red' %]
 [% ELSIF job.state == 'running' %]
-[% job.name | color 'blue' +%] ([% job.id %])
+ [% job.name | color 'blue' %]
 [% ELSE %]
-[% job.name | color 'yellow' +%] ([% job.id %])
+ [% job.name | color 'yellow' %]
 [% END %]
+ ([% job.workerhost %])
+
+Logfile: http://[% job.workerhost %]/kanku-console-logs/job-[% job.id %]-console.log
 
   Duration : [% job.duration +%]
   State    : [% job.state +%]
