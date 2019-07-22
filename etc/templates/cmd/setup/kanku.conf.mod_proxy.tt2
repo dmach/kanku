@@ -22,7 +22,3 @@ ProxyPassReverse "/rabbitmq" "http://localhost:15672"
 
 RequestHeader set X_FORWARDED_PROTO "https"
 RequestHeader set X_FORWARDED_HOST "[% kanku_host %]"
-
-<Location /kanku-console-logs>
-  AddType text/plain log
-</Location>

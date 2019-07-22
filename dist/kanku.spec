@@ -412,6 +412,8 @@ Requires: perl(UUID)
 Requires: perl(Sys::CPU)
 Requires: perl(Sys::LoadAvg)
 Requires: perl(Sys::MemInfo)
+# apache2 is only needed for delivering console logs
+Recommends: apache2 
 
 %description worker
 A simple remote worker for kanku based on RabbitMQ
@@ -429,6 +431,7 @@ A simple remote worker for kanku based on RabbitMQ
 %service_del_postun kanku-worker.service
 
 %files worker
+/etc/apache2/conf.d/kanku-worker.conf
 %{_unitdir}/kanku-worker.service
 %{_sbindir}/rckanku-worker
 %{_sbindir}/kanku-worker
