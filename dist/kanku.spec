@@ -87,6 +87,8 @@ BuildRequires: perl(Dancer2::Plugin::Auth::Extensible)
 BuildRequires: perl(Net::AMQP::RabbitMQ)
 BuildRequires: perl(UUID)
 BuildRequires: libvirt-daemon
+# Required to create bash-completion
+BuildRequires: perl(IO::Interactive)
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
