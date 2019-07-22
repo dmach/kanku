@@ -89,6 +89,28 @@ BuildRequires: perl(UUID)
 BuildRequires: libvirt-daemon
 # Required to create bash-completion
 BuildRequires: perl(IO::Interactive)
+BuildRequires: perl(LWP::UserAgent)
+BuildRequires: perl(MooseX::App)
+BuildRequires: perl(IO::Interactive)
+BuildRequires: perl(Log::Log4perl)
+BuildRequires: perl(MooseX::Singleton)
+BuildRequires: perl(YAML)
+BuildRequires: perl(JSON::XS)
+BuildRequires: perl(Term::ReadKey)
+BuildRequires: perl(DBIx::Class)
+BuildRequires: perl(DBIx::Class::Migration)
+BuildRequires: perl(Sys::Virt)
+BuildRequires: perl(Expect)
+BuildRequires: perl(Template::Toolkit)
+BuildRequires: perl(Net::IP)
+BuildRequires: perl(XML::XPath)
+BuildRequires: perl(File::LibMagic)
+BuildRequires: perl(IPC::Run)
+BuildRequires: perl(Net::AMQP-RabbitMQ)
+BuildRequires: perl(Const::Fast)
+BuildRequires: perl(Net::SSH2)
+BuildRequires: perl(UUID)
+
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 

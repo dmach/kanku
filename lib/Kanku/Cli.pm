@@ -20,12 +20,19 @@ use MooseX::App qw(Color BashCompletion);
 
 use Log::Log4perl;
 use Kanku::Config;
+use FindBin;
 
 app_exclude 'Kanku::Cli::Roles';
 
-my $lconf = (-e "$ENV{HOME}/.kanku/logging.conf" )
-               ? "$ENV{HOME}/.kanku/logging.conf"
-               : "/etc/kanku/logging/console.conf";
+my $lconf;
+if (-e "$ENV{HOME}/.kanku/logging.conf" ) {
+  $lconf = "$ENV{HOME}/.kanku/logging.conf";
+} elsif ( -e "/etc/kanku/logging/console.conf" ) {
+  $lconf = "/etc/kanku/logging/console.conf";
+} elsif ( -e "$FindBin::Bin/../etc/logging/console.conf" ) {
+  # used in testing and generating bash-completion while package building
+  $lconf = "$FindBin::Bin/../etc/logging/console.conf";
+}
 
 Log::Log4perl->init($lconf);
 
