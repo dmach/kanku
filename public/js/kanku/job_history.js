@@ -183,7 +183,8 @@ Vue.component('job-card',{
       return {
         host:  tmp[0] || 'localhost',
         pid:   tmp[1] || 0,
-        queue: tmp[2] || ''
+        queue: tmp[2] || '',
+        loglink: 'http://'+tmp[0]+'/kanku-console-logs/job-'+this.job.id+'-console.log'
       }
     }
   },
@@ -230,7 +231,7 @@ Vue.component('job-card',{
     + '<div class="card-header alert" v-bind:class="job.state_class">'
     + '  <div class="row">'
     + '    <div class="col-md-6" v-on:click="toggleJobDetails()">'
-    + '      <span class="badge badge-secondary">{{ job.id }}</span> {{ job.name }} ({{ workerInfo.host }})'
+    + '      <span class="badge badge-secondary">{{ job.id }}</span> {{ job.name }} ({{ workerInfo.host }}</a>'
     + '    </div>'
     + '    <div class="col-md-2">'
     + '      {{ job.start_time_formatted }}'
@@ -240,6 +241,7 @@ Vue.component('job-card',{
     + '    </div>'
     + '    <div class="col-md-2">'
     + '      <!-- ACTIONS -->'
+    + '      <console-log-link v-bind:loglink="workerInfo.loglink"></console-log-link>'
     + '      <job-details-link v-bind:href="uri_base + \'/job_result/\'+job.id"></job-details-link>'
     + '      <pwrand-link v-show="show_pwrand" v-bind:job_id="job.id"></pwrand-link>'
     + '      <comments-link v-bind:job="job" ref="commentsLink"></comments-link>'
@@ -305,6 +307,10 @@ Vue.component('pwrand-link',{
   template: '<a class="float-right" style="margin-left:5px;" v-on:click="showModalPwRand()"><i class="fas fa-lock"></i></a>'
 });
 
+Vue.component('console-log-link',{
+  props: ['loglink'],
+  template: '<a class="float-right" style="margin-left:5px;" :href="loglink" target="_blank"><i class="fa fa-file-alt"></i></a>'
+});
 Vue.component('pwrand-modal', {
   props: ['job'],
   template: ''
