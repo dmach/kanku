@@ -231,7 +231,7 @@ Vue.component('job-card',{
     + '<div class="card-header alert" v-bind:class="job.state_class">'
     + '  <div class="row">'
     + '    <div class="col-md-6" v-on:click="toggleJobDetails()">'
-    + '      <span class="badge badge-secondary">{{ job.id }}</span> {{ job.name }} ({{ workerInfo.host }}</a>'
+    + '      <span class="badge badge-secondary">{{ job.id }}</span> {{ job.name }} ({{ workerInfo.host }})</a>'
     + '    </div>'
     + '    <div class="col-md-2">'
     + '      {{ job.start_time_formatted }}'
