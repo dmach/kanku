@@ -612,6 +612,12 @@ sub _get_ip_from_console {
   my $self        = shift;
   my $interface   = $self->management_interface() || 'eth0';
   my $con         = $self->console;
+  my $need_logout = 0;
+
+  if (!$con->user_is_logged_in) {
+    $con->login;
+    $need_logout = 1;
+  }
 
   $self->ipaddress(
     $con->get_ipaddress(
@@ -619,6 +625,8 @@ sub _get_ip_from_console {
       timeout => $self->wait_for_network
     )
   );
+
+  $con->logout if $need_logout;
 
   return $self->ipaddress();
 }
