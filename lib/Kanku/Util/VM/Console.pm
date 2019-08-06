@@ -313,8 +313,11 @@ sub get_ipaddress {
   croak 'Please specify a timeout!' unless $opts{timeout};
 
   if (! $self->user_is_logged_in ) {
+    $logger->debug("User not logged in. Trying to login");
     $do_logout = 1;
     $self->login;
+  } else {
+    $logger->debug("User already logged in.");
   }
 
   my $wait = $opts{timeout};
@@ -337,7 +340,7 @@ sub get_ipaddress {
     }
   }
 
-  $self->logout;
+  $self->logout if $do_logout;
 
   if (! $ipaddress) { 
     croak "Could not get ip address for interface $opts{interface} within "
