@@ -100,11 +100,13 @@ sub execute {
   my $new_ip;
 
   if ($self->allow_ip_change) {
+    $con->login();
     $ctx->{ipaddress} = $con->get_ipaddress(
       interface => $ctx->{management_interface},
       timeout   => $self->timeout,
     );
     $new_ip = " New IP: $ctx->{ipaddress}";
+    $con->logout();
   }
 
   return {
