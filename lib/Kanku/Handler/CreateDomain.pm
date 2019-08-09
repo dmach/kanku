@@ -134,6 +134,12 @@ has pwrand => (
   default => sub { {} }
 );
 
+has default_console_timeout => (
+  is      => 'rw',
+  isa     => 'Int',
+  lazy    => 1,
+  default => 600,
+);
 sub distributable { 1 };
 
 sub prepare {
@@ -243,6 +249,8 @@ sub execute {
   $vm->create_domain();
 
   my $con = $vm->console();
+
+  $con->cmd_timeout($self->default_console_timeout);
 
   if (@{$self->installation}) {
     $self->_handle_installation($con);
