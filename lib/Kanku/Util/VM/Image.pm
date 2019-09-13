@@ -36,7 +36,7 @@ has 'final_size'=> => ( is=>'rw', isa => 'Str',default=>0);
 
 has '_total_read'      => ( is=>'rw', isa => 'Int',  default=>0);
 has '_total_sent'      => ( is=>'rw', isa => 'Int',  default=>0);
-has '_nbytes'          => ( is=>'rw', isa => 'Int',  default=>1024);
+has '_nbytes'          => ( is=>'rw', isa => 'Int',  default=>16*1024*1024);
 
 # TODO: suffix dependent on image format
 has '_temp_source_file' => ( is=>'rw', isa => 'Object', lazy => 1, default => sub { return File::Temp->new(SUFFIX => '.img' ); } );
