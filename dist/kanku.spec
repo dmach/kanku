@@ -113,7 +113,7 @@ e.g. to prepare your development environment or run simple tests.
 /bin/true
 
 %install
-make install DESTDIR=%{buildroot}
+make install DESTDIR=%{buildroot} DOCDIR=%{_defaultdocdir}/kanku/
 %fdupes %{buildroot}/opt/kanku/share
 ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rckanku-web
 ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rckanku-worker

@@ -31,7 +31,12 @@ CONFIG_DIRS		= \
 	etc/kanku/jobs\
 	etc/kanku/jobs/examples\
 	etc/kanku/logging
-DOCDIR = $(DESTDIR)/usr/share/doc/packages/kanku/
+ifeq ($(DOCDIR),)
+DOCDIR = /usr/share/doc/packages/kanku/
+endif
+
+_DOCDIR = $(DESTDIR)/$(DOCDIR)
+
 PERL_CRITIC_READY := bin/*
 
 all:
@@ -94,7 +99,7 @@ install_dirs:
 	[ -d $(DESTDIR)/usr/lib/systemd/system ] || mkdir -p $(DESTDIR)/usr/lib/systemd/system
 	[ -d $(DESTDIR)/usr/bin ]                || mkdir -p $(DESTDIR)/usr/bin
 	[ -d $(DESTDIR)/usr/sbin ]               || mkdir -p $(DESTDIR)/usr/sbin
-	[ -d $(DESTDIR)/usr/share/doc/packages/kanku/contrib/libvirt-configs ] || mkdir -p $(DESTDIR)/usr/share/doc/packages/kanku/contrib/libvirt-configs
+	[ -d $(_DOCDIR)/contrib/libvirt-configs ] || mkdir -p $(_DOCDIR)/contrib/libvirt-configs
 	[ -d $(DESTDIR)/usr/share/kanku ]        || mkdir -p $(DESTDIR)/usr/share/kanku
 	[ -d $(DESTDIR)/usr/lib/kanku ]          || mkdir -p $(DESTDIR)/usr/lib/kanku
 	[ -d $(DESTDIR)/usr/lib/tmpfiles.d ]     || mkdir -p $(DESTDIR)/usr/lib/tmpfiles.d
@@ -107,15 +112,15 @@ install_services: install_dirs
 	install -m 644 ./dist/systemd/kanku-dispatcher.service $(DESTDIR)/usr/lib/systemd/system/kanku-dispatcher.service
 
 install_docs:
-	install -m 644 README.md $(DOCDIR)
-	install -m 644 CONTRIBUTING.md $(DOCDIR)
-	install -m 644 INSTALL.md $(DOCDIR)
-	install -m 644 LICENSE $(DOCDIR)
-	install -m 644 docs/Development.pod $(DOCDIR)/contrib/
-	install -m 644 docs/README.apache-proxy.md $(DOCDIR)/contrib/
-	install -m 644 docs/README.rabbitmq.md $(DOCDIR)/contrib/
-	install -m 644 docs/README.setup-ovs.md $(DOCDIR)/contrib/
-	install -m 644 docs/README.setup-worker.md $(DOCDIR)/contrib/
+	install -m 644 README.md $(_DOCDIR)
+	install -m 644 CONTRIBUTING.md $(_DOCDIR)
+	install -m 644 INSTALL.md $(_DOCDIR)
+	install -m 644 LICENSE $(_DOCDIR)
+	install -m 644 docs/Development.pod $(_DOCDIR)/contrib/
+	install -m 644 docs/README.apache-proxy.md $(_DOCDIR)/contrib/
+	install -m 644 docs/README.rabbitmq.md $(_DOCDIR)/contrib/
+	install -m 644 docs/README.setup-ovs.md $(_DOCDIR)/contrib/
+	install -m 644 docs/README.setup-worker.md $(_DOCDIR)/contrib/
 
 clean:
 	rm -rf kanku-*.tar.xz
