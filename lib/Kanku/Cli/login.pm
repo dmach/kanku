@@ -90,6 +90,7 @@ sub run {
 
      $self->password($read || qw{});
 
+     ReadMode('restore');
   }
 
   $self->user($self->user);
