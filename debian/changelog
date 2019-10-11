@@ -1,5 +1,5 @@
-kanku (0.0.1.git20160318.745005d-0) unstable; urgency=low
+kanku (0.6.4-0) unstable; urgency=low
 
   * generated OBS deb build
 
- -- unknown <unknown@debian.org>  Mon, 25 Dec 2007 10:50:38 +0100
+ -- Frank Schreiner <fschreiner@suse.de>  Mon, 25 Dec 2007 10:50:38 +0100
