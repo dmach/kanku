@@ -212,6 +212,17 @@ sub process_template {
     die(sprintf($default_msg, $mem, $msg)) if ($self->memory < $mem*1024);
   }
 
+  my $qemu_kvm;
+  if (-e  '/usr/bin/qemu-kvm') {
+     $qemu_kvm = '/usr/bin/qemu-kvm';
+  } elsif (-e  '/usr/bin/kvm') {
+     $qemu_kvm = '/usr/bin/kvm';
+  } else {
+     die "Could not find qemu-kvm binary!\n";
+  }
+
+  $logger->debug("Using qemu-kvm binary: $qemu_kvm");
+
   # define template variables for replacement
   my $vars = {
     domain => {
@@ -225,7 +236,8 @@ sub process_template {
       hostshare       => "",
       disk_xml        => $disk_xml,
     },
-    host_feature    => $host_feature
+    host_feature      => $host_feature,
+    qemu_kvm          => $qemu_kvm,
   };
 
   $logger->debug(" --- use_9p:".$self->use_9p);
@@ -706,7 +718,7 @@ __DATA__
   <on_reboot>restart</on_reboot>
   <on_crash>destroy</on_crash>
   <devices>
-    <emulator>/usr/bin/qemu-kvm</emulator>
+    <emulator>[% qemu_kvm %]</emulator>
     [% domain.disk_xml %]
     <controller type='pci' index='0' model='pci-root'>
       <alias name='pci.0'/>
