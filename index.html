@@ -56,6 +56,7 @@ a.faq {
     <a href='#faq'                  id='faq-btn'                  class="btn_dark nav_btn"        onclick=switch_to('faq')>FAQ / Known Issues</a>
   </li>
 </ul>
+
 <!-- About --> 
 <div id=about-div class="page_container show_content">
     <h1>
@@ -134,26 +135,37 @@ a.faq {
 
     <p>Simply search on <a id=ymp_link href="https://software.opensuse.org/package/kanku">software.opensuse.org</a> for your distribution and install the package</p>
 
-    <h2>
-    <a id="manual-installation" class="anchor" href="#manual-installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Manual installation</h2>
+    <h2><a id="manual-installation" class="anchor" href="#manual-installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Manual installation</h2>
 
-    <h3>
-    <a id="configuration-of-software-respositories" class="anchor" href="#configuration-of-software-respositories" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Configuration of software respositories</h3>
+    <h3><a id="install-opensuse" class="anchor" href="#install-opensuse" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>openSUSE</h3>
 
     <pre><code>
 sudo zypper ar obs://devel:kanku devel:kanku
 sudo zypper ar obs://devel:kanku:perl devel:kanku:perl
 sudo zypper ref -s
+sudo zypper in kanku
     </code></pre>
 
-    <h2>
-    <a id="installation-of-package" class="anchor" href="#installation-of-package" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation of package</h2>
 
-    <pre><code>sudo zypper in kanku
+    <h3><a id="install-fedora" class="anchor" href="#install-fedora" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Fedora/RedHat</h3>
+
+    <pre><code>
+TODO
     </code></pre>
 
-    <h1>
-    <a id="setup-your-environment" class="anchor" href="#setup-your-environment" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Setup your environment</h1>
+    <h3><a id="install-deb" class="anchor" href="#install-deb" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Ubuntu/Debian</h3>
+
+    <pre><code>
+sudo sh -c 'echo "deb https://download.opensuse.org/repositories/devel:/kanku:/staging/xUbuntu_18.04/ ./" > /etc/apt/sources.list.d/kanku.list'
+sudo sh -c 'echo "deb https://download.opensuse.org/repositories/devel:/kanku:/perl:/deb/xUbuntu_18.04/ ./" >> /etc/apt/sources.list.d/kanku.list'
+curl https://download.opensuse.org/repositories/devel:/kanku:/perl:/deb/xUbuntu_18.04/Release.key |sudo apt-key add -
+curl https://download.opensuse.org/repositories/devel:/kanku:/staging/xUbuntu_18.04/Release.key   |sudo apt-key add -
+sudo apt update
+sudo apt install -y kanku
+    </code></pre>
+
+
+    <h2><a id="setup-your-environment" class="anchor" href="#setup-your-environment" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Setup your environment</h2>
 
     <pre><code>sudo kanku setup --devel
 # if you would like to have more control about the modifications on your system
@@ -167,17 +179,20 @@ sudo shutdown -r now
     <h2>
     <a id="preparing-a-new-project" class="anchor" href="#preparing-a-new-project" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Preparing a new Project</h2>
 
-    <p>init will create a default Kankufile which should give you a good starting
-    point. The option "--memory=..." defines the RAM of the virtual guest and is optional.
+    <p>The command <code>kanku init</code> will create a default Kankufile which should give you a good starting
+    point.</p>
+    <p>The option <code>--memory=...</code> defines the RAM of the virtual guest and is optional.
     Default is 2G of RAM.</p>
-
+    <p>
+      For more options SEE <code>kanku init --help</code>
+    </p>
     <pre><code># create directory 
 mkdir MyProject
 
 # cd in project's directory
 cd MyProject
 
-kanku init --memory=1024 --domain_name my-project
+kanku init --memory=1024G --domain_name my-project
     </code></pre>
 
     <h1>
