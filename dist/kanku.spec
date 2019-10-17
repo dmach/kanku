@@ -348,7 +348,11 @@ Requires: perl(Mail::Transport::Send)
 Requires: perl(Net::AMQP::RabbitMQ)
 Requires: perl(Template::Plugin::JSON::Escape)
 Requires: perl(UUID)
+%if 0%{?fedora}
+Requires: server(smtp)
+%else
 Requires: smtp_daemon
+%endif
 
 %description web
 TODO:

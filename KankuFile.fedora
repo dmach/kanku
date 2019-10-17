@@ -3,7 +3,7 @@ Kanku::Util::IPTables:
   start_port: 49001
 
 
-domain_name: kanku-vm
+domain_name: fedora
 default_job: kanku-job
 login_user: root
 login_pass: kankudai
@@ -26,8 +26,9 @@ jobs:
       # to find more official Images
       project: devel:kanku:images
       repository: images_fedora
-      package: Fedora-Rawhide-JeOS
+      package: Fedora-Rawhide-JeOS:OEM
       use_oscrc: 0
+      preferred_extension: qcow2
   -
     use_module: Kanku::Handler::ImageDownload
     options:
@@ -42,8 +43,11 @@ jobs:
       #forward_port_list: tcp:22,tcp:443
   -
     use_module: Kanku::Handler::PrepareSSH
-#  -
-#    use_module: Kanku::Handler::ExecuteCommandViaSSH
-#    options:
-#      commands:
-#        - echo "my test here"
+  -
+    use_module: Kanku::Handler::ExecuteCommandViaSSH
+    options:
+      commands:
+        - curl https://download.opensuse.org/repositories/devel:/kanku:/staging/Fedora_Rawhide/devel:kanku:staging.repo > /etc/yum.repos.d/devel:kanku:staging.repo
+        - curl https://download.opensuse.org/repositories/devel:/kanku:/perl/Fedora_Rawhide/devel:kanku:perl.repo > /etc/yum.repos.d/devel:kanku:perl.repo
+        - dnf update
+        - dnf install kanku
