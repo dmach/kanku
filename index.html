@@ -140,23 +140,29 @@ a.faq {
     <h3><a id="install-opensuse" class="anchor" href="#install-opensuse" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>openSUSE</h3>
 
     <pre><code>
-sudo zypper ar obs://devel:kanku devel:kanku
-sudo zypper ar obs://devel:kanku:perl devel:kanku:perl
-sudo zypper ref -s
-sudo zypper in kanku
+# AS USER root
+zypper ar obs://devel:kanku devel:kanku
+zypper ar obs://devel:kanku:perl devel:kanku:perl
+zypper ref -s
+zypper in kanku
     </code></pre>
 
 
     <h3><a id="install-fedora" class="anchor" href="#install-fedora" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Fedora/RedHat</h3>
 
     <pre><code>
-TODO
+# AS USER root
+curl https://download.opensuse.org/repositories/devel:/kanku/Fedora_Rawhide/devel:kanku.repo > /etc/yum.repos.d/devel:kanku.repo
+curl https://download.opensuse.org/repositories/devel:/kanku:/perl/Fedora_Rawhide/devel:kanku:perl.repo > /etc/yum.repos.d/devel:kanku:perl.repo
+dnf install kanku
+usermod -a -G wheel kanku
+usermod -a -G libvirt kanku
     </code></pre>
 
     <h3><a id="install-deb" class="anchor" href="#install-deb" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Ubuntu/Debian</h3>
 
     <pre><code>
-sudo sh -c 'echo "deb https://download.opensuse.org/repositories/devel:/kanku:/staging/xUbuntu_18.04/ ./" > /etc/apt/sources.list.d/kanku.list'
+sudo sh -c 'echo "deb https://download.opensuse.org/repositories/devel:/kanku/xUbuntu_18.04/ ./" > /etc/apt/sources.list.d/kanku.list'
 sudo sh -c 'echo "deb https://download.opensuse.org/repositories/devel:/kanku:/perl:/deb/xUbuntu_18.04/ ./" >> /etc/apt/sources.list.d/kanku.list'
 curl https://download.opensuse.org/repositories/devel:/kanku:/perl:/deb/xUbuntu_18.04/Release.key |sudo apt-key add -
 curl https://download.opensuse.org/repositories/devel:/kanku:/staging/xUbuntu_18.04/Release.key   |sudo apt-key add -
@@ -167,7 +173,8 @@ sudo apt install -y kanku
 
     <h2><a id="setup-your-environment" class="anchor" href="#setup-your-environment" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Setup your environment</h2>
 
-    <pre><code>sudo kanku setup --devel
+    <pre><code>
+sudo kanku setup --devel
 # if you would like to have more control about the modifications on your system
 # please use:
 # sudo kanku setup --devel --interactive
