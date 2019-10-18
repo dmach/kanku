@@ -29,6 +29,7 @@ has [qw/
 
 has 'disk_size'         => ( is => 'rw',isa => 'Str' );
 
+has 'use_cache'         => ( is => 'rw',isa => 'Bool' );
 
 has gui_config => (
   is => 'ro',
@@ -51,6 +52,8 @@ sub execute {
   my $self = shift;
   my $ctx  = $self->job->context();
   my ($img,$size);
+
+  $ctx->{use_cache} = $self->use_cache if defined $self->use_cache;
 
   if ( $ctx->{use_cache} ) {
     $self->vm_image_file(Path::Class::File->new($ctx->{cache_dir},$ctx->{vm_image_file})->stringify);
