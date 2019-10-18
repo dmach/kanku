@@ -75,7 +75,13 @@ sub execute {
       my $format = "-f " . ( $supported_formats{$ext} || $ext );
       $img  = $self->vm_image_file;
       $size = $self->disk_size;
-      `qemu-img resize $format $img $size`;
+      my @out = `qemu-img resize $format $img $size`;
+      my $ec = $? >> 8;
+
+      die "ERROR while resizing (exit code: $ec): @out" if $ec;
+
+      $self->logger->info("--- sucessfully resized image '$img' to $size");
+
     }
   } else {
     die "Image file has wrong suffix '".$self->vm_image_file."'.\nList of supported suffixes: <$supported_suf> !\n";
