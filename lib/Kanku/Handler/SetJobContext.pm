@@ -109,6 +109,7 @@ sub execute {
     os_instance_name os_image_id login_user login_pass 
     privatekey_path publickey_path
     host_dir_9p accessmode_9p
+    vm_image_file
   /) {
     if ($self->$var()){
       $self->logger->debug("Setting variable $var in context to ".$self->$var());
