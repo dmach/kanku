@@ -28,25 +28,10 @@ use Kanku::Util::IPTables;
 command_short_description 'Remove domain completely';
 command_long_description 'Remove domain completely';
 
-option 'domain_name' => (
-    isa           => 'Str',
-    is            => 'rw',
-    cmd_aliases   => 'X',
-    documentation => 'name of domain to create',
-    lazy          => 1,
-    default       => sub { $_[0]->cfg->config->{domain_name} },
-);
-
-has cfg => (
-    isa           => 'Object',
-    is            => 'rw',
-    lazy          => 1,
-    default       => sub { Kanku::Config->instance(); },
-);
+with 'Kanku::Cli::Roles::VM';
 
 sub run {
-  my $self    = shift;
-  Kanku::Config->initialize(class => 'KankuFile');
+  my ($self)  = @_;
   my $vm      = Kanku::Util::VM->new(domain_name => $self->domain_name);
   my $logger  = Log::Log4perl->get_logger;
   my $dom;

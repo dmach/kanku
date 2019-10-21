@@ -22,19 +22,12 @@ extends qw(Kanku::Cli);
 use Kanku::Config;
 use Kanku::Util::VM;
 
+with 'Kanku::Cli::Roles::VM';
+
 command_short_description 'Stop kanku VM';
 
 command_long_description 'This command can be used to stop/shutdown a running VM';
 
-
-option 'domain_name' => (
-    isa           => 'Str',
-    is            => 'rw',
-    cmd_aliases   => 'd',
-    documentation => 'name of domain to create',
-    lazy          => 1,
-    default       => sub { $_[0]->cfg->config->{domain_name} },
-);
 
 option 'force' => (
     isa           => 'Bool',
@@ -43,16 +36,8 @@ option 'force' => (
     documentation => 'destroy domain instead of shutdown',
 );
 
-has cfg => (
-    isa           => 'Object',
-    is            => 'rw',
-    lazy          => 1,
-    default       => sub { Kanku::Config->instance(); },
-);
-
 sub run {
-  my $self    = shift;
-  Kanku::Config->initialize(class => 'KankuFile');
+  my ($self)  = @_;
   my $logger  = Log::Log4perl->get_logger;
   my $dn      = $self->domain_name;
 

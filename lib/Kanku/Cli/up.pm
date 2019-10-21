@@ -20,6 +20,7 @@ use MooseX::App::Command;
 extends qw(Kanku::Cli);
 
 with 'Kanku::Cli::Roles::Schema';
+with 'Kanku::Cli::Roles::VM';
 
 use Carp;
 
@@ -47,17 +48,6 @@ option 'job_name' => (
     documentation => 'job to run',
 );
 
-option 'domain_name' => (
-    isa           => 'Str',
-    is            => 'rw',
-    #cmd_aliases   => 'X',
-    documentation => 'name of domain to create',
-    lazy		  => 1,
-    default		  => sub {
-      return Kanku::Config->instance()->config()->{domain_name};
-    },
-);
-
 option 'skip_all_checks' => (
     isa           => 'Bool',
     is            => 'rw',
@@ -80,10 +70,9 @@ option 'skip_check_package' => (
 );
 
 sub run {
-  my $self    = shift;
+  my ($self)  = @_;
   my $logger  = Log::Log4perl->get_logger;
-  Kanku::Config->initialize(class => 'KankuFile');
-  my $cfg     = Kanku::Config->instance();
+  my $cfg     = $self->cfg;
 
   my $schema  = $self->schema;
 

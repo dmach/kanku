@@ -27,27 +27,15 @@ command_short_description  'Show ip address of kanku vm';
 
 command_long_description  'Show ip address of kanku vm';
 
-
-option 'domain_name' => (
-    isa           => 'Str',
-    is            => 'rw',
-    cmd_aliases   => 'd',
-    documentation => 'name of domain',
-    lazy		  => 1,
-    default		  => sub {
-      return Kanku::Config->instance()->config()->{domain_name} || q{};
-    },
-);
+with 'Kanku::Cli::Roles::VM';
 
 option 'login_user' => (
     isa           => 'Str',
     is            => 'rw',
     cmd_aliases   => 'u',
     documentation => 'user to login',
-    lazy		  => 1,
-    default		  => sub {
-          return Kanku::Config->instance()->config()->{login_user} || q{};
-    },
+    lazy          => 1,
+    default       => sub { $_[0]->cfg->config()->{login_user} || q{} },
 );
 
 option 'login_pass' => (
@@ -55,21 +43,16 @@ option 'login_pass' => (
     is            => 'rw',
     cmd_aliases   => 'p',
     documentation => 'password to login',
-    lazy		  => 1,
-    default		  => sub {
-      return Kanku::Config->instance()->config()->{login_pass} || q{};
-    },
+    lazy          => 1,
+    default       => sub { $_[0]->cfg->config()->{login_pass} || q{} },
 );
 
 sub run {
   my $self    = shift;
   my $logger  = Log::Log4perl->get_logger;
-  Kanku::Config->initialize(class => 'KankuFile');
-  my $cfg     = Kanku::Config->instance();
-
 
   my $vm = Kanku::Util::VM->new(
-    domain_name =>$self->domain_name,
+    domain_name => $self->domain_name,
     login_user  => $self->login_user,
     login_pass  => $self->login_pass,
   );

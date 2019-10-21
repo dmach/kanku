@@ -26,10 +26,17 @@ with 'Kanku::Roles::Config::Base';
 
 has 'log_dir' => (is=>'rw',isa=>'Object',default=>sub {Path::Class::Dir->new(getcwd(),'.kanku','log')});
 
+has '_file'   => (is=>'rw',isa=>'Object', default => sub { Path::Class::File->new(getcwd(),'KankuFile') });
+
 sub file {
-  return ($ENV{KANKU_CONFIG})
-    ? Path::Class::File->new($ENV{KANKU_CONFIG})
-    : Path::Class::File->new(getcwd(),'KankuFile');
+  my ($self, $file)  = @_;
+  if ($file) {
+    $self->_file(Path::Class::File->new($file));
+  } elsif ($ENV{KANKU_CONFIG}) {
+    $self->_file(Path::Class::File->new($ENV{KANKU_CONFIG}));
+  }
+
+  return $self->_file;
 };
 
 sub job_config {

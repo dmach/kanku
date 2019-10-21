@@ -25,23 +25,11 @@ command_short_description  'Open a serial console to vm';
 
 command_long_description 'Open a serial console to vm';
 
-option 'domain_name' => (
-    isa           => 'Str',
-    is            => 'rw',
-    cmd_aliases   => 'd',
-    documentation => 'name of domain to open console',
-    lazy		  => 1,
-    default		  => sub {
-      return Kanku::Config->instance()->config()->{domain_name};
-    },
-);
+with 'Kanku::Cli::Roles::VM';
 
 sub run {
-  my $self    = shift;
-  Kanku::Config->initialize(class => 'KankuFile');
+  my ($self) = @_;
   my $logger  = Log::Log4perl->get_logger;
-  my $cfg     = Kanku::Config->instance();
-
 
   my $cmd = 'virsh -c qemu:///system console '.$self->domain_name;
 

@@ -27,21 +27,11 @@ use Kanku::Job;
 use Kanku::Config;
 
 with 'Kanku::Roles::SSH';
+with 'Kanku::Cli::Roles::VM';
 
 command_short_description  'open ssh connection to vm';
 
 command_long_description  'open ssh connection to vm';
-
-option 'domain_name' => (
-    isa           => 'Str',
-    is            => 'rw',
-    cmd_aliases   => 'X',
-    documentation => 'name of domain to connect to',
-    lazy          => 1,
-    default       => sub {
-      Kanku::Config->instance()->config->{domain_name};
-    },
-);
 
 option 'user' => (
   isa           => 'Str',
@@ -52,10 +42,9 @@ option 'user' => (
 );
 
 sub run {
-  my $self  = shift;
-  Kanku::Config->initialize(class => 'KankuFile');
-  my $cfg   = Kanku::Config->instance();
-  my $vm    = Kanku::Util::VM->new(
+  my ($self) = @_;
+  my $cfg    = $self->cfg;
+  my $vm     = Kanku::Util::VM->new(
                 domain_name => $self->domain_name,
                 management_network  => $cfg->config->{management_network} || q{}
               );

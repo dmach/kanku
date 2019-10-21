@@ -22,30 +22,18 @@ extends qw(Kanku::Cli);
 use Kanku::Config;
 use Kanku::Util::VM;
 
+with 'Kanku::Cli::Roles::VM';
+
 command_short_description  "Show status of kanku VM";
 
 command_long_description "This command can be used to show the status of a VM";
 
-option 'domain_name' => (
-    isa           => 'Str',
-    is            => 'rw',
-    cmd_aliases   => 'X',
-    documentation => 'name of domain to show',
-    lazy          => 1,
-    default       => sub { $_[0]->cfg->config->{domain_name} }
-);
-
-has cfg => (
-    isa           => 'Object',
-    is            => 'rw',
-    lazy          => 1,
-    default       => sub { Kanku::Config->instance(); }
-);
-
 sub run {
-  my $self    = shift;
+  my ($self)  = @_;
+  Kanku::Config->initialize(class=>'KankuFile');
+  $self->cfg->file($self->file);
+
   my $logger  = Log::Log4perl->get_logger;
-  $self->cfg->initialize(class=>'KankuFile');
 
   my $vm = Kanku::Util::VM->new(domain_name=>$self->domain_name);
   $logger->debug("Searching for domain: ".$self->domain_name);

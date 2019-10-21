@@ -22,29 +22,14 @@ extends qw(Kanku::Cli);
 use Kanku::Config;
 use Kanku::Util::VM;
 
-option 'domain_name' => (
-    isa           => 'Str',
-    is            => 'rw',
-    cmd_aliases   => 'X',
-    documentation => 'name of domain to create',
-    lazy          => 1,
-    default       => sub { $_[0]->cfg->config->{domain_name} },
-);
-
-has cfg => (
-    isa           => 'Object',
-    is            => 'rw',
-    lazy          => 1,
-    default       => sub { Kanku::Config->instance(); },
-);
+with 'Kanku::Cli::Roles::VM';
 
 command_short_description 'Start kanku VM';
 
 command_long_description 'This command can be used to start an already existing VM';
 
 sub run {
-  my $self    = shift;
-  Kanku::Config->initialize(class => 'KankuFile');
+  my ($self)  = @_;
   my $logger  = Log::Log4perl->get_logger;
   my $dn      = $self->domain_name;
   my $vm      = Kanku::Util::VM->new(domain_name => $dn);
@@ -52,10 +37,14 @@ sub run {
   $logger->debug("Searching for domain: $dn");
 
   if ($vm->dom) {
-    $logger->info("Starting domain: $dn");
-    $vm->dom->create();
+    if ( $vm->state eq 'on' ) {
+      $logger->warn("Domain $dn already running");
+    } else {
+      $logger->info("Starting domain: $dn");
+      $vm->dom->create();
+    }
   } else {
-    $logger->fatal("Domain $dn already exists");
+    $logger->fatal("Domain $dn doesn`t exist");
     exit 1;
   }
 
