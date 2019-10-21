@@ -26,9 +26,8 @@ jobs:
       # to find more official Images
       project: devel:kanku:images
       repository: images_fedora
-      package: Fedora-Rawhide-JeOS:OEM
+      package: Fedora-Rawhide-JeOS
       use_oscrc: 0
-      preferred_extension: qcow2
   -
     use_module: Kanku::Handler::ImageDownload
     options:
