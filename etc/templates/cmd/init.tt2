@@ -24,9 +24,9 @@ jobs:
       # Please have a look at
       # https://build.opensuse.org/project/show/devel:kanku:images
       # to find more official Images
-      project: devel:kanku:images
-      repository: images_leap_15_1
-      package: openSUSE-Leap-15.1-JeOS
+      project: [% project %]
+      package: [% package %]
+      repository: [% repository %]
       use_oscrc: 0
   -
     use_module: Kanku::Handler::ImageDownload

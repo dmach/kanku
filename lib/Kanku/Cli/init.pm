@@ -72,14 +72,64 @@ option 'vcpu' => (
     default       => 2,
 );
 
+option 'project' => (
+    isa           => 'Str',
+    is            => 'rw',
+    documentation => 'Project name to search for images in OBSCheck',
+    cmd_aliases   => ['prj'],
+    lazy          => 1,
+    default       => 'devel:kanku:images',
+);
+
+option 'package' => (
+    isa           => 'Str',
+    is            => 'rw',
+    documentation => 'Package name to search for images in OBSCheck',
+    cmd_aliases   => ['pkg'],
+    lazy          => 1,
+    default       => 'openSUSE-Leap-15.1-JeOS',
+);
+
+option 'repository' => (
+    isa           => 'Str',
+    is            => 'rw',
+    documentation => 'Repository name to search for images in OBSCheck',
+    cmd_aliases   => ['repo'],
+    lazy          => 1,
+    default       => 'images_leap_15_1',
+);
+
+option 'force' => (
+    isa           => 'Bool',
+    is            => 'rw',
+    documentation => 'Overwrite exiting KankuFile',
+    cmd_aliases   => ['f'],
+    lazy          => 1,
+    default       => 0,
+);
+
+option 'output' => (
+    isa           => 'Str',
+    is            => 'rw',
+    documentation => 'Name of output file',
+    cmd_aliases   => ['o'],
+    lazy          => 1,
+    default       => 'KankuFile',
+);
+
 sub run {
   my $self    = shift;
   my $logger  = Log::Log4perl->get_logger;
+  my $out     = $self->output;
 
-  if ( -f 'KankuFile' ) {
-    $logger->warn("KankuFile already exists.");
-    $logger->warn("  Please remove first if you really want to initalize again.");
-    exit 1;
+  if ( -f $out ) {
+    if ($self->force) {
+      unlink $out || die "Could not remove '$out': $!";
+    } else {
+      $logger->warn("$out already exists.");
+      $logger->warn("  Please remove first if you really want to initalize again.");
+      exit 1;
+    }
   }
 
   if ($self->memory !~ /^\d+[kmgtp]$/i ) {
@@ -102,16 +152,20 @@ sub run {
 	domain_cpus   => $self->vcpu,
 	default_job   => $self->default_job,
 	qemu_user     => $self->qemu_user,
+        project       => $self->project,
+        package       => $self->package,
+        repository    => $self->repository,
   };
 
   my $output = '';
   # process input template, substituting variables
-  $template->process('init.tt2', $vars, "KankuFile")
+  $template->process('init.tt2', $vars, $out)
                || die $template->error()->as_string();
 
-  $logger->info('KankuFile written');
+  $logger->info("$out written");
 
-  for my $i (qw{domain_name domain_memory domain_cpus default_job qemu_user}) {
+  for my $i (qw{domain_name domain_memory domain_cpus default_job qemu_user
+                project package repository}) {
     $logger->debug($i.': '.$vars->{$i});
   }
   $logger->info('Now you can make your modifications');
