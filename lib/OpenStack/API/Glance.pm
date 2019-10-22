@@ -10,17 +10,17 @@ use JSON::XS;
 sub image_list {
   my ($self,%filters) = @_;
 
-  my $filter_string = "";
+  my $filter_string = q{};
 
   if ( %filters ) {
     my @parts;
-    while ( my ($k,$v) = each(%filters) ) { push @parts, "$k=$v" }
-    $filter_string = "?" .join('&',@parts);
+    while (my ($k,$v) = each %filters) { push @parts, "$k=$v" }
+    $filter_string = q{?} . join q{&}, @parts;
   }
 
   my $uri = $self->endpoint->{publicURL}."/v2/images$filter_string";
 
-  $self->get($uri)->{images};
+  return $self->get($uri)->{images};
 }
 
 sub image_detail {
@@ -28,7 +28,7 @@ sub image_detail {
 
   my $uri = $self->endpoint->{publicURL}."/v2/images/$id";
 
-  $self->get($uri);
+  return $self->get($uri);
 }
 
 sub image_delete {
@@ -38,23 +38,23 @@ sub image_delete {
 
   my $uri = $self->endpoint->{publicURL}."/v2/images/$id";
 
-  $self->delete($uri);
+  return $self->delete($uri);
 }
 
 sub task_list {
   my ($self,%filters) = @_;
 
-  my $filter_string = "";
+  my $filter_string = q{};
 
   if ( %filters ) {
     my @parts;
-    while ( my ($k,$v) = each(%filters) ) { push @parts, "$k=$v" }
-    $filter_string = "?" .join('&',@parts);
+    while (my ($k,$v) = each %filters) { push @parts, "$k=$v" }
+    $filter_string = q{?} . join q{&}, @parts;
   }
 
   my $uri = $self->endpoint->{publicURL}."/v2/tasks$filter_string";
 
-  $self->get($uri);
+  return $self->get($uri);
 }
 
 sub task_detail {
@@ -62,40 +62,28 @@ sub task_detail {
 
   my $uri = $self->endpoint->{publicURL}."/v2/tasks/$id";
 
-  $self->get($uri);
+  return $self->get($uri);
 }
 
 sub task_create_image_import {
   my ($self,%input) = @_;
 
-# { "type": "import",
-#   "input": {
-#      "import_from": "swift://cloud.foo/myaccount/mycontainer/path",
-#      "import_from_format": "qcow2",
-#      "image_properties" : {
-#          "name": "GreatStack 1.22",
-#          "tags": ["lamp", "custom"]
-#       }
-#    }
-# }
-
-  my $uri = $self->endpoint->{publicURL}."/v2/tasks";
-
+  my $uri = $self->endpoint->{publicURL}.'/v2/tasks';
   my $data = {
 	type 	=> 'import',
 	input 	=> \%input,
   };
   my $json = encode_json($data);
 
-  $self->post($uri,{},$json);
+  return $self->post($uri,{},$json);
 }
 
 
 sub schemas_tasks_list {
   my ($self,%data) = @_;
-  my $uri = $self->endpoint->{publicURL}."/v2/schemas/tasks";
+  my $uri = $self->endpoint->{publicURL}.'/v2/schemas/tasks';
 
-  $self->get($uri);
+  return $self->get($uri);
 }
 
 1;
