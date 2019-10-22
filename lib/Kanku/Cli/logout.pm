@@ -16,6 +16,8 @@
 #
 package Kanku::Cli::logout;
 
+use strict;
+use warnings;
 use MooseX::App::Command;
 extends qw(Kanku::Cli);
 
@@ -24,12 +26,12 @@ with 'Kanku::Cli::Roles::Remote';
 use Term::ReadKey;
 use Kanku::YAML;
 
-command_short_description  "logout from your remote kanku instance";
+command_short_description  'logout from your remote kanku instance';
 
 command_long_description
-  "This command will proceeced a logout from your remote kanku instance, ".
-  "delete the local session cookie ".
-  "and remove the apiurl incl. settings from your rcfile";
+  'This command will proceeced a logout from your remote kanku instance, '.
+  'delete the local session cookie '.
+  'and remove the apiurl incl. settings from your rcfile';
 
 sub run {
   my $self  = shift;
@@ -41,8 +43,10 @@ sub run {
     delete $self->settings->{$self->apiurl};
     delete $self->settings->{apiurl};
     $self->save_settings();
-    $logger->info("Logout succeed");
+    $logger->info('Logout succeed');
   }
+
+  return;
 }
 
 sub save_settings {
