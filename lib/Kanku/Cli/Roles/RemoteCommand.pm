@@ -16,6 +16,8 @@
 #
 package Kanku::Cli::Roles::RemoteCommand;
 
+use strict;
+use warnings;
 use MooseX::App::Role;
 
 option 'list' => (
@@ -33,9 +35,7 @@ option 'details' => (
 );
 
 sub description_footer {
- "
-All options marked with an asterisk (*) are subcommands.
-";
+ return "\nAll options marked with an asterisk (*) are subcommands.\n";
 }
 
 1;
