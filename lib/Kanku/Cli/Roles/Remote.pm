@@ -16,12 +16,16 @@
 #
 package Kanku::Cli::Roles::Remote;
 
+use strict;
+use warnings;
+
 use MooseX::App::Role;
 use Kanku::YAML;
 use LWP::UserAgent;
 use JSON::XS;
 use HTTP::Cookies;
 use HTTP::Request;
+use Carp;
 
 with 'Kanku::Roles::Logger';
 
@@ -50,7 +54,7 @@ option 'rc_file' => (
   isa           => 'Str',
   is            => 'rw',
   documentation => 'Config file to load and store settings',
-  default       => "$ENV{HOME}/.kankurc"
+  default       => "$ENV{HOME}/.kankurc",
 );
 
 has settings => (
@@ -71,7 +75,7 @@ has settings => (
 	password => $self->password,
         user     => $self->user
     }
-  }
+  },
 );
 
 has cookie_jar => (
@@ -85,8 +89,7 @@ has cookie_jar => (
       autosave        => 1,
       ignore_discard  => 1,
     );
-
-  }
+  },
 );
 
 has _cookie_jar_file => (
@@ -100,14 +103,14 @@ has login_url => (
   is        => 'rw',
   isa       => 'Str',
   lazy	    => 1,
-  default   => sub { my $au = $_[0]->apiurl; $au =~ s/\/$//; "$au/rest/login.json" }
+  default   => sub { my $au = $_[0]->apiurl; $au =~ s/\/$//; "$au/rest/login.json" },
 );
 
 has logout_url => (
   is        => 'rw',
   isa       => 'Str',
   lazy	    => 1,
-  default   => sub { my $au = $_[0]->apiurl; $au =~ s/\/$//; "$au/rest/logout.json" }
+  default   => sub { my $au = $_[0]->apiurl; $au =~ s/\/$//; "$au/rest/logout.json" },
 );
 
 has ua => (
@@ -121,7 +124,7 @@ has ua => (
           SSL_verify_mode => 0x00
         }
     );
-  }
+  },
 );
 
 sub connect_restapi {
@@ -131,7 +134,7 @@ sub connect_restapi {
   if ( ! $self->apiurl ) {
     if ( -f $self->rc_file ) {
       $self->settings(Kanku::YAML::LoadFile($self->rc_file));
-      $self->apiurl( $self->settings->{apiurl} || '');
+      $self->apiurl( $self->settings->{apiurl} || q{});
       if ( $self->apiurl ) {
 	my $user = $self->settings->{$self->apiurl}->{user};
 	my $password = $self->settings->{$self->apiurl}->{password};
@@ -142,8 +145,8 @@ sub connect_restapi {
   }
 
   if ( ! $self->apiurl ) {
-    $logger->error("No apiurl found - Please login");
-	die "No apiurl found!";
+    $logger->error('No apiurl found - Please login');
+    croak('No apiurl found!');
   }
 
   return $self;
@@ -167,8 +170,8 @@ sub login {
       return 0;
     }
   } else {
-     $self->logger->debug("login_url: ".$self->login_url);
-     die $response->status_line;
+     $self->logger->debug('login_url: '.$self->login_url);
+     croak($response->status_line);
   }
 
 }
@@ -179,8 +182,8 @@ sub logout {
   $self->ua->cookie_jar->load();
 
   if ( ! $self->session_valid ) {
-    $self->logger->warn("No valid session found");
-    $self->logger->warn("Could not proceed with logout");
+    $self->logger->warn('No valid session found');
+    $self->logger->warn('Could not proceed with logout');
 
     return 1;
   }
@@ -191,12 +194,12 @@ sub logout {
   my $response = $self->ua->request($request);
 
   if ($response->is_success) {
-    unlink $self->_cookie_jar_file;
+    unlink $self->_cookie_jar_file ||
+      croak('Could not remove '.$self->_cookie_jar_file.": $!");
     return 1;
   } else {
-     die $response->status_line;
+     croak($response->status_line);
   }
-
 }
 
 sub session_valid {
@@ -214,16 +217,15 @@ sub session_valid {
     my $result = decode_json($response->decoded_content);
     return $result->{authenticated};
   } else {
-     die $response->status_line;
+     croak($response->status_line);
   }
 
 }
 
 sub get_json {
-  my $self = shift;
-  my %opts = @_;
+  my ($self, %opts) = @_;
 
-  die "No path given!\n" if ( ! $opts{path} );
+  croak("No path given!\n") if ( ! $opts{path} );
 
   if ( ! -f $self->_cookie_jar_file ) {
     if ( -f $self->rc_file ) {
@@ -237,14 +239,14 @@ sub get_json {
 
   my @param_arr;
 
-  while ( my ($p,$v) = each(%{$opts{params}}) ) {
-    push(@param_arr,"$p=$v" );
+  while (my ($p,$v) = each %{$opts{params}}) {
+    push @param_arr, "$p=$v";
   }
 
-  my $param_string = join("&",@param_arr);
+  my $param_string = join q{&}, @param_arr;
   my $au  = $self->apiurl;
   $au =~ s/\/$//;
-  my $url = "$au/rest/$opts{path}.json" . ( ($param_string) ? "?$param_string" : '' ) ;
+  my $url = "$au/rest/$opts{path}.json" . ( ($param_string) ? "?$param_string" : q{} ) ;
 
   my $request = HTTP::Request->new(GET => $url);
 
@@ -254,7 +256,7 @@ sub get_json {
 
   if ( $response->code == 302 ) {
       if ( ! $self->login() ) {
-	die "Failed to login\n";
+	croak("Failed to login\n");
       }
 
       $response = $self->ua->simple_request($request);
@@ -262,22 +264,21 @@ sub get_json {
 
   if ($response->is_success) {
     my $result;
-    $self->logger->trace("decoded_content: ".$response->decoded_content);
+    $self->logger->trace('decoded_content: '.$response->decoded_content);
     $result = decode_json($response->decoded_content);
     return $result;
   } else {
      $self->logger->debug("url: $url");
-     die $response->status_line ."\n";
+     croak($response->status_line ."\n");
   }
-
+  return;
 }
 
 sub post_json {
-  my $self = shift;
-  my %opts = @_;
+  my ($self,%opts) = @_;
 
-  die "No path given!\n" if ( ! $opts{path} );
-  die "No data given!\n" if ( ! $opts{data} );
+  croak("No path given!\n") if ( ! $opts{path} );
+  croak("No data given!\n") if ( ! $opts{data} );
 
   if ( ! -f $self->_cookie_jar_file ) {
     if ( -f $self->rc_file ) {
@@ -291,18 +292,18 @@ sub post_json {
 
   my @param_arr;
 
-  while ( my ($p,$v) = each(%{$opts{params}}) ) {
-    push(@param_arr,"$p=$v" );
+  while (my ($p,$v) = each %{$opts{params}}) {
+    push  @param_arr, "$p=$v";
   }
 
   my $au      = $self->apiurl;
   $au         =~ s/\/$//;
-  my $pstr    = join("&",@param_arr);
-  my $url     = "$au/rest/$opts{path}.json".(($pstr) ? "?$pstr" : '');
+  my $pstr    = join q{&}, @param_arr;
+  my $url     = "$au/rest/$opts{path}.json".(($pstr) ? "?$pstr" : q{});
   my $data;
   my $ct;
 
-  if (ref($opts{data})) {
+  if (ref $opts{data}) {
     $data = encode_json($opts{data});
     $ct   = 'application/json';
   } else {
@@ -338,11 +339,10 @@ sub post_json {
 }
 
 sub put_json {
-  my $self = shift;
-  my %opts = @_;
+  my ($self, %opts) = @_;
 
-  die "No path given!\n" if ( ! $opts{path} );
-  die "No data given!\n" if ( ! $opts{data} );
+  croak("No path given!\n") if ( ! $opts{path} );
+  croak("No data given!\n") if ( ! $opts{data} );
 
   if ( ! -f $self->_cookie_jar_file ) {
     if ( -f $self->rc_file ) {
@@ -356,18 +356,18 @@ sub put_json {
 
   my @param_arr;
 
-  while ( my ($p,$v) = each(%{$opts{params}}) ) {
-    push(@param_arr,"$p=$v" );
+  while (my ($p,$v) = each %{$opts{params}}) {
+    push @param_arr, "$p=$v";
   }
 
   my $au      = $self->apiurl;
   $au         =~ s/\/$//;
-  my $pstr    = join("&",@param_arr);
-  my $url     = "$au/rest/$opts{path}.json".(($pstr) ? "?$pstr" : '');
+  my $pstr    = join q{&}, @param_arr;
+  my $url     = "$au/rest/$opts{path}.json".(($pstr) ? "?$pstr" : q{});
   my $data;
   my $ct;
 
-  if (ref($opts{data})) {
+  if (ref $opts{data}) {
     $data = encode_json($opts{data});
     $ct   = 'application/json';
   } else {
@@ -389,7 +389,7 @@ sub put_json {
 
   if ( $response->code == 302 ) {
       if ( ! $self->login() ) {
-	die "Failed to login\n";
+	croak("Failed to login\n");
       }
       $response = $self->ua->simple_request($request);
   }
@@ -398,15 +398,15 @@ sub put_json {
     return $result;
   } else {
      $self->logger->debug("url: $url");
-     die $response->status_line ."\n";
+     croak($response->status_line ."\n");
   }
+  return;
 }
 
 sub delete_json {
-  my $self = shift;
-  my %opts = @_;
+  my ($self, %opts) = @_;
 
-  die "No path given!\n" if ( ! $opts{path} );
+  croak("No path given!\n") if (! $opts{path});
 
   if ( ! -f $self->_cookie_jar_file ) {
     if ( -f $self->rc_file ) {
@@ -420,18 +420,18 @@ sub delete_json {
 
   my @param_arr;
 
-  while ( my ($p,$v) = each(%{$opts{params}}) ) {
-    push(@param_arr,"$p=$v" );
+  while (my ($p,$v) = each %{$opts{params}}) {
+    push @param_arr, "$p=$v";
   }
 
   my $au      = $self->apiurl;
   $au         =~ s/\/$//;
-  my $pstr    = join("&",@param_arr);
-  my $url     = "$au/rest/$opts{path}.json".(($pstr) ? "?$pstr" : '');
+  my $pstr    = join q{&}, @param_arr;
+  my $url     = "$au/rest/$opts{path}.json".(($pstr) ? "?$pstr" : q{});
   my $data;
   my $ct;
 
-  if (ref($opts{data})) {
+  if (ref $opts{data}) {
     $data = encode_json($opts{data});
     $ct   = 'application/json';
   } else {
@@ -452,8 +452,8 @@ sub delete_json {
   my $response = $self->ua->simple_request($request);
 
   if ( $response->code == 302 ) {
-      if ( ! $self->login() ) {
-	die "Failed to login\n";
+      if (! $self->login) {
+	croak("Failed to login\n");
       }
       $response = $self->ua->simple_request($request);
   }
@@ -462,7 +462,7 @@ sub delete_json {
     return $result;
   } else {
      $self->logger->debug("url: $url");
-     die $response->status_line ."\n";
+     croak($response->status_line ."\n");
   }
 }
 
