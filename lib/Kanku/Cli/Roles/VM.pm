@@ -1,5 +1,8 @@
 package Kanku::Cli::Roles::VM;
 
+use strict;
+use warnings;
+
 use MooseX::App::Role;
 use Kanku::Config;
 
