@@ -1,9 +1,12 @@
 package Kanku::YAML;
 
+use strict;
+use warnings;
+
 use YAML;
 use Try::Tiny;
 
-sub LoadFile {
+sub LoadFile { ## no critic (NamingConventions::Capitalization)
   my ($file) = @_;
   my $res;
 
@@ -15,7 +18,7 @@ sub LoadFile {
   return $res;
 }
 
-sub DumpFile {
+sub DumpFile { ## no critic (NamingConventions::Capitalization)
   my ($file, $content) = @_;
   my $res;
 
