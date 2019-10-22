@@ -10,9 +10,7 @@ has session_token => (
   is=>'rw',
   isa=>'Str',
   lazy => 1,
-  default => sub {
-    return Session::Token->new(entropy => 256)->get;
-  }
+  default => sub {return Session::Token->new(entropy => 256)->get},
 );
 
 has auth_token => (
@@ -22,12 +20,12 @@ has auth_token => (
   default => sub {
     my ($self) = @_;
     my $at = Session::Token->new(entropy => 256)->get;
-    $self->schema->resultset("WsToken")->create({
-      auth_token=>$at,
-      user_id => $self->user_id
+    $self->schema->resultset('WsToken')->create({
+      auth_token => $at,
+      user_id    => $self->user_id,
     });
     return $at;
-  }
+  },
 );
 
 has user_id => (is=>'rw', isa=>'Int', default => 0);
@@ -36,28 +34,24 @@ has perms => (is=>'rw', isa=>'Int', default => 0);
 my $role_to_points = {
    Admin => 30,
    User  => 20,
-   Guest => 10
+   Guest => 10,
 };
-
-
-#  my ($self) = @_;
 
 sub close_session {
   my ($self) = @_;
   my $session = $self->schema->resultset('WsSession')->find({session_token=> $self->session_token});
   if ($session) {
     $session->permissions(-2);
-    $session->update;
+    return $session->update;
   } else {
-    $self->schema->resultset('WsSession')->create(
+    return $self->schema->resultset('WsSession')->create(
       {
         session_token => $self->session_token,
         user_id       => $self->user_id,
         permissions   => -2,
-        filters       => '',
+        filters       => q{},
       }
     );
-
   }
 }
 
@@ -68,6 +62,7 @@ sub cleanup_session {
     $session->delete;
     $session->update;
   }
+  return;
 }
 
 sub get_permissions {
@@ -88,7 +83,7 @@ sub authenticate {
     session_token => $self->session_token,
     user_id       => $self->user_id,
     permissions   => 0,
-    filters       => '',
+    filters       => q{},
   });
 
   $session = $self->schema->resultset('WsSession')->find({session_token=> $self->session_token});
