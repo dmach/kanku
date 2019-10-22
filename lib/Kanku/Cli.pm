@@ -16,6 +16,8 @@
 #
 package Kanku::Cli;
 
+use strict;
+use warnings;
 use MooseX::App qw(Color BashCompletion);
 
 use Log::Log4perl;
@@ -27,8 +29,8 @@ app_exclude 'Kanku::Cli::Roles';
 my $lconf;
 if (-e "$ENV{HOME}/.kanku/logging.conf" ) {
   $lconf = "$ENV{HOME}/.kanku/logging.conf";
-} elsif ( -e "/etc/kanku/logging/console.conf" ) {
-  $lconf = "/etc/kanku/logging/console.conf";
+} elsif ( -e '/etc/kanku/logging/console.conf' ) {
+  $lconf = '/etc/kanku/logging/console.conf';
 } elsif ( -e "$FindBin::Bin/../etc/logging/console.conf" ) {
   # used in testing and generating bash-completion while package building
   $lconf = "$FindBin::Bin/../etc/logging/console.conf";
