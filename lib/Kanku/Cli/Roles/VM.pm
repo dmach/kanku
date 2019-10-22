@@ -15,9 +15,9 @@ has cfg => (
   isa           => 'Object',
   is            => 'rw',
   lazy          => 1,
-  default       => sub { 
+  default       => sub {
     Kanku::Config->initialize(class => 'KankuFile');
-    my $cfg = Kanku::Config->instance(); 
+    my $cfg = Kanku::Config->instance();
     $cfg->file($_[0]->file);
     return $cfg;
   },
