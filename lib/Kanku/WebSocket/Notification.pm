@@ -2,6 +2,7 @@ package Kanku::WebSocket::Notification;
 use Moose;
 use JSON::XS;
 use Try::Tiny;
+use Carp;
 
 has blocked => (is=>'rw',isa=>'Bool',default=>1);
 has conn => (is=>'rw',isa=>'Object');
@@ -12,7 +13,7 @@ my $role_to_points = {
   Guest => 10
 };
 
-sub unblock { $_[0]->blocked(0) }
+sub unblock { my ($s) = @_; return $s->blocked(0) }
 
 sub prepare {
   my ($self, $msg) = @_;
@@ -28,19 +29,19 @@ sub prepare {
       $result =  {
         title => "Kanku Job $msg->{event} (Id: $msg->{id})",
         link  => "job_result/$msg->{id}"
-      },
+      };
     } elsif ($msg->{type} eq 'daemon_change') {
       $result = {
         title => "Kanku Daemon $msg->{event}",
-        link  => "notify"
-      }
+        link  => 'notify'
+      };
     }
   }
 
   if (! $result ) {
     $result = {
-      title=>"Kanku Status Notification",
-      link => 'notify'
+      title=> 'Kanku Status Notification',
+      link => 'notify',
     };
   }
 
@@ -50,7 +51,7 @@ sub prepare {
   return encode_json($result);
 }
 
-sub send {
+sub send { ## no critic (Subroutines::ProhibitBuiltinHomonyms)
   my ($self, $msg) = @_;
   try {
     if (ref $msg ) {
@@ -61,7 +62,7 @@ sub send {
   } catch {
     $msg = $_;
   };
-  $self->conn->send($msg) || die "Error while sending $msg";
+  return $self->conn->send($msg) || croak("Error while sending $msg");
 }
 
 1;
