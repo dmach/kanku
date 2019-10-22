@@ -14,25 +14,26 @@ sub initialize {
   if ( $cfg->{'Kanku::Airbrake'} ) {
     try {
       require Net::Airbrake;
-      $self->_ab_object(Net::Airbrake->new(%{$cfg->{'Kanku::Airbrake'}}));
+      return $self->_ab_object(Net::Airbrake->new(%{$cfg->{'Kanku::Airbrake'}}));
     } catch {
       require Kanku::Airbrake::Dummy;
-      $self->_ab_object(Kanku::Airbrake::Dummy->new());
+      return $self->_ab_object(Kanku::Airbrake::Dummy->new());
     };
   } else {
     require Kanku::Airbrake::Dummy;
-    $self->_ab_object(Kanku::Airbrake::Dummy->new());
+    return $self->_ab_object(Kanku::Airbrake::Dummy->new());
   }
+  return;
 }
 
-sub add_error { my $s = shift; return $s->_ab_object->add_error(@_); }
-sub has_error { my $s = shift; return $s->_ab_object->has_error(@_); }
-sub send      { my $s = shift; return $s->_ab_object->send(@_);      }
-sub notify    { my $s = shift; return $s->_ab_object->notify(@_);    }
+sub add_error { my $s = shift; return $s->_ab_object->add_error(@_); } ## no critic (Subroutines::RequireArgUnpacking)
+sub has_error { my $s = shift; return $s->_ab_object->has_error(@_); } ## no critic (Subroutines::RequireArgUnpacking)
+sub send      { my $s = shift; return $s->_ab_object->send(@_);      } ## no critic (Subroutines::RequireArgUnpacking,Subroutines::ProhibitBuiltinHomonyms)
+sub notify    { my $s = shift; return $s->_ab_object->notify(@_);    } ## no critic (Subroutines::RequireArgUnpacking)
 
 sub notify_with_backtrace {
   my ($self, $msg, $index, $options) = @_;
-  $self->notify({
+  return $self->notify({
       type      => 'Core::die',
       message   => $msg,
       backtrace => $self->backtrace($index)
@@ -45,18 +46,18 @@ sub backtrace {
   my ($self,$index) = @_;
   $self->_backtrace([]);
   my $skip_frames = defined($index) ? $index : 3;
-  my $dSt = Devel::StackTrace->new(skip_frames => $skip_frames);
-  while (my $frame = $dSt->next_frame) {
-    push(
+  my $dst = Devel::StackTrace->new(skip_frames => $skip_frames);
+  while (my $frame = $dst->next_frame) {
+    push
       @{$self->_backtrace},
       {
          file     => $frame->filename,
          line     => $frame->line,
          function => $frame->subroutine
       }
-    );
+    ;
   }
-  $self->_backtrace([reverse(@{$self->_backtrace})]);
+  $self->_backtrace([reverse @{$self->_backtrace}]);
   return $self->_backtrace;
 }
 
