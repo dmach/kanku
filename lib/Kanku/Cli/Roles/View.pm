@@ -17,6 +17,8 @@ sub view {
 
   # process input template, substituting variables
   $tt->process($template, $data) || croak($tt->error()->as_string());
+
+  return;
 }
 
 1;
