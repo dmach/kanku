@@ -14,7 +14,10 @@
 # Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 #
-package Kanku::Cli::status;
+package Kanku::Cli::status; ## no critic (NamingConventions::Capitalization)
+
+use strict;
+use warnings;
 
 use MooseX::App::Command;
 extends qw(Kanku::Cli);
@@ -24,9 +27,9 @@ use Kanku::Util::VM;
 
 with 'Kanku::Cli::Roles::VM';
 
-command_short_description  "Show status of kanku VM";
+command_short_description  'Show status of kanku VM';
 
-command_long_description "This command can be used to show the status of a VM";
+command_long_description 'This command can be used to show the status of a VM';
 
 sub run {
   my ($self)  = @_;
@@ -36,19 +39,20 @@ sub run {
   my $logger  = Log::Log4perl->get_logger;
 
   my $vm = Kanku::Util::VM->new(domain_name=>$self->domain_name);
-  $logger->debug("Searching for domain: ".$self->domain_name);
+  $logger->debug('Searching for domain: '.$self->domain_name);
   my $state = $vm->state();
   if ($state eq 'on' ) {
     my $ip    = $vm->get_ipaddress();
     $logger->info("VM is running ($ip)");
   } elsif ( $state eq 'off' ) {
-    $logger->error("VM isn't running");
+    $logger->error('VM isn`t running');
   } elsif ( $state eq 'unknown' ) {
-    $logger->warn("VM is in state 'unknown'");
+    $logger->warn('VM is in state "unknown"');
   } else {
     $logger->fatal("Kanku::Util::VM returned an impossible state '$state'");
     exit 1;
   }
+  return;
 }
 
 __PACKAGE__->meta->make_immutable;
