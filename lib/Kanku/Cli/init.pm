@@ -14,18 +14,22 @@
 # Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 #
-package Kanku::Cli::init;
+package Kanku::Cli::init; ## no critic (NamingConventions::Capitalization)
+
+use strict;
+use warnings;
 
 use MooseX::App::Command;
 extends qw(Kanku::Cli);
 
-with "Kanku::Cli::Roles::Schema";
+with 'Kanku::Cli::Roles::Schema';
 
 use Template;
+use Carp;
 
-command_short_description  "create KankuFile in your current working directory";
+command_short_description  'create KankuFile in your current working directory';
 
-command_long_description "create KankuFile in your current working directory";
+command_long_description 'create KankuFile in your current working directory';
 
 option 'default_job' => (
     isa           => 'Str',
@@ -42,7 +46,7 @@ option 'domain_name' => (
     documentation => 'name of default domain in KankuFile',
     cmd_aliases   => ['d'],
     lazy          => 1,
-    default       => 'kanku-vm'
+    default       => 'kanku-vm',
 );
 
 option 'qemu_user' => (
@@ -118,22 +122,22 @@ option 'output' => (
 );
 
 sub run {
-  my $self    = shift;
+  my ($self)  = @_;
   my $logger  = Log::Log4perl->get_logger;
   my $out     = $self->output;
 
   if ( -f $out ) {
     if ($self->force) {
-      unlink $out || die "Could not remove '$out': $!";
+      unlink $out || croak("Could not remove '$out': $!");
     } else {
       $logger->warn("$out already exists.");
-      $logger->warn("  Please remove first if you really want to initalize again.");
+      $logger->warn('  Please remove first if you really want to initalize again.');
       exit 1;
     }
   }
 
   if ($self->memory !~ /^\d+[kmgtp]$/i ) {
-    $logger->error("Please specify a valid memory value including a Unit!");
+    $logger->error('Please specify a valid memory value including a Unit!');
     exit 1;
   }
 
@@ -157,10 +161,10 @@ sub run {
         repository    => $self->repository,
   };
 
-  my $output = '';
+  my $output = q{};
   # process input template, substituting variables
   $template->process('init.tt2', $vars, $out)
-               || die $template->error()->as_string();
+               || croak($template->error()->as_string());
 
   $logger->info("$out written");
 
@@ -172,6 +176,8 @@ sub run {
   $logger->info('Or start you new VM:');
   $logger->info(q{});
   $logger->info('kanku up');
+
+  return;
 }
 
 __PACKAGE__->meta->make_immutable;
