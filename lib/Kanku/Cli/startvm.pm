@@ -16,6 +16,9 @@
 #
 package Kanku::Cli::startvm;    ## no critic (NamingConventions::Capitalization)
 
+use strict;
+use warnings;
+
 use MooseX::App::Command;
 extends qw(Kanku::Cli);
 
