@@ -14,16 +14,18 @@
 # Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 #
-package Kanku::Cli::list;
+package Kanku::Cli::list;  ## no critic (NamingConventions::Capitalization)
 
+use strict;
+use warnings;
 use MooseX::App::Command;
 extends qw(Kanku::Cli);
 
-with "Kanku::Cli::Roles::Schema";
+with 'Kanku::Cli::Roles::Schema';
 
-command_short_description  "Not implemented yet" ;
+command_short_description  'Not implemented yet';
 
-command_long_description  "Not implemented yet" ;
+command_long_description  'Not implemented yet';
 
 option 'global' => (
     isa           => 'Bool',
@@ -34,9 +36,8 @@ option 'global' => (
 
 sub run {
   my $self    = shift;
-
   print "Not implemented yet\n";
-
+  return;
 }
 
 __PACKAGE__->meta->make_immutable;
