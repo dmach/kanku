@@ -14,7 +14,10 @@
 # Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 #
-package Kanku::Cli::up;
+package Kanku::Cli::up; ## no critic (NamingConventions::Capitalization)
+
+use strict;
+use warnings;
 
 use MooseX::App::Command;
 extends qw(Kanku::Cli);
@@ -122,7 +125,7 @@ sub run {
           skip_check_package => $self->skip_check_package || 0,
         },
   );
-  @ARGV=();
+  @ARGV=(); ## no critic (Variables::RequireLocalizedPunctuationVars)
   my $dispatch = Kanku::Dispatch::Local->new(schema=>$schema);
   my $result   = $dispatch->run_job($job);
   my $ctx      = $job->context;
