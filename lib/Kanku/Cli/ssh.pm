@@ -14,8 +14,10 @@
 # Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 #
-package Kanku::Cli::ssh;
+package Kanku::Cli::ssh; ## no critic (NamingConventions::Capitalization)
 
+use strict;
+use warnings;
 
 use MooseX::App::Command;
 extends qw(Kanku::Cli);
@@ -59,7 +61,7 @@ sub run {
     $self->job(Kanku::Job->new());
     $self->connect();
 
-    system("ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -l $user $ip");
+    system "ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -l $user $ip";
     exit 0;
   } elsif ($state eq 'off') {
     $self->logger->warn('VM is off - use \'kanku startvm\' to start VM and try again');
