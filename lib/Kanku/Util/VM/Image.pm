@@ -30,16 +30,22 @@ use Try::Tiny;
 use File::LibMagic;
 use IO::Uncompress::AnyUncompress qw/$AnyUncompressError/;
 use File::Temp;
+use Carp;
 
 has [qw/uri pool_name vol_name source_file size format/ ]  => ( is=>'rw', isa => 'Str');
-has 'final_size'=> => ( is=>'rw', isa => 'Str',default=>0);
+has 'final_size'  => ( is=>'rw', isa => 'Str',default=>0);
 
-has '_total_read'      => ( is=>'rw', isa => 'Int',  default=>0);
-has '_total_sent'      => ( is=>'rw', isa => 'Int',  default=>0);
-has '_nbytes'          => ( is=>'rw', isa => 'Int',  default=>16*1024*1024);
+has '_total_read' => ( is=>'rw', isa => 'Int', default => 0);
+has '_total_sent' => ( is=>'rw', isa => 'Int', default => 0);
+has '_nbytes'     => ( is=>'rw', isa => 'Int', default => 16*1024*1024);
 
 # TODO: suffix dependent on image format
-has '_temp_source_file' => ( is=>'rw', isa => 'Object', lazy => 1, default => sub { return File::Temp->new(SUFFIX => '.img' ); } );
+has '_temp_source_file' => (
+  is=>'rw',
+  isa => 'Object',
+  lazy => 1,
+  default => sub { return File::Temp->new(SUFFIX => '.img' ) },
+);
 
 has '+uri'       => ( default => 'qemu:///system');
 has '+pool_name' => ( default => 'default');
@@ -57,8 +63,8 @@ has pool => (
         return $pool
       }
     }
-    return undef;
-  }
+    return;
+  },
 );
 
 has vmm => (
@@ -67,77 +73,77 @@ has vmm => (
   lazy => 1,
   default => sub {
     return Sys::Virt->new(uri => $_[0]->uri);
-  }
+  },
 );
 
 has logger => (
   is => 'rw',
   isa => 'Object',
   lazy => 1,
-  default => sub { Log::Log4perl->get_logger(); }
+  default => sub { return Log::Log4perl->get_logger() },
 );
 
 sub create_volume {
-  my $self = shift;
+  my ($self) = @_;
 
   $self->delete_volume();
 
-  $self->logger->info("Creating volume '" . ($self->vol_name || '')."' with format ".$self->format."");
+  $self->logger->info('Creating volume "'. ($self->vol_name || q{}).'" with format '.$self->format);
 
-  my $xml  = "
-<volume type='file'>
-  <name>" . $self->vol_name . "</name>
-  <capacity unit='bytes'>". $self->get_image_size() ."</capacity>
-  <target>
-    <format type='".$self->format."'/>
-  </target>
-</volume>
-";
+  my $xml  =
+      '<volume type="file">'
+    . ' <name>' . $self->vol_name . '</name>'
+    . ' <capacity unit="bytes">'. $self->get_image_size() .'</capacity>'
+    . ' <target>'
+    . '  <format type="'.$self->format.'"/>'
+    . ' </target>'
+    . '</volume>';
+
   $self->logger->debug("create_volume: xml -\n$xml");
+  my $vol;
   try {
-      my $vol  = $self->pool->create_volume($xml);
-
+      $vol  = $self->pool->create_volume($xml);
       $self->_copy_volume($vol);
-
-      return $vol;
   }
   catch {
     my ($e) = @_;
-    if ( ref($e) eq 'Sys::Virt::Error' ){
-      die $e->stringify();
+    $self->logger->fatal("Error: $e");
+    if (ref $e eq 'Sys::Virt::Error'){
+      croak($e->stringify);
     } else {
-      die $e
+      croak($e);
     }
   };
-
+  return $vol;
 }
 
 sub delete_volume {
-  my $self = shift;
+  my ($self) = @_;
 
   my @volumes = $self->pool->list_all_volumes();
   for my $vol (@volumes) {
-    die "Got no vol_name\n" if (!$self->vol_name);
-    $self->logger->debug("Checking volume " . ( $vol->get_name || '' ));
+    croak("Got no vol_name\n") if (!$self->vol_name);
+    $self->logger->debug('Checking volume '.($vol->get_name || q{}));
     if ( $vol->get_name() eq $self->vol_name()) {
-      $self->logger->info("Deleting volume " . $vol->get_name);
+      $self->logger->info('Deleting volume ' . $vol->get_name);
       try {
         $vol->delete(Sys::Virt::StorageVol::DELETE_NORMAL);
       }
       catch {
         my ($e) = @_;
-        if ( ref($e) eq 'Sys::Virt::Error' ){
-          die $e->stringify();
+        if ( ref $e eq 'Sys::Virt::Error' ){
+          croak($e->stringify());
         } else {
-          die $e
+          croak($e);
         }
       };
     }
   }
+  return;
 }
 
 sub get_image_size {
-  my $self = shift;
+  my ($self) = @_;
 
   if ( $self->source_file ) {
     my $file = File::LibMagic->new();
@@ -154,7 +160,7 @@ sub get_image_size {
   my $vol  = $self->vol_name;
   my $size = $self->_string2bytes($self->size);
 
-  die "Size of volume '$vol' could not be determined\n" unless $size;
+  croak("Size of volume '$vol' could not be determined\n") unless $size;
 
   return $size;
 }
@@ -170,7 +176,9 @@ sub _string2bytes {
 
   $size =~ /^(\d+)([bkmgtp]m?)?/i;
 
-  return ($1 || 0) * ($sh->{lc($2)} || 1)
+  my $f = ($2) ? $sh->{lc $2} : 1;
+
+  return ($1 || 0) * $f;
 }
 
 sub _copy_volume {
@@ -190,18 +198,18 @@ sub _copy_volume {
   my $nbytes = 1024;
 
 
-  if ( $f =~ /\.(gz|bz2|xz)$/ ) {
+  if ( $f =~ /[.](gz|bz2|xz)$/ ) {
     $self->_extract_and_upload($f, $st);
   } else {
     $self->_simple_upload($f, $st);
   }
 
-  $self->logger->info("-- total_read: ".$self->_total_read." -- total_sent: ".$self->_total_sent);
-  $self->logger->debug("-- final_size:".$self->final_size);
+  $self->logger->info('-- total_read: '.$self->_total_read.' -- total_sent: '.$self->_total_sent);
+  $self->logger->debug('-- final_size:'.$self->final_size);
 
   $self->_expand_raw_image($st);
 
-  $self->logger->info("-- finally total bytes read/sent: ".$self->_total_read."/".$self->_total_sent);
+  $self->logger->info('-- finally total bytes read/sent: '.$self->_total_read.q{/}.$self->_total_sent);
 
   $st->finish();
 
@@ -217,47 +225,43 @@ sub _expand_raw_image {
 
     $self->logger->info("-- Sending another $to_read bytes");
 
-    eval {
-      my $f = "/dev/zero";
-      open FILE, "<", $f or die "cannot open $f: $!";
-      while (1) {
-	    my $data;
-	    my $length = ( $to_read > $nbytes ) ? $nbytes : $to_read;
-	    my $rv = sysread FILE, $data, $length;
-	    if ($rv < 0) {
-	      die "cannot read $f: $!";
-	    }
-	    last if $rv == 0;
-	    $self->_total_read($self->_total_read + $rv);
-	    while ($rv > 0) {
-	      my $done = $st->send($data, $rv);
-	      if ($done) {
-		  $data = substr $data, $done;
-		  $rv -= $done;
-		  $to_read -= $done;
-	      }
-	      $self->_total_sent($self->_total_sent + $done);
-	    }
-      }
-    };
+    my $f = '/dev/zero';
 
+    open my $fh, '<', $f or croak("cannot open $f: $!");
+    while (1) {
+      my $data;
+      my $length = ( $to_read > $nbytes ) ? $nbytes : $to_read;
+      my $rv = sysread $fh, $data, $length;
+      croak("cannot read $f: $!") if ($rv < 0);
+      last if $rv == 0;
+      $self->_total_read($self->_total_read + $rv);
+      while ($rv > 0) {
+	my $done = $st->send($data, $rv);
+	if ($done) {
+	  $data = substr $data, $done;
+	  $rv -= $done;
+	  $to_read -= $done;
+	}
+	$self->_total_sent($self->_total_sent + $done);
+      }
+    }
+    close $fh or croak("Error while closing $f: $!");
   }
+  return;
 }
 
 sub _simple_upload {
   my ($self, $f, $st) = @_;
   my $nbytes = $self->_nbytes;
-  $self->logger->info("-- _copy_volume -- Uploading file");
+  $self->logger->info('-- _copy_volume -- Uploading file');
 
-  open FILE, "<", $f or die "cannot open $f: $!";
+  open my $fh, '<', $f or croak("cannot open $f: $!");
 
   try {
     while (1) {
 	  my $data;
-	  my $rv = sysread FILE, $data, $nbytes;
-	  if ($rv < 0) {
-	      die "cannot read $f: $!";
-	  }
+	  my $rv = sysread $fh, $data, $nbytes;
+	  croak("cannot read $f: $!") if ($rv < 0);
 	  last if $rv == 0;
 	  $self->_total_read($self->_total_read + $rv);
 	  while ($rv > 0) {
@@ -270,27 +274,28 @@ sub _simple_upload {
 	  }
     }
   } catch {
-	close FILE;
-	die $_;
+	close $fh or croak("Error while closing $f: $!");
+	croak($_);
   };
 
-  close FILE or die "cannot save $f: $!";
+  close $fh or croak("cannot save $f: $!");
+
+  return;
 }
 
 sub _extract_and_upload {
   my ($self, $f, $st) = @_;
 
-  $self->logger->info("-- _copy_volume -- Uncompressing and uploading file");
+  $self->logger->info('-- _copy_volume -- Uncompressing and uploading file');
 
   my $z = new IO::Uncompress::AnyUncompress $f
-    or die "IO::Uncompress::AnyUncompress failed: $AnyUncompressError\n";
-
+    or croak("IO::Uncompress::AnyUncompress failed: $AnyUncompressError\n");
 
   while (1) {
 	my $data;
 	my $rv = $z->read(\$data);
 	if ($rv < 0) {
-	    die "cannot read $f: $!";
+	    croak("cannot read $f: $!");
 	}
 	last if $rv == 0;
 	$self->_total_read($self->_total_read + $rv);
@@ -305,6 +310,8 @@ sub _extract_and_upload {
   }
 
   $z->close;
+
+  return;
 }
 
 sub _check_source_file {
@@ -314,12 +321,12 @@ sub _check_source_file {
     if (-f $self->source_file) {
        return;
     } else {
-       die "source_file '".$self->source_file."' does not exist!\n";
+       croak('source_file "'.$self->source_file."\" does not exist!\n");
     }
   }
 
   my $size = $self->size;
-  my $fmt  = "-f " . $self->format;
+  my $fmt  = '-f ' . $self->format;
 
   my $tmp_fh = $self->_temp_source_file();
   my $tmp_fn = $tmp_fh->filename;
@@ -335,7 +342,7 @@ sub _check_source_file {
 
   my $ec = $? >> 8;
 
-  die "ERROR while creating temporary source_file (exit code: $ec): @out" if $ec;
+  croak("ERROR while creating temporary source_file (exit code: $ec): @out") if $ec;
 
   $self->logger->info("--- sucessfully created new image '$tmp_fn'");
 
