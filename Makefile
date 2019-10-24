@@ -41,12 +41,14 @@ PERL_CRITIC_READY := bin/*
 
 all:
 
-install: install_dirs install_full_dirs install_services install_docs configs public views
+install: install_dirs install_full_dirs install_services install_docs configs public views bashcomp
 	install -m 644 ./dist/kanku.logrotate $(DESTDIR)/etc/logrotate.d/kanku-common
 	install -m 644 dist/profile.d-kanku.sh $(DESTDIR)/etc/profile.d/kanku.sh
 	install -m 644 dist/tmpfiles.d-kanku $(DESTDIR)/usr/lib/tmpfiles.d/kanku.conf
-	PERL5LIB=./lib ./bin/kanku bash_completion > $(DESTDIR)/etc/bash_completion.d/kanku.sh
 	install -m 644 dist/_etc_apache2_conf.d_kanku-worker.conf $(DESTDIR)/etc/apache2/conf.d/kanku-worker.conf
+
+bashcomp:
+	PERL5LIB=./lib ./bin/kanku bash_completion > $(DESTDIR)/etc/bash_completion.d/kanku.sh
 
 configs:
 	#

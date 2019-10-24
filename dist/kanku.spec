@@ -308,6 +308,7 @@ and in developer mode
 /usr/share/kanku/views/cli/rjob/*.tt
 /usr/lib/kanku/lib/Kanku/Cli/
 /usr/lib/kanku/lib/Kanku/Cli.pm
+/etc/bash_completion.d/kanku.sh
 
 %package common-server
 Summary: Common server files or settings for kanku
