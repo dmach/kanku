@@ -14,7 +14,10 @@
 # Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 #
-package Kanku::Cli::rjob;
+package Kanku::Cli::rjob; ## no critic (NamingConventions::Capitalization)
+
+use strict;
+use warnings;
 
 use MooseX::App::Command;
 extends qw(Kanku::Cli);
@@ -26,13 +29,13 @@ with 'Kanku::Cli::Roles::View';
 use Term::ReadKey;
 use POSIX;
 use Try::Tiny;
+use Data::Dumper;
 
-command_short_description  "show result of tasks from a specified remote job";
+command_short_description  'show result of tasks from a specified remote job';
 
 command_long_description
-  "show result of tasks from a specified job on your remote instance
-
-" . $_[0]->description_footer;
+  "show result of tasks from a specified job on your remote instance\n\n"
+ . $_[0]->description_footer;
 
 option 'config' => (
   isa           => 'Str',
@@ -54,7 +57,7 @@ sub run {
       exit 1;
     };
 
-    my $data = $kr->get_json( path => "job/config/".$self->config);
+    my $data = $kr->get_json( path => 'job/config/'.$self->config);
 
     print $data->{config} if $data;
 
@@ -67,9 +70,9 @@ sub run {
       exit 1;
     };
 
-    my $tmp_data = $kr->get_json( path => "gui_config/job");
+    my $tmp_data = $kr->get_json( path => 'gui_config/job');
 
-    my @job_names = sort ( map { $_->{job_name} } @{$tmp_data->{config}} );
+    my @job_names = sort map { $_->{job_name} } @{$tmp_data->{config}} ;
     my $data = { job_names => \@job_names };
 
     $self->view('rjob/list.tt', $data);
@@ -83,20 +86,20 @@ sub run {
       exit 1;
     };
 
-    my $data = $kr->get_json( path => "gui_config/job");
+    my $data = $kr->get_json( path => 'gui_config/job');
 	my $job_config;
-	while ( my $j = shift( @{$data->{config}} )) {
+	while ( my $j = shift @{$data->{config}}) {
 		if ( $j->{job_name} eq $self->details ) {
 			$job_config = $j;
 			last;
 		}
 	}
-    use Data::Dumper;
     print Dumper($job_config);
-    $self->logger->error("FIXME: implement view");
+    $self->logger->warn('FIXME: implement view');
   } else {
-	$logger->warn("Please specify a command. Run 'kanku help rjob' for further information.");
+	$logger->warn('Please specify a command. Run "kanku help rjob" for further information.');
   }
+  return;
 }
 
 __PACKAGE__->meta->make_immutable;
