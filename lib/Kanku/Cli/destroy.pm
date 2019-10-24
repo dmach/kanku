@@ -14,12 +14,15 @@
 # Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 #
-package Kanku::Cli::destroy;
+package Kanku::Cli::destroy; ## no critic (NamingConventions::Capitalization)
 
+use strict;
+use warnings;
 use MooseX::App::Command;
 extends qw(Kanku::Cli);
 
 use Log::Log4perl;
+use Try::Tiny;
 
 use Kanku::Config;
 use Kanku::Util::VM;
@@ -36,29 +39,27 @@ sub run {
   my $logger  = Log::Log4perl->get_logger;
   my $dom;
 
-  eval {
+  try {
     $dom = $vm->dom;
-  };
-
-  if ( $@ or ! $dom ) {
+  } catch {
     $logger->fatal('Error: '.$self->domain_name." not found\n");
     exit 1;
-  }
-
-  eval {
-    $vm->remove_domain();
   };
 
-  if ( $@ ) {
+  try {
+    $vm->remove_domain();
+  } catch {
     $logger->fatal('Error while removing domain: '.$self->domain_name."\n");
-    $logger->fatal($@);
+    $logger->fatal($_);
     exit 1;
-  }
+  };
 
   my $ipt = Kanku::Util::IPTables->new(domain_name=>$self->domain_name);
   $ipt->cleanup_rules_for_domain();
 
   $logger->info('Removed domain '.$self->domain_name.' successfully');
+
+  return;
 }
 
 __PACKAGE__->meta->make_immutable;
