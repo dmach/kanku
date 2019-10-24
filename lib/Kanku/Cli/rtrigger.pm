@@ -14,7 +14,10 @@
 # Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 #
-package Kanku::Cli::rtrigger;
+package Kanku::Cli::rtrigger; ## no critic (NamingConventions::Capitalization)
+
+use strict;
+use warnings;
 
 use MooseX::App::Command;
 extends qw(Kanku::Cli);
@@ -28,12 +31,11 @@ use POSIX;
 use Try::Tiny;
 use JSON::XS;
 
-command_short_description  "trigger a remote job given by name";
+command_short_description  'trigger a remote job given by name';
 
 command_long_description
-  "trigger a specified job on your remote instance
-
-" . $_[0]->description_footer;
+  "trigger a specified job on your remote instance\n\n"
+  . $_[0]->description_footer;
 
 option 'job' => (
   isa           => 'Str',
@@ -64,14 +66,16 @@ sub run {
 
     my $data = $kr->post_json(
       # path is only subpath, rest is added by post_json
-      path => "job/trigger/".$self->job,
+      path => 'job/trigger/'.$self->job,
       data => $self->config || '[]'
     );
 
-    $self->view('rtrigger.tt', $data); 
+    $self->view('rtrigger.tt', $data);
   } else {
-	$logger->error("You must at least specify a job name to trigger");
+	$logger->error('You must at least specify a job name to trigger');
   }
+
+  return;
 }
 
 __PACKAGE__->meta->make_immutable;
