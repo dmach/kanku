@@ -14,7 +14,10 @@
 # Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 #
-package Kanku::Cli::rworker;
+package Kanku::Cli::rworker; ## no critic (NamingConventions::Capitalization)
+
+use strict;
+use warnings;
 
 use Term::ReadKey;
 use POSIX;
@@ -28,12 +31,10 @@ with 'Kanku::Cli::Roles::Remote';
 with 'Kanku::Cli::Roles::RemoteCommand';
 with 'Kanku::Cli::Roles::View';
 
-command_short_description  "information about worker";
+command_short_description  'information about worker';
 
-command_long_description
-  "Show information about the remote worker status
-
-" . $_[0]->description_footer;
+command_long_description "Show information about the remote worker status\n\n"
+  . $_[0]->description_footer;
 
 option 'list' => (
   is            => 'rw',
@@ -55,11 +56,12 @@ sub run {
       exit 1;
     };
 
-    my $data = $kr->get_json(path => "worker/list");
+    my $data = $kr->get_json(path => 'worker/list');
     $self->view('rworker.tt', $data);
   } else {
-	$logger->error("You must at least add the option '-l' to list information about worker");
+	$logger->error('You must at least add the option "-l" to list information about worker');
   }
+  return;
 }
 
 __PACKAGE__->meta->make_immutable;
