@@ -14,13 +14,16 @@
 # Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 #
-package Kanku::Cli::setup;
+package Kanku::Cli::setup; ## no critic (NamingConventions::Capitalization)
+
+use strict;
+use warnings;
 
 use MooseX::App::Command;
 extends qw(Kanku::Cli);
 
-with "Kanku::Cli::Roles::Schema";
-with "Kanku::Roles::Logger";
+with 'Kanku::Cli::Roles::Schema';
+with 'Kanku::Roles::Logger';
 
 use Path::Class qw/file dir/;
 use File::HomeDir;
@@ -30,26 +33,18 @@ use DBIx::Class::Migration;
 use Sys::Virt;
 use Sys::Hostname;
 use Net::Domain qw/hostfqdn/;
+use Carp;
 
 use Kanku::Schema;
 use Kanku::Setup::Devel;
 use Kanku::Setup::Server::Distributed;
 use Kanku::Setup::Server::Standalone;
 
-command_short_description  "Setup local environment to work as server or developer mode.";
+command_short_description  'Setup local environment to work as server or developer mode.';
 
-command_long_description "
-Setup local environment to work as server or developer mode.
-Installation wizard which asks you several questions,
-how to configure your machine.
-
-";
-
-option 'server' => (
-    isa           => 'Bool',
-    is            => 'rw',
-    documentation => 'Run setup in server mode',
-);
+command_long_description "\nSetup local environment to work as server or developer mode.\n"
+  . "Installation wizard which asks you several questions,\n"
+  . "how to configure your machine.\n\n";
 
 option 'distributed' => (
     isa           => 'Bool',
@@ -73,14 +68,14 @@ option 'images_dir' => (
     isa           => 'Str',
     is            => 'rw',
     documentation => 'directory where vm images will be stored',
-    default       => "/var/lib/libvirt/images"
+    default       => '/var/lib/libvirt/images',
 );
 
 option 'apiurl' => (
     isa           => 'Str',
     is            => 'rw',
     documentation => 'url to your obs api',
-    default       => "https://api.opensuse.org"
+    default       => 'https://api.opensuse.org',
 );
 
 option 'osc_user' => (
@@ -89,7 +84,7 @@ option 'osc_user' => (
     #cmd_aliases   => 'X',
     documentation => 'login user for obs api',
     lazy          => 1,
-    default       => ''
+    default       => q{},
 );
 
 option 'osc_pass' => (
@@ -98,7 +93,7 @@ option 'osc_pass' => (
     #cmd_aliases   => 'X',
     documentation => 'login password obs api',
     lazy          => 1,
-    default       => ''
+    default       => q{},
 );
 
 option 'dsn' => (
@@ -112,7 +107,7 @@ option 'ssl' => (
     is            => 'rw',
     lazy          => 1,
     documentation => 'Configure apache with ssl',
-    default       => 0
+    default       => 0,
 );
 
 option 'apache' => (
@@ -120,7 +115,7 @@ option 'apache' => (
     is            => 'rw',
     lazy          => 1,
     documentation => 'Configure apache',
-    default       => 0
+    default       => 0,
 );
 
 option 'mq_host' => (
@@ -128,7 +123,7 @@ option 'mq_host' => (
     is            => 'rw',
     lazy          => 1,
     documentation => 'Host for rabbitmq (distributed setup only)',
-    default       => 'localhost'
+    default       => 'localhost',
 );
 
 option 'mq_vhost' => (
@@ -136,7 +131,7 @@ option 'mq_vhost' => (
     is            => 'rw',
     lazy          => 1,
     documentation => 'VHost for rabbitmq (distributed setup only)',
-    default       => '/kanku'
+    default       => '/kanku',
 );
 
 option 'mq_user' => (
@@ -144,7 +139,7 @@ option 'mq_user' => (
     is            => 'rw',
     lazy          => 1,
     documentation => 'Username for rabbitmq (distributed setup only)',
-    default       => 'kanku'
+    default       => 'kanku',
 );
 
 option 'mq_pass' => (
@@ -154,8 +149,9 @@ option 'mq_pass' => (
     documentation => 'Password for rabbitmq (distributed setup only)',
     default       => sub {
        my @alphanumeric = ('a'..'z', 'A'..'Z', 0..9);
-       join '', map $alphanumeric[rand @alphanumeric], 0..12;
-    }
+       my $pass = join q{}, map { $alphanumeric[rand @alphanumeric] } 0..12;
+       return $pass
+    },
 );
 
 option 'interactive' => (
@@ -182,12 +178,12 @@ option 'ovs_ip_prefix' => (
 );
 
 sub run {
-  my $self    = shift;
+  my ($self)  = @_;
   my $logger  = $self->logger;
 
   # effective user id
-  if ( $> != 0 ) {
-    $logger->fatal("Please start setup as root");
+  if ( $> != 0 ) { ## no critic (Variables::ProhibitPunctuationVars)
+    $logger->fatal('Please start setup as root');
     exit 1;
   }
 
@@ -210,15 +206,6 @@ sub run {
       dns_domain_name => $self->dns_domain_name,
     );
     $setup->ovs_ip_prefix($self->ovs_ip_prefix) if $self->ovs_ip_prefix;
-  } elsif ($self->server) {
-    $setup = Kanku::Setup::Server::Standalone->new(
-      images_dir      => $self->images_dir,
-      apiurl          => $self->apiurl,
-      _ssl            => $self->ssl,
-      _apache         => $self->apache,
-      _devel          => 0,
-      dns_domain_name => $self->dns_domain_name,
-    );
   } elsif ($self->devel) {
     $setup = Kanku::Setup::Devel->new(
       user            => $self->user,
@@ -233,47 +220,40 @@ sub run {
       dns_domain_name => $self->dns_domain_name,
     );
   } else {
-    die "No valid setup mode found";
+    croak('No valid setup mode found');
   }
 
   $setup->dsn($self->dsn) if $self->dsn;
 
-  $setup->setup();
+  return $setup->setup();
 }
 
 sub _ask_for_install_mode {
   my $self  = shift;
 
-  print "
+  print <<'EOF';
 Please select installation mode :
 
-(1) server (standalone)
-(2) server (distributed)
-(3) devel
+(1) server
+(2) devel
 
 (9) Quit setup
-";
+EOF
 
   while (1) {
-    my $answer = <STDIN>;
-    chomp($answer);
+    my $answer = <>;
+    chomp $answer;
     exit 0 if ( $answer == 9 );
 
     if ( $answer == 1 ) {
-      $self->server(1);
-      last;
+      return $self->distributed(1);
     }
 
     if ( $answer == 2 ) {
-      $self->distributed(1);
-      last;
-    }
-
-    if ( $answer == 3 ) {
-      $self->devel(1);
-      last;
+      return $self->devel(1);
     }
   }
+  return;
 }
 
 __PACKAGE__->meta->make_immutable();
