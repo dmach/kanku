@@ -14,69 +14,65 @@
 # Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 #
-package Kanku::Cli::startui;
+package Kanku::Cli::startui; ## no critic (NamingConventions::Capitalization)
 
-use Moose;
-use Log::Log4perl;
+use strict;
+use warnings;
 
 use MooseX::App::Command;
+use Log::Log4perl;
+use Carp;
+use File::HomeDir;
 extends qw(Kanku::Cli);
 
-command_short_description  "start an simple webserver to access web ui under http://localhost:5000";
-
-command_long_description "start an simple webserver to access web ui under http://localhost:5000";
+command_short_description  'start an simple webserver to access web ui under http://localhost:5000';
+command_long_description   'start an simple webserver to access web ui under http://localhost:5000';
 
 sub run {
-  my $self      = shift;
-  my $pid_file  = ".kanku/ui.pid";
+  my ($self)    = @_;
+  my $hd        = File::HomeDir->users_home($ENV{USER});
+  my $pid_file  = "$hd/.kanku/ui.pid";
   my $logger    = Log::Log4perl->get_logger;
 
 
   if ( -f $pid_file ) {
-    $logger->warn("WebUI already running! Please run stopui before or connect to http://localhost:5000");
+    $logger->warn('WebUI already running! Please run stopui before or connect to http://localhost:5000');
     exit 1;
   }
 
-  my $pid = fork();
+  my $pid = fork;
 
   if ( $pid == 0 ) {
-
-    my $log_file = ".kanku/ui.log";
+    my $log_file = "$hd/.kanku/ui.log";
 
     # autoflush
-    $| = 1;
+    local $| = 1;
 
-    local *STDOUT;
-    local *STDERR;
+    local *STDOUT; ## no critic (Variables::RequireInitializationForLocalVars)
+    local *STDERR; ## no critic (Variables::RequireInitializationForLocalVars)
 
     require Plack::Runner;
 
-    open(STDOUT,'>>',$log_file);
-    open(STDERR,'>>',$log_file);
+    open(STDOUT, '>>', $log_file) || croak("Could not open $log_file: $!");
+    open(STDERR, '>>', $log_file) || croak("Could not open $log_file: $!");
 
     require Kanku;
     my $runner = Plack::Runner->new;
     $runner->run(Kanku->to_app);
 
-    close STDOUT;
-    close STDERR;
+    close STDOUT || croak("Could not close STDOUT: $!");
+    close STDERR || croak("Could not close STDERR: $!");
 
     exit 0;
-
   } else {
+    open(my $pf, '>', $pid_file) || croak("Could not open $pid_file: $!");
+    print {$pf} $pid;
+    close $pf || croak("Could not close $pid_file: $!");
 
-    open(PF,">",".kanku/ui.pid");
-    print PF $pid;
-    close PF;
-
-    my $logger  = Log::Log4perl->get_logger;
     $logger->info("Started webserver with pid: $pid");
-    $logger->info("Please connect to http://localhost:5000");
-
+    $logger->info('Please connect to http://localhost:5000');
   }
-
-  exit 0;
-
+  return;
 }
 
 __PACKAGE__->meta->make_immutable;

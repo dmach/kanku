@@ -14,35 +14,41 @@
 # Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 #
-package Kanku::Cli::stopui;
+package Kanku::Cli::stopui; ## no critic (NamingConventions::Capitalization)
+
+use strict;
+use warnings;
 
 use MooseX::App::Command;
 extends qw(Kanku::Cli);
 
 use Log::Log4perl;
+use Carp;
+use File::HomeDir;
 
-command_short_description  "stop our local webserver, providing the ui";
+command_short_description  'stop our local webserver, providing the ui';
 
-command_long_description  "stop our local webserver, providing the ui";
+command_long_description  'stop our local webserver, providing the ui';
 
 sub run {
-  my $self      = shift;
+  my ($self)      = @_;
 
   my $logger    = Log::Log4perl->get_logger;
-  my $pid_file  = ".kanku/ui.pid";
+  my $hd        = File::HomeDir->users_home($ENV{USER});
+  my $pid_file  = "$hd/.kanku/ui.pid";
 
-  if ( open(PF,"<",$pid_file) ) {
-    my $pid = <PF>;
-    close PF;
-
-    kill(9,$pid);
-
-    unlink($pid_file);
-
+  my $pf;
+  if (open $pf, '<', $pid_file) {
+    my $pid = <$pf>;
+    close $pf || croak("Error while closing $pid_file: $!");;
+    kill(9, $pid) || croak("Error while killing $pid: $!");
+    unlink($pid_file) || croak("Error while deleting $pid_file: $!");
     $logger->info("Stopped webserver with pid: $pid");
   } else {
-    $logger->warn("No pid file found.");
+    $logger->warn('No pid file found.');
   }
+
+  return;
 }
 
 1;
