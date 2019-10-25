@@ -27,8 +27,8 @@ jobs:
       # https://build.opensuse.org/project/show/devel:kanku:images
       # to find more official Images
       project: devel:kanku:images
-      repository: images_leap_15_1
-      package: openSUSE-Leap-15.1-JeOS
+      repository: images_leap_15_2
+      package: openSUSE-Leap-15.2-JeOS
   -
     use_module: Kanku::Handler::ImageDownload
     options:
@@ -49,8 +49,8 @@ jobs:
     use_module: Kanku::Handler::ExecuteCommandViaSSH
     options:
       commands:
-        - zypper -n ar obs://devel:kanku:perl devel:kanku:perl
-        - zypper -n ar obs://devel:kanku:staging devel:kanku:staging
+        - zypper -n ar https://download.opensuse.org/repositories/devel:/kanku:/perl/openSUSE_Leap_15.2/devel:kanku:perl.repo
+        - zypper -n ar https://download.opensuse.org/repositories/devel:/kanku:/staging/openSUSE_Leap_15.2/devel:kanku:staging.repo
         - zypper --gpg-auto-import-keys ref -s
         # Only for development
         - zypper -n in vim-data curl make apache2 sqlite3
@@ -91,8 +91,8 @@ jobs:
       # https://build.opensuse.org/project/show/devel:kanku:images
       # to find more official Images
       project: devel:kanku:images
-      repository: images_leap_15_1
-      package: openSUSE-Leap-15.1-JeOS
+      repository: images_leap_15_2
+      package: openSUSE-Leap-15.2-JeOS
   -
     use_module: Kanku::Handler::ImageDownload
     options:
@@ -114,12 +114,13 @@ jobs:
     use_module: Kanku::Handler::ExecuteCommandViaSSH
     options:
       commands:
-        - zypper -n ar obs://devel:kanku:perl devel:kanku:perl
-        - zypper -n ar obs://devel:kanku:staging devel:kanku:staging
+        - zypper -n ar https://download.opensuse.org/repositories/devel:/kanku:/perl/openSUSE_Leap_15.2/devel:kanku:perl.repo
+        - zypper -n ar https://download.opensuse.org/repositories/devel:/kanku:/staging/openSUSE_Leap_15.2/devel:kanku:staging.repo
         - zypper --gpg-auto-import-keys ref -s
         - zypper -n in vim-data curl make apache2 systemd-bash-completion sqlite3
         - zypper -n in kanku-cli
         - make -C /tmp/kanku install
+        - "rclibvirtd stop;perl -p -i -e 's/192.168.122/192.168.129/g' /etc/libvirt/qemu/networks/default.xml ; rclibvirtd start"
         - kanku setup --devel --user kanku
   -
     use_module: Kanku::Handler::ExecuteCommandViaSSH
