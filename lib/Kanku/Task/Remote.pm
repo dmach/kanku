@@ -36,7 +36,7 @@ Frank Schreiner, <fschreiner@suse.de>
 
 use Moose;
 
-our $VERSION = "0.0.1";
+our $VERSION = '0.0.1';
 
 with 'Kanku::Roles::Logger';
 
@@ -44,24 +44,46 @@ use Data::Dumper;
 use JSON::XS;
 use Try::Tiny;
 use MIME::Base64;
+use Carp;
 
-has job => (is=>'rw',isa=>'Object');
+has job => (
+  is=>'rw',
+  isa=>'Object',
+);
 
-has module => (is=>'rw',isa=>'Str');
+has module => (
+  is=>'rw',
+  isa=>'Str',
+);
 
-has [qw/job_queue daemon/]=> (is=>'rw',isa=>'Object');
+has [qw/job_queue daemon/] => (
+  is=>'rw',
+  isa=>'Object',
+);
 
-has wait_for_workers => (is=>'ro',isa=>'Int',default=>1);
+has wait_for_workers => (
+  is=>'ro',
+  isa=>'Int',
+  default=>1,
+);
 
-has final_args => (is=>'rw',isa=>'HashRef');
+has final_args => (
+  is=>'rw',
+  isa=>'HashRef',
+);
 
-has queue => (is=>'rw',isa=>'Str');
+has queue => (
+  is=>'rw',
+  isa=>'Str',
+);
 
 has rabbit_config => (
   is      => 'rw',
   isa     => 'HashRef',
   lazy    => 1,
-  default => sub { Kanku::Config->instance->config->{"Kanku::RabbitMQ"} || {}; }
+  default => sub {
+    Kanku::Config->instance->config->{'Kanku::RabbitMQ'} || {};
+  },
 );
 
 
@@ -71,7 +93,7 @@ sub run {
   my $all_workers = {};
   my $logger      = $self->logger;
 
-  $self->logger->debug("Starting new remote task");
+  $self->logger->debug('Starting new remote task');
 
   my $job = $self->job;
 
@@ -92,10 +114,10 @@ sub run {
     }
   );
 
-  $logger->debug("Sending remote job: ".$self->module);
-  $logger->debug(" - channel: ".$kmq->channel);
-  $logger->debug(" - routing_key ".$kmq->routing_key);
-  $logger->debug(" - queue_name ".$self->queue);
+  $logger->debug('Sending remote job: '.$self->module);
+  $logger->debug(' - channel: '.$kmq->channel);
+  $logger->debug(' - routing_key '.$kmq->routing_key);
+  $logger->debug(' - queue_name '.$self->queue);
   $logger->trace(Dumper($data));
 
   $kmq->queue->publish(
@@ -104,54 +126,53 @@ sub run {
 	$data,
   );
 
-  $self->logger->debug("Waiting for result on queue: ".$self->job_queue->queue_name());
+  $self->logger->debug('Waiting for result on queue: '.$self->job_queue->queue_name());
   # Wait for task results from worker
   my $result;
-  my $state;
   while (1){
     my $msg = $self->job_queue->recv(10000);
     if ( $msg ) {
-      my $data;
-      $self->logger->debug("Incomming task result");
+      my $indata;
+      $self->logger->debug('Incomming task result');
       $self->logger->trace(Dumper($msg));
       my $body = $msg->{body};
 
       try {
-	$data = decode_json($body);
+	$indata = decode_json($body);
       } catch {
 	$self->logger->debug("Error in JSON:\n$_\n$body\n");
       };
 
       if (
-	$data->{action} eq 'finished_task' or
-	$data->{action} eq 'aborted_job'
+	$indata->{action} eq 'finished_task' or
+	$indata->{action} eq 'aborted_job'
       ) {
 	$logger->trace("Content of \$data:\n".Dumper($data));
-	if ( $data->{error_message} ) {
-	  die $data->{error_message};
+	if ( $indata->{error_message} ) {
+	  croak($indata->{error_message});
 	} else {
-	  my $job = decode_json($data->{job});
-          $logger->debug("Content of \$data->result: ".Dumper($data->{result}));
+	  my $jobd = decode_json($indata->{job});
+          $logger->debug('Content of $indata->result: '.Dumper($indata->{result}));
 
           try {
-            $data->{result}->{result} = decode_base64($data->{result}->{result}) if ($data->{result}->{result});
-            $result = $data->{result};
-             $logger->debug("Content of \$data->result->{result}: $data->{result}->{result}");
+            $indata->{result}->{result} = decode_base64($indata->{result}->{result}) if ($indata->{result}->{result});
+            $result = $indata->{result};
+             $logger->debug("Content of \$indata->result->{result}: $indata->{result}->{result}");
           } catch {
             $logger->fatal("Error while decoding base64: $_");
-            $logger->debug(Dumper($data));
-            $data->{result} = "Error while decoding base64: $_";
+            $logger->debug(Dumper($indata));
+            $indata->{result} = "Error while decoding base64: $_";
           };
 
-	  $self->job->context(${job}->{context});
+	  $self->job->context($jobd->{context});
 	  last;
 	}
-      } elsif ($data->{action} eq 'apply_for_job') {
-        $logger->warn("Got application from $data->{worker_fqhn} for already running job($data->{job_id}). Declining!");
+      } elsif ($indata->{action} eq 'apply_for_job') {
+        $logger->warn("Got application from $indata->{worker_fqhn} for already running job($indata->{job_id}). Declining!");
         my $rmq = Kanku::RabbitMQ->new(%{$self->rabbit_config});
         $rmq->connect(no_retry=>1) ||
-            $logger->error("Could not connect to rabbitmq");
-        my $queue = $data->{answer_queue};
+            $logger->error('Could not connect to rabbitmq');
+        my $queue = $indata->{answer_queue};
         $rmq->queue_name($queue);
         $rmq->publish(
           $queue,
@@ -160,7 +181,7 @@ sub run {
       }
     } else {
       if ($self->daemon->detect_shutdown) {
-	die "Job ".$job->id." aborted by dispatcher daemon shutdown\n";
+	croak('Job '.$job->id." aborted by dispatcher daemon shutdown\n");
       }
     }
   }
