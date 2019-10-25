@@ -7,4 +7,7 @@ functions = :builtins
 exclude_functions = print sleep system
 
 [Variables::ProhibitPunctuationVars]
-allow = $@ $! $$
+allow = $@ $! $$ $? $|
+
+[ControlStructures::ProhibitCascadingIfElse]
+max_elsif = 5
