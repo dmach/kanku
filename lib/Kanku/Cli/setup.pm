@@ -46,10 +46,11 @@ command_long_description "\nSetup local environment to work as server or develop
   . "Installation wizard which asks you several questions,\n"
   . "how to configure your machine.\n\n";
 
-option 'distributed' => (
+option 'server' => (
     isa           => 'Bool',
     is            => 'rw',
-    documentation => 'Run setup in distributed server mode',
+    cmd_aliases   => ['distributed'],
+    documentation => 'Run setup in server mode',
 );
 
 option 'devel' => (
@@ -122,7 +123,7 @@ option 'mq_host' => (
     isa           => 'Str',
     is            => 'rw',
     lazy          => 1,
-    documentation => 'Host for rabbitmq (distributed setup only)',
+    documentation => 'Host for rabbitmq (server setup only)',
     default       => 'localhost',
 );
 
@@ -130,7 +131,7 @@ option 'mq_vhost' => (
     isa           => 'Str',
     is            => 'rw',
     lazy          => 1,
-    documentation => 'VHost for rabbitmq (distributed setup only)',
+    documentation => 'VHost for rabbitmq (server setup only)',
     default       => '/kanku',
 );
 
@@ -138,7 +139,7 @@ option 'mq_user' => (
     isa           => 'Str',
     is            => 'rw',
     lazy          => 1,
-    documentation => 'Username for rabbitmq (distributed setup only)',
+    documentation => 'Username for rabbitmq (server setup only)',
     default       => 'kanku',
 );
 
@@ -146,7 +147,7 @@ option 'mq_pass' => (
     isa           => 'Str',
     is            => 'rw',
     lazy          => 1,
-    documentation => 'Password for rabbitmq (distributed setup only)',
+    documentation => 'Password for rabbitmq (server setup only)',
     default       => sub {
        my @alphanumeric = ('a'..'z', 'A'..'Z', 0..9);
        my $pass = join q{}, map { $alphanumeric[rand @alphanumeric] } 0..12;
@@ -189,11 +190,11 @@ sub run {
 
   ### Get information
   # ask for mode
-  $self->_ask_for_install_mode() unless ($self->devel or $self->server or $self->distributed );
+  $self->_ask_for_install_mode() unless ($self->devel or $self->server);
 
   my $setup;
 
-  if ($self->distributed) {
+  if ($self->server) {
     $setup = Kanku::Setup::Server::Distributed->new(
       images_dir      => $self->images_dir,
       apiurl          => $self->apiurl,
@@ -246,11 +247,13 @@ EOF
     exit 0 if ( $answer == 9 );
 
     if ( $answer == 1 ) {
-      return $self->distributed(1);
+      $self->server(1);
+      last;
     }
 
     if ( $answer == 2 ) {
-      return $self->devel(1);
+      $self->devel(1);
+      last;
     }
   }
   return;
