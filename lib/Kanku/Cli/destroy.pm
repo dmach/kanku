@@ -33,9 +33,18 @@ command_long_description 'Remove domain completely';
 
 with 'Kanku::Cli::Roles::VM';
 
+option 'keep_volumes' => (
+    isa           => 'ArrayRef',
+    is            => 'rw',
+    #cmd_aliases   => 'X',
+    documentation => 'Volumes to keep when destroying VM to reuse next time.',
+);
+
+
 sub run {
   my ($self)  = @_;
   my $vm      = Kanku::Util::VM->new(domain_name => $self->domain_name);
+  $vm->keep_volumes($self->keep_volumes) if $self->keep_volumes;
   my $logger  = Log::Log4perl->get_logger;
   my $dom;
 
