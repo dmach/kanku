@@ -524,6 +524,12 @@ Here is an example how to configure the module in your jobs file or KankuFile
                                 # if not specified, clear text password will
                                 # be stored
 
+      additional_disks:		# list of additional disk images to use in VM
+        -
+          file: storage.qcow2   # filename for disk image
+          reuse: 1		# do not overwrite existing image in libvirt,
+                                # but reuse it in new VM
+
 =head1 DESCRIPTION
 
 This handler creates a new VM from the given template file and a image file.
