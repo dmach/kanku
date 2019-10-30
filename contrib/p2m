@@ -28,20 +28,22 @@ my %opts = (
 my $outdir = "$FindBin::Bin/../pod_md";
 my $indir  = "$FindBin::Bin/../lib/";
 
-my @files;
-find({wanted => sub { 
-  if ( $File::Find::name =~ m#$indir(.*/[^.].*[.](pm|pod))# ) {
-    push @files, $1;
-}}}, $indir); 
+my %files;
+find({wanted => sub {
+  
+  if ( $File::Find::name =~ m#$indir([^.].*)[.](pm|pod)# ) {
+    my $p = $1;
+    my $f = "$1.$2";
+    $p =~ s#/#::#g;
+    $files{$p} = $f;
+}}}, $indir);
 
-for my $fn (@files) {
-  my $of = "$outdir/$fn";
+while (my ($package, $file) = each %files) {
+  my $of = "$outdir/$package.md";
   my $od = dirname($of);
   -d $od || make_path($od);
-  $of =~ s#[.](pod|pm|pl)$#.md#;
 
-
-  convert("$indir/$fn", $of);
+  convert("$indir/$file", $of);
 }
 
 exit 0;
