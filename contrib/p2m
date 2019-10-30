@@ -1,0 +1,66 @@
+#!/usr/bin/perl
+#
+# This file is part of Pod-Markdown
+#
+# This software is copyright (c) 2011 by Randy Stauner.
+#
+# This is free software; you can redistribute it and/or modify it under
+# the same terms as the Perl 5 programming language system itself.
+#
+use 5.008;
+use strict;
+use warnings;
+# PODNAME: pod2markdown
+# ABSTRACT: Convert POD text to Markdown
+
+use Pod::Markdown;
+use FindBin;
+use File::Find;
+use File::Path qw(make_path);
+use File::Basename;
+use Data::Dumper;
+
+my %opts = (
+  output_encoding => 'UTF-8',
+  perldoc_url_prefix => './',
+);
+
+my $outdir = "$FindBin::Bin/../pod_md";
+my $indir  = "$FindBin::Bin/../lib/";
+
+my @files;
+find({wanted => sub { 
+  if ( $File::Find::name =~ m#$indir(.*/[^.].*[.](pm|pod))# ) {
+    push @files, $1;
+}}}, $indir); 
+
+for my $fn (@files) {
+  my $of = "$outdir/$fn";
+  my $od = dirname($of);
+  -d $od || make_path($od);
+  $of =~ s#[.](pod|pm|pl)$#.md#;
+
+
+  convert("$indir/$fn", $of);
+}
+
+exit 0;
+
+sub convert {
+    my ($in_file, $out_file) = @_;
+    my $parser = Pod::Markdown->new(%opts);
+    my $md;
+    # $parser->output_fh($out_file);
+    $parser->output_string(\$md);
+    $parser->parse_file($in_file);
+    if ($md ne "\n") {
+      print "$out_file\n";
+      my $of;
+      open($of, '>', $out_file) || die "Could not open $of: $!\n";
+      binmode $of, ':bytes';
+      print $of $md;
+      close $of;
+    }
+}
+
+__END__
