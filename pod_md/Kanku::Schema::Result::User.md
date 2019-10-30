@@ -68,7 +68,7 @@ Kanku::Schema::Result::User
 
 Type: has\_many
 
-Related object: [Kanku::Schema::Result::UserRole](./Kanku%3A%3ASchema%3A%3AResult%3A%3AUserRole)
+Related object: [Kanku::Schema::Result::UserRole](./Kanku%3A%3ASchema%3A%3AResult%3A%3AUserRole.md)
 
 ## roles
 

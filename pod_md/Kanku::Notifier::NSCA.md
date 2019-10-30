@@ -34,4 +34,4 @@ in /etc/kanku/kanku-config.yml:
 
 # SEE ALSO
 
-[Net::NSCA::Client](./Net%3A%3ANSCA%3A%3AClient)
+[Net::NSCA::Client](./Net%3A%3ANSCA%3A%3AClient.md)

@@ -43,4 +43,4 @@ Kanku::Schema::Result::JobHistorySub
 
 Type: belongs\_to
 
-Related object: [Kanku::Schema::Result::JobHistory](./Kanku%3A%3ASchema%3A%3AResult%3A%3AJobHistory)
+Related object: [Kanku::Schema::Result::JobHistory](./Kanku%3A%3ASchema%3A%3AResult%3A%3AJobHistory.md)

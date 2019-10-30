@@ -76,4 +76,4 @@ Kanku::Schema::Result::JobHistory
 
 Type: has\_many
 
-Related object: [Kanku::Schema::Result::JobHistorySub](./Kanku%3A%3ASchema%3A%3AResult%3A%3AJobHistorySub)
+Related object: [Kanku::Schema::Result::JobHistorySub](./Kanku%3A%3ASchema%3A%3AResult%3A%3AJobHistorySub.md)

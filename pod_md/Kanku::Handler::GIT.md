@@ -27,7 +27,7 @@ This handler logs into the guest os via ssh and clones/checks out a git reposito
 
 # OPTIONS
 
-SEE ALSO [Kanku::Roles::SSH](./Kanku%3A%3ARoles%3A%3ASSH)
+SEE ALSO [Kanku::Roles::SSH](./Kanku%3A%3ARoles%3A%3ASSH.md)
 
     mirror      : boolean, if set to 1, use mirror mode
 
@@ -45,7 +45,7 @@ SEE ALSO [Kanku::Roles::SSH](./Kanku%3A%3ARoles%3A%3ASSH)
 
 ## getters
 
-SEE [Kanku::Roles::SSH](./Kanku%3A%3ARoles%3A%3ASSH)
+SEE [Kanku::Roles::SSH](./Kanku%3A%3ARoles%3A%3ASSH.md)
 
 ## setters
 
@@ -57,4 +57,4 @@ NONE
 
 # SEE ALSO
 
-[Kanku::Roles::SSH](./Kanku%3A%3ARoles%3A%3ASSH)
+[Kanku::Roles::SSH](./Kanku%3A%3ARoles%3A%3ASSH.md)

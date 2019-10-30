@@ -29,10 +29,10 @@ Kanku::Schema::Result::UserRole
 
 Type: belongs\_to
 
-Related object: [Kanku::Schema::Result::Role](./Kanku%3A%3ASchema%3A%3AResult%3A%3ARole)
+Related object: [Kanku::Schema::Result::Role](./Kanku%3A%3ASchema%3A%3AResult%3A%3ARole.md)
 
 ## user
 
 Type: belongs\_to
 
-Related object: [Kanku::Schema::Result::User](./Kanku%3A%3ASchema%3A%3AResult%3A%3AUser)
+Related object: [Kanku::Schema::Result::User](./Kanku%3A%3ASchema%3A%3AResult%3A%3AUser.md)
