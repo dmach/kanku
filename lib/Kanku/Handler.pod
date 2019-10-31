@@ -23,39 +23,57 @@ which are executed in this order.
 
 =over
 
-=item L<Kanku::Handler::Reboot>
+=item L<Kanku::Handler::SetJobContext>
+
+=item L<Kanku::Handler::OBSCheck>
+
+=item L<Kanku::Handler::ImageDownload>
 
 =item L<Kanku::Handler::CreateDomain>
 
+=item L<Kanku::Handler::GIT>
+
 =item L<Kanku::Handler::ExecuteCommandViaSSH>
 
-=item L<Kanku::Handler::GIT>
+=item L<Kanku::Handler::Reboot>
+
+=item L<Kanku::Handler::RemoveDomain>
 
 =item L<Kanku::Handler::HTTPDownload>
 
-=item L<Kanku::Handler::OBSCheck>
+=item L<Kanku::Handler::PortForward>
+
+=item L<Kanku::Handler::PrepareSSH>
+
+=item L<Kanku::Handler::RevertQcow2Snapshot>
+
+=item L<Kanku::Handler::SaltSSH>
+
+=item L<Kanku::Handler::Wait>
+
+=item L<Kanku::Handler::ChangeDomainState>
+
+=item L<Kanku::Handler::CleanupIPTables>
+
+=item L<Kanku::Handler::ExecuteCommandOnHost>
+
+=item L<Kanku::Handler::ExecuteCommandViaConsole>
+
+=item L<Kanku::Handler::K8NodePortForward>
+
+=item L<Kanku::Handler::OBSServerFrontendTests>
+
+=item L<Kanku::Handler::ResizeImage>
+
+=item L<Kanku::Handler::SetupNetwork>
+
+=item L<Kanku::Handler::WaitForSystemd>
 
 =item L<Kanku::Handler::OpenStack::CreateInstance>
 
 =item L<Kanku::Handler::OpenStack::Image>
 
 =item L<Kanku::Handler::OpenStack::RemoveInstance>
-
-=item L<Kanku::Handler::PortForward>
-
-=item L<Kanku::Handler::PrepareSSH>
-
-=item L<Kanku::Handler::RemoveDomain>
-
-=item L<Kanku::Handler::RevertQcow2Snapshot>
-
-=item L<Kanku::Handler::SaltSSH>
-
-=item L<Kanku::Handler::SetJobContext>
-
-=item L<Kanku::Handler::Wait>
-
-=item L<Kanku::Handler::ImageDownload>
 
 =item Kanku::Handler::FileCopy               - DEPRECATED
 
