@@ -483,4 +483,8 @@ Kanku - Bridging the gap between OBS and developers
 
 =head2 L<Kanku::Handler>
 
+=head2 L<Kanku::Util>
+
+=head2 L<Kanku::Notifier>
+
 =cut

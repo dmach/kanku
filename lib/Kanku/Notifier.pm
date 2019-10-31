@@ -22,7 +22,7 @@ __END__
 
 =head1 NAME
 
-Kanku::Notifier::*
+Kanku::Notifier - Documentation about Kanku::Notifier::* modules
 
 =head1 SYNOPSIS
 
@@ -33,8 +33,12 @@ Here is an example how to configure the module in your kanku-config.yml:
 
 =head1 DESCRIPTION
 
+Kanku notifier modules which can be run at the end of a job depending on the
+jobs state, e.g. to inform a user or trigger other systems.
+
 The variables configured in the section Kanku::Notifier are globally used
 to define settings used for all notifiers.
+
 
 =head1 OPTIONS
 
@@ -44,5 +48,16 @@ kanku_url: this option defines the base url of the kanku web ui.
 
 kanku_url: If not given, it will use http://localhost/kanku
 
-=cut
 
+=head1 MODULES
+
+=over
+
+=item L<Kanku::Notifier::Sendmail>
+
+=item L<Kanku::Notifier::NSCA>
+
+
+=back
+
+=cut
