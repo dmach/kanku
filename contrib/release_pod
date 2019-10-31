@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+git co master
+rm -rf pod
+contrib/p2h
+git add pod/
+git stash
+git checkout gh-pages
+git checkout stash -- pod/
+git commit -m "automatic pod release"
+git push
+git co master
+
