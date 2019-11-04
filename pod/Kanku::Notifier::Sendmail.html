@@ -1,4 +1,4 @@
-<html><head><title>Kanku::Handler::RevertQcow2Snapshot</title>
+<html><head><title>Kanku::Notifier::Sendmail</title>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" >
 </head>
 <body class='pod'>
@@ -23,49 +23,32 @@
 name="NAME"
 >NAME</a></h1>
 
-<p>Kanku::Handler::RevertQcow2Snapshot</p>
+<p>Kanku::Notifier::Sendmail</p>
 
 <h1><a class='u'
 name="SYNOPSIS"
 >SYNOPSIS</a></h1>
 
-<p>Here is an example how to configure the module in your jobs file or KankuFile</p>
-
-<pre>  -
-    use_module: Kanku::Handler::RevertQcow2Snapshot
-    options:
-      disk_image_file: domain-additional-disk.qcow2
-      ....</pre>
+<pre>  notifiers:
+    - 
+      use_module: Kanku::Notifier::Sendmail
+      options:
+        from: kanku@suse.de
+        to: kanku-user@opensuse.org
+      states: failed,succeed</pre>
 
 <h1><a class='u'
 name="DESCRIPTION"
 >DESCRIPTION</a></h1>
 
-<p>This handler creates a new disk from the given parameters.</p>
+<p>This notifier module allows you to send an email to a given list of recipients</p>
 
 <h1><a class='u'
-name="OPTIONS"
->OPTIONS</a></h1>
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
 
-<pre>    disk_image_file       : filename of the disk to create
-
-    snapshot_id           : id of snapshot to revert to</pre>
-
-<h1><a class='u'
-name="CONTEXT"
->CONTEXT</a></h1>
-
-<h2><a class='u'
-name="getters"
->getters</a></h2>
-
-<h2><a class='u'
-name="setters"
->setters</a></h2>
-
-<h1><a class='u'
-name="DEFAULTS"
->DEFAULTS</a></h1>
+<p><a href="http://search.cpan.org/perldoc?Mail%3A%3ASendmail" class="podlinkpod"
+>Mail::Sendmail</a></p>
 
 <!-- end doc -->
 
