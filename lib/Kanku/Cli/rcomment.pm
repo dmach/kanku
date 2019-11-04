@@ -9,11 +9,13 @@ extends qw(Kanku::Cli);
 with 'Kanku::Cli::Roles::Remote';
 with 'Kanku::Cli::Roles::RemoteCommand';
 with 'Kanku::Cli::Roles::View';
+with 'Kanku::Roles::Helpers';
 
 use Term::ReadKey;
 use Log::Log4perl;
 use POSIX;
 use Try::Tiny;
+use Data::Dumper;
 
 command_short_description 'list job history on your remote kanku instance';
 
@@ -77,18 +79,24 @@ sub run {
   my $res;
 
   if ($self->list) {
-    $res = $self->_list();
+    $res = $self->_list;
+    $logger->info(Dumper($self->_list));
   } elsif ($self->create) {
     $res = $self->_create();
   } elsif ($self->modify) {
     $res = $self->_modify();
   } elsif ($self->delete) {
     $res = $self->_delete();
+  }
+
+  if ($res) {
+    $logger->info(Dumper($res));
+    $logger->warn('TODO: implement view');
   } else {
     $logger->warn('Please specify a command. Run "kanku rcomment --help" for further information.');
   }
 
-  return $res;
+  return;
 }
 
 sub _list {
@@ -110,8 +118,12 @@ sub _list {
   my %params = (
     job_id => $self->job_id,
   );
+  my $path = 'job/comment/'.$self->job_id;
+  $logger->debug("Using path: $path");
 
-  return $kr->get_json( path => 'job/comments/'.$self->job_id );
+  my $res =  $kr->get_json( path => $path );
+  return $res
+
 };
 
 sub _create {
