@@ -44,3 +44,29 @@ sub notify {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+Kanku::Notifier::Sendmail
+
+=head1 SYNOPSIS
+
+  notifiers:
+    - 
+      use_module: Kanku::Notifier::Sendmail
+      options:
+        from: kanku@suse.de
+        to: kanku-user@opensuse.org
+      states: failed,succeed
+
+=head1 DESCRIPTION
+
+This notifier module allows you to send an email to a given list of recipients
+
+=head1 SEE ALSO
+
+L<Mail::Sendmail>
+
+=cut
