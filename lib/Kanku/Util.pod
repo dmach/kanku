@@ -1,0 +1,29 @@
+=head1 NAME
+
+Kanku::Util - Documentation about Kanku::Util::* modules
+
+=head1 DESCRIPTION
+
+Kanku util modules provide functionality used by one or more Hanlders.
+
+=head1 MODULES
+
+=over
+
+=item L<Kanku::Util::CurlHttpDownload>
+
+=item L<Kanku::Util::DoD>
+
+=item L<Kanku::Util::HTTPMirror>
+
+=item L<Kanku::Util::IPTables>
+
+=item L<Kanku::Util::VM>
+
+=item L<Kanku::Util::VM::Console>
+
+=item L<Kanku::Util::VM::Image>
+
+=back
+
+=cut
