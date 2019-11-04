@@ -115,14 +115,14 @@ This handler will connect to the ipaddress stored in job context and excute the 
       commands          : array of commands to execute
 
 
-SEE ALSO Kanku::Roles::SSH
+SEE ALSO L<Kanku::Roles::SSH>
 
 
 =head1 CONTEXT
 
 =head2 getters
 
-SEE Kanku::Roles::SSH
+SEE ALSO L<Kanku::Roles::SSH>
 
 =head2 setters
 
@@ -130,6 +130,6 @@ NONE
 
 =head1 DEFAULTS
 
-SEE Kanku::Roles::SSH
+SEE ALSO L<Kanku::Roles::SSH>
 
 =cut
