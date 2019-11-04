@@ -101,9 +101,13 @@ sub setup {
 
   $self->_setup_nested_kvm;
 
+  my $gconf = "/etc/kanku/kanku-config.yml";
+
+  $self->_backup_config_file($gconf);
+
   $self->_create_config_from_template(
     "kanku-config.yml.tt2",
-    "/etc/kanku/kanku-config.yml",
+    $gconf,
     {
        db_file        => $self->_dbfile,
        use_publickey  => 1,
