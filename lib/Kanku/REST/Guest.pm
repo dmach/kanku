@@ -10,6 +10,7 @@ use Session::Token;
 
 use Kanku::Util::IPTables;
 use Kanku::LibVirt::HostList;
+use Data::Dumper;
 
 sub list {
   my ($self) = @_;
@@ -37,11 +38,13 @@ sub list {
 	my ($state, $reason)  = $dom->get_state();
 	my $ipt = Kanku::Util::IPTables->new(domain_name => $dom_name);
 	my $dom_id = "$dom_name:$host->{hostname}";
+        my $fwp = $ipt->get_forwarded_ports_for_domain();
+        $self->log('debug', "Domain Information: $dom_name/$host->{hostname}/$dom_id\n".Dumper($fwp));
 	$guests->{$dom_id}= {
           host		  => $host->{hostname},
 	  domain_name     => $dom_name,
 	  state           => $state,
-	  forwarded_ports => $ipt->get_forwarded_ports_for_domain(),
+	  forwarded_ports => $fwp,
 	  nics            => [],
 	};
 
