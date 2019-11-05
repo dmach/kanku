@@ -14,8 +14,10 @@
 # Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 #
-package Kanku::Cli::login;
+package Kanku::Cli::login; ## no critic (NamingConventions::Capitalization)
 
+use strict;
+use warnings;
 use MooseX::App::Command;
 extends qw(Kanku::Cli);
 
@@ -24,9 +26,9 @@ use Kanku::YAML;
 
 with 'Kanku::Cli::Roles::Remote';
 
-command_short_description  "login to your remote kanku instance";
+command_short_description  'login to your remote kanku instance';
 
-command_long_description  "login to your remote kanku instance";
+command_long_description  'login to your remote kanku instance';
 
 sub run {
   my $self  = shift;
@@ -42,24 +44,24 @@ sub run {
     $self->settings(Kanku::YAML::LoadFile($self->rc_file));
 
     if ( ! $self->apiurl ) {
-      $self->apiurl( $self->settings->{apiurl} || '');
+      $self->apiurl( $self->settings->{apiurl} || q{});
     }
     if ( ! $self->user ) {
-      $self->user( $self->settings->{$self->apiurl}->{user} || '');
+      $self->user( $self->settings->{$self->apiurl}->{user} || q{});
     }
     if ( ! $self->password ) {
-      $self->password( $self->settings->{$self->apiurl}->{password} || '');
+      $self->password( $self->settings->{$self->apiurl}->{password} || q{});
     }
   }
 
   while ( ! $self->apiurl ) {
-    print "Please enter your apiurl: ";
-    my $url = <STDIN>;
-    chomp($url);
-    $self->apiurl($url) if ($url);
+    print 'Please enter your apiurl: ';
+    my $url = <>;
+    chomp $url;
+    $self->apiurl($url) if $url;
   }
 
-  $logger->debug("apiurl: " .  $self->apiurl);
+  $logger->debug('apiurl: ' .  $self->apiurl);
 
   $self->connect_restapi();
 
@@ -67,26 +69,26 @@ sub run {
 
     $self->save_settings();
 
-    $logger->info("Already logged in.");
-    $logger->info(" Please use logut if you want to change user");
+    $logger->info('Already logged in.');
+    $logger->info(' Please use logut if you want to change user');
 
 
     return { success => 1 }
   }
 
   while ( ! $self->user ) {
-    print "Please enter your user: ";
-    my $user = <STDIN>;
-    chomp($user);
-    $self->user($user) if ($user);
+    print 'Please enter your user: ';
+    my $user = <>;
+    chomp $user;
+    $self->user($user) if $user;
   }
 
   while ( ! $self->password ) {
 
      print "Please enter your password for the remote server:\n";
      ReadMode('noecho');
-     my $read = <STDIN>;
-     chomp($read);
+     my $read = <>;
+     chomp $read;
 
      $self->password($read || qw{});
 
@@ -99,11 +101,13 @@ sub run {
   if ( $self->login() ) {
     # Store new default settings
     $self->save_settings();
-    $logger->info("Login succeed!");
+    $logger->info('Login succeed!');
   } else {
-    $logger->error("Login failed!");
+    $logger->error('Login failed!');
+    exit 1;
   }
 
+  return;
 }
 
 sub save_settings {
