@@ -37,8 +37,12 @@ has job_queue_name        => (is=>'rw', isa => 'Str');
 has remote_job_queue_name => (is=>'rw', isa => 'Str');
 has local_job_queue_name  => (is=>'rw', isa => 'Str');
 
-has hostname              => (is=>'rw', isa => 'Str'
-                              , default => sub {hostfqdn()});
+has hostname              => (is=>'rw',
+                              isa => 'Str',
+                              default => sub {
+                                return hostfqdn() || 'localhost';
+                              },
+);
 
 sub run {
   my $self          = shift;
