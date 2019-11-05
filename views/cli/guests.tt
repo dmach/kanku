@@ -3,9 +3,9 @@
 [% FOREACH guest IN guest_list.keys.sort %]
 ================================================================================
 [% IF guest_list.$guest.state == 1 %]
-[% guest_list.$guest.domain_name | color 'green' +%]
+[% guest_list.$guest.domain_name | color 'green' +%] ([% guest_list.$guest.host %])
 [% ELSE %]
-[% guest_list.$guest.domain_name | color 'yellow' +%]
+[% guest_list.$guest.domain_name | color 'yellow' +%] ([% guest_list.$guest.host %])
 [% END %]
 [% IF guest_list.$guest.forwarded_ports.size > 0 %]
   FORWARDED PORTS:

@@ -36,8 +36,8 @@ sub list {
 	my $dom_name          = $dom->get_name;
 	my ($state, $reason)  = $dom->get_state();
 	my $ipt = Kanku::Util::IPTables->new(domain_name => $dom_name);
-
-	$guests->{$dom_name}= {
+	my $dom_id = "$dom_name:$host->{hostname}";
+	$guests->{$dom_id}= {
           host		  => $host->{hostname},
 	  domain_name     => $dom_name,
 	  state           => $state,
@@ -47,7 +47,7 @@ sub list {
 
 	if ($state == 1 ) {
 	  my @t = $dom->get_interface_addresses(Sys::Virt::Domain::INTERFACE_ADDRESSES_SRC_LEASE);
-	  $guests->{$dom_name}->{nics} = \@t ;
+	  $guests->{$dom_id}->{nics} = \@t ;
 	}
     }
   }

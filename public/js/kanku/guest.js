@@ -43,12 +43,12 @@ $( document ).ready(
         $.each(
           //gc.guest_list,
 	  gl,
-          function (num,domain_name) {
-	    var guest_data = gc.guest_list[domain_name];
+          function (num,domain_id) {
+	    var guest_data = gc.guest_list[domain_id];
             var r_guest_panel = Mustache.render(
                         guest_panel_template,
                         {
-                          id                   : domain_name,
+                          id                   : guest_data.domain_name,
                           host                 : guest_data.host,
                           guest_class          : ( guest_data.state == 1 ) ? "success" : "warning",
                         }
@@ -56,9 +56,11 @@ $( document ).ready(
 
             $("#guest_list").append(r_guest_panel);
 
-            if (active_roles.User && !active_roles.Admin && domain_name.match(user_name+'-.*')) {
-              $("#guest_action_div_"+domain_name).append(
-                '<a class="pull-right" href="#" onClick=trigger_remove_domain("'+domain_name+'")><span class="far fa-trash-alt"/></a>'
+            if (active_roles.User && !active_roles.Admin && guest_data.domain_name.match(user_name+'-.*')) {
+              $("#guest_action_div_" + domain_id).append(
+                '<a class="pull-right" href="#" onClick=trigger_remove_domain("'+guest_data.domain_name+'")>'
+                + '<span class="far fa-trash-alt"/>'
+                + '</a>'
               );
             }
 
@@ -70,12 +72,12 @@ $( document ).ready(
                   var r_iface_line = Mustache.render(
                           iface_line_template,
                           {
-                            domain_name : domain_name,
+                            domain_name : guest_data.domain_name,
                             name        : nic.name,
                             hwaddr      : nic.hwaddr
                           }
                   );
-                  $("#gp_body_" + domain_name).append(r_iface_line);
+                  $("#gp_body_" + domain_id).append(r_iface_line);
 
                   if ( nic.addrs ) {
 
@@ -88,8 +90,7 @@ $( document ).ready(
                                 addr
                         );
 
-                        $("#addr_for_" + domain_name +"_"+nic.name ).append(r_address_line);
-
+                        $("#addr_for_" + domain_id +"_"+nic.name ).append(r_address_line);
 
                     });
 
@@ -114,11 +115,11 @@ $( document ).ready(
                       gen_href = 1;
                       proto    = 'http';
                     } else if ( guest_port == 22 || proto == 'ssh') {
-                      $("#gp_body_" + domain_name).append(
+                      $("#gp_body_" + domain_id).append(
                         "<pre>ssh -l root -p "+host_port+" -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null "+host_ip+"</pre>"
                       );
                     } else {
-                      $("#gp_body_" + domain_name).append(
+                      $("#gp_body_" + domain_id).append(
                         "<pre>Found unknown port forward ("+host_ip+") "+host_port+" => "+guest_port+" on guest</pre>"
                       );
                     }
@@ -133,7 +134,7 @@ $( document ).ready(
                             guest_port : guest_port,
                           }
                       );
-                      $("#gp_body_" + domain_name).append(href);
+                      $("#gp_body_" + domain_id).append(href);
                     }
                   }
                 );
@@ -143,7 +144,7 @@ $( document ).ready(
             var parts = href.split('#');
             var vm = parts[1];
 
-            if ( vm == domain_name) {
+            if ( vm == domain_id) {
                 var element = $('#gp_body_' + vm );
                 element.css("display","block");
             }
