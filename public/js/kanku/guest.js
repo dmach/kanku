@@ -43,12 +43,13 @@ $( document ).ready(
         $.each(
           //gc.guest_list,
 	  gl,
-          function (num,domain_id) {
-	    var guest_data = gc.guest_list[domain_id];
+          function (num, domain_id) {
+            var domain_id_js = domain_id.replace(':', '_');
+            var guest_data = gc.guest_list[domain_id];
             var r_guest_panel = Mustache.render(
                         guest_panel_template,
                         {
-                          id                   : guest_data.domain_name,
+                          id                   : domain_id_js,
                           host                 : guest_data.host,
                           guest_class          : ( guest_data.state == 1 ) ? "success" : "warning",
                         }
@@ -57,7 +58,7 @@ $( document ).ready(
             $("#guest_list").append(r_guest_panel);
 
             if (active_roles.User && !active_roles.Admin && guest_data.domain_name.match(user_name+'-.*')) {
-              $("#guest_action_div_" + domain_id).append(
+              $("#guest_action_div_" + domain_id_js).append(
                 '<a class="pull-right" href="#" onClick=trigger_remove_domain("'+guest_data.domain_name+'")>'
                 + '<span class="far fa-trash-alt"/>'
                 + '</a>'
@@ -77,7 +78,7 @@ $( document ).ready(
                             hwaddr      : nic.hwaddr
                           }
                   );
-                  $("#gp_body_" + domain_id).append(r_iface_line);
+                  $("#gp_body_" + domain_id_js).append(r_iface_line);
 
                   if ( nic.addrs ) {
 
@@ -90,7 +91,7 @@ $( document ).ready(
                                 addr
                         );
 
-                        $("#addr_for_" + domain_id +"_"+nic.name ).append(r_address_line);
+                        $("#addr_for_" + domain_id_js + "_" + nic.name ).append(r_address_line);
 
                     });
 
@@ -103,7 +104,7 @@ $( document ).ready(
               function (host_ip,forwarded_ports) {
                 $.each(
                   forwarded_ports,
-                  function(host_port,gp) {
+                  function(host_port, gp) {
                     var gen_href   = 0;
                     var guest_port = gp[0];
                     var proto      = gp[1];
@@ -115,11 +116,12 @@ $( document ).ready(
                       gen_href = 1;
                       proto    = 'http';
                     } else if ( guest_port == 22 || proto == 'ssh') {
-                      $("#gp_body_" + domain_id).append(
+                      var gp_body_var = "#gp_body_" + domain_id_js;
+                      $("#gp_body_" + domain_id_js).append(
                         "<pre>ssh -l root -p "+host_port+" -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null "+host_ip+"</pre>"
                       );
                     } else {
-                      $("#gp_body_" + domain_id).append(
+                      $("#gp_body_" + domain_id_js).append(
                         "<pre>Found unknown port forward ("+host_ip+") "+host_port+" => "+guest_port+" on guest</pre>"
                       );
                     }
@@ -134,7 +136,8 @@ $( document ).ready(
                             guest_port : guest_port,
                           }
                       );
-                      $("#gp_body_" + domain_id).append(href);
+                      var gp_body_id = "#gp_body_" + domain_id_js;
+                      $(gp_body_id).append(href);
                     }
                   }
                 );
@@ -144,7 +147,7 @@ $( document ).ready(
             var parts = href.split('#');
             var vm = parts[1];
 
-            if ( vm == domain_id) {
+            if ( vm == guest_data.domain_name) {
                 var element = $('#gp_body_' + vm );
                 element.css("display","block");
             }
