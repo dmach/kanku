@@ -52,6 +52,7 @@ $( document ).ready(
                           id                   : domain_id_js,
                           host                 : guest_data.host,
                           guest_class          : ( guest_data.state == 1 ) ? "success" : "warning",
+                          domain_name          : guest_data.domain_name,
                         }
             );
 

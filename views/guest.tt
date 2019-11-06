@@ -9,7 +9,7 @@
   <div class="card-header alert alert-{{ guest_class }}" id='gp_header_{{ id }}' onClick=toggle_element("#gp_body_{{ id }}")>
     <div class='row'>
       <div class="col-md-10">
-        <span class="badge badge-{{ guest_class }}">{{ id }} ({{ host  }})</span>
+        <span class="badge badge-{{ guest_class }}">{{ domain_name }} ({{ host  }})</span>
       </div>
       <div class="col-md-2" id="guest_action_div_{{ id }}">
 	<a class="float-right" href="[% request.uri_base %]/guest#{{ id }}">      <i class="fas fa-link"/></a>
