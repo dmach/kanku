@@ -91,10 +91,11 @@ has cfg => (
 sub run {
   my ($self)  = (@_);
   my $srv     = $self->send || $self->listen || $self->props || '';
-  die "No config found for $srv! Use one of <".join('|', keys %{$self->cfg->{servers}}).">.\n" unless $srv;
+  my $cfg     = $self->cfg->{servers}->{$srv};
+  die "No config found for server '$srv'! Use one of <".join('|', keys %{$self->cfg->{servers}})."> with your -l/-s/-p option.\n" unless $cfg;
 
   my $mq = Kanku::Test::RabbitMQ->new(
-    config        => $self->cfg->{servers}->{$srv},
+    config        => $cfg,
     logger        => Log::Log4perl->get_logger,
     notifications => $self->cfg->{notifications},
     notification  => $self->notification,
