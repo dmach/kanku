@@ -46,6 +46,9 @@ has [qw/
 
 /] => (is => 'ro', isa => 'Bool',default => 0 );
 
+has [qw/
+  tmp_image_file
+/] => (is => 'rw', isa => 'Object|Undef');
 
 has gui_config => (
   is => 'ro',

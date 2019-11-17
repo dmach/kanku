@@ -19,6 +19,8 @@ package Kanku::Handler::ResizeImage;
 use Moose;
 use Path::Class::File;
 use Data::Dumper;
+use File::Temp;
+use File::Copy;
 
 with 'Kanku::Roles::Handler';
 
@@ -51,11 +53,11 @@ sub distributable { 1 }
 sub execute {
   my $self = shift;
   my $ctx  = $self->job->context();
-  my ($img,$size);
+  my ($img, $size, $tmp);
 
   $ctx->{use_cache} = $self->use_cache if defined $self->use_cache;
 
-  if ( $ctx->{use_cache} ) {
+  if ($ctx->{use_cache}) {
     $self->vm_image_file(Path::Class::File->new($ctx->{cache_dir},$ctx->{vm_image_file})->stringify);
   } else {
     $self->vm_image_file($ctx->{vm_image_file});
@@ -74,10 +76,19 @@ sub execute {
   if ( $self->vm_image_file =~ /\.($supported_suf)$/ ) {
     my $ext = $1;
     if ( $self->disk_size ) {
+      my $template = "XXXXXXXX";
       my $format = "-f " . ( $supported_formats{$ext} || $ext );
+      $ctx->{tmp_image_file} = File::Temp->new(
+                                 TEMPLATE => $template,
+                                 DIR      => $ctx->{cache_dir},
+                                 SUFFIX   => ".$ext",
+                               );
+      $tmp  = $ctx->{tmp_image_file};
       $img  = $self->vm_image_file;
       $size = $self->disk_size;
-      my @out = `qemu-img resize $format $img $size`;
+      $self->logger->info("--- copying image '$img' to '$tmp'");
+      copy($img, $tmp);
+      my @out = `qemu-img resize $format $tmp $size`;
       my $ec = $? >> 8;
 
       die "ERROR while resizing (exit code: $ec): @out" if $ec;
@@ -89,7 +100,7 @@ sub execute {
     die "Image file has wrong suffix '".$self->vm_image_file."'.\nList of supported suffixes: <$supported_suf> !\n";
   }
 
-  return "Sucessfully resized image '$img' to $size"
+  return "Sucessfully resized image '$tmp' to $size"
 }
 
 1;

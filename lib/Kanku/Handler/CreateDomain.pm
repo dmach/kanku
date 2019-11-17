@@ -23,6 +23,7 @@ use File::Copy qw/copy/;
 use Path::Class::File;
 use Data::Dumper;
 use Session::Token;
+use File::Basename qw/basename/;
 
 use Kanku::Config;
 use Kanku::Util::VM;
@@ -202,7 +203,7 @@ sub execute {
   $self->logger->debug("additional_disks:".Dumper($self->additional_disks));
 
 
-  my $final_file = $self->vm_image_file;
+  my $final_file = ($ctx->{tmp_image_file} ) ? basename($ctx->{tmp_image_file}->filename) : $self->vm_image_file;
 
 
   my ($vol, $image) = $self->_create_image_file_from_cache({file=>$final_file}, $self->root_disk_size, $self->domain_name);
@@ -447,6 +448,7 @@ sub _create_image_file_from_cache {
      vhdfixed => 'raw',
   );
   my $supported_formats = join('|', keys %suffix2format);
+  $self->logger->debug("file: --- $file");
   my $in = Path::Class::File->new($self->cache_dir,$file);
   $self->logger->debug("Using file ".$in->stringify);
   $self->logger->info("Resizing to new root_disk_size: $size");
