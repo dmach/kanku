@@ -60,6 +60,8 @@ sub execute {
   } else {
     $self->vm_image_file($ctx->{vm_image_file});
   }
+  
+  $self->logger->info("--- trying to resize image '$img' to $size");
 
   # 0 means that format is the same as suffix
   my %supported_formats = (
