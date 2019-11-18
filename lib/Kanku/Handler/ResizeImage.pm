@@ -62,8 +62,6 @@ sub execute {
   } else {
     $self->vm_image_file($ctx->{vm_image_file});
   }
-  
-  $self->logger->info("--- trying to resize image '$img' to $size");
 
   # 0 means that format is the same as suffix
   my %supported_formats = (
@@ -86,21 +84,22 @@ sub execute {
       $tmp  = $ctx->{tmp_image_file};
       $img  = $self->vm_image_file;
       $size = $self->disk_size;
-      $self->logger->info("--- copying image '$img' to '$tmp'");
+      $self->logger->debug("--- copying image '$img' to '$tmp'");
       copy($img, $tmp);
+      $self->logger->debug("--- trying to resize image '$tmp' to $size (format: $format)");
       my @out = `qemu-img resize $format $tmp $size`;
       my $ec = $? >> 8;
 
       die "ERROR while resizing (exit code: $ec): @out" if $ec;
 
-      $self->logger->info("--- sucessfully resized image '$img' to $size");
+      $self->logger->info("Sucessfully resized image '$img' to $size");
 
+      return "Sucessfully resized image '$tmp' to $size"
     }
   } else {
     die "Image file has wrong suffix '".$self->vm_image_file."'.\nList of supported suffixes: <$supported_suf> !\n";
   }
-
-  return "Sucessfully resized image '$tmp' to $size"
+  return;
 }
 
 1;
