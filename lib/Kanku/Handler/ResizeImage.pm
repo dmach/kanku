@@ -21,6 +21,7 @@ use Path::Class::File;
 use Data::Dumper;
 use File::Temp;
 use File::Copy;
+use Carp;
 
 with 'Kanku::Roles::Handler';
 
@@ -42,13 +43,13 @@ has gui_config => (
         {
           param => 'disk_size',
           type  => 'text',
-          label => 'New disk size'
+          label => 'New disk size',
         },
       ];
-  }
+  },
 );
 
-sub distributable { 1 }
+sub distributable { return 1; }
 
 sub execute {
   my $self = shift;
@@ -68,14 +69,14 @@ sub execute {
     qcow2    => 0,
     raw      => 0,
     img      => 'raw',
-    vhdfixed => 'raw'
+    vhdfixed => 'raw',
   );
-  my $supported_suf = join('|', keys(%supported_formats));
-  if ( $self->vm_image_file =~ /\.($supported_suf)$/ ) {
+  my $supported_suf = join q{|}, keys %supported_formats;
+  if ( $self->vm_image_file =~ /[.]($supported_suf)$/ ) {
     my $ext = $1;
     if ( $self->disk_size ) {
-      my $template = "XXXXXXXX";
-      my $format = "-f " . ( $supported_formats{$ext} || $ext );
+      my $template = 'XXXXXXXX';
+      my $format = '-f ' . ( $supported_formats{$ext} || $ext );
       $ctx->{tmp_image_file} = File::Temp->new(
                                  TEMPLATE => $template,
                                  DIR      => $ctx->{cache_dir},
@@ -90,16 +91,16 @@ sub execute {
       my @out = `qemu-img resize $format $tmp $size`;
       my $ec = $? >> 8;
 
-      die "ERROR while resizing (exit code: $ec): @out" if $ec;
+      croak("ERROR while resizing (exit code: $ec): @out") if $ec;
 
       $self->logger->info("Sucessfully resized image '$img' to $size");
 
-      return "Sucessfully resized image '$tmp' to $size"
+      return "Sucessfully resized image '$tmp' to $size";
     }
   } else {
-    die "Image file has wrong suffix '".$self->vm_image_file."'.\nList of supported suffixes: <$supported_suf> !\n";
+    croak('Image file has wrong suffix \''.$self->vm_image_file."'.\nList of supported suffixes: <$supported_suf> !\n");
   }
-  return;
+  return ();
 }
 
 1;
@@ -136,6 +137,8 @@ This handler resizes a downloaded image to a given size using 'qemu-img'
  vm_image_file
 
 =head2 setters
+
+ tmp_image_file
 
 =head1 DEFAULTS
 
