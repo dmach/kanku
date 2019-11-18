@@ -474,7 +474,8 @@ sub remove_domain {
     }
 
     $self->logger->debug("Checking for snapshots of domain '".$dom->get_name."'");
-    my @snapshots = $dom->list_snapshots();
+    my @snapshots = $dom->list_all_snapshots();
+    $self->logger->debug("List of snapshots: (@snapshots)");
     for my $snap (@snapshots) {
       $snap->delete;
     }
