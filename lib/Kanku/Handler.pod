@@ -75,10 +75,6 @@ which are executed in this order.
 
 =item L<Kanku::Handler::OpenStack::RemoveInstance>
 
-=item Kanku::Handler::FileCopy               - DEPRECATED
-
-=item Kanku::Handler::FileMove               - DEPRECATED
-
 =item Kanku::Handler::OBSDownload	     - DEPRECATED
 
 =back

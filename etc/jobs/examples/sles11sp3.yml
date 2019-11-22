@@ -14,8 +14,6 @@ tasks:
   -
     use_module: Kanku::Handler::RemoveDomain
   -
-    use_module: Kanku::Handler::FileMove
-  -
     use_module: Kanku::Handler::CreateDomain
     options:
       memory: 2097152
