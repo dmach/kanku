@@ -63,7 +63,13 @@ has [qw/
 
 has "+images_dir"     => (default=>"/var/lib/libvirt/images");
 
-has ['cache_dir']     => (is=>'rw',isa=>'Str');
+has ['cache_dir']     => (
+  is      => 'rw',
+  isa     => 'Str',
+  default => sub {
+    return Kanku::Config->instance->cache_dir;
+  },
+);
 
 has ['mnt_dir_9p']    => (is => 'rw', isa => 'Str', default => '/tmp/kanku');
 
@@ -610,8 +616,6 @@ If configured a port_forward_list, it tries to find the next free port and confi
  login_user
 
  login_pass
-
- use_cache
 
  vm_template_file
 

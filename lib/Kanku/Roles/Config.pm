@@ -18,6 +18,7 @@ package Kanku::Roles::Config;
 
 use Moose::Role;
 use Path::Class::File;
+use Path::Class::Dir;
 use Data::Dumper;
 use Kanku::YAML;
 use Try::Tiny;
@@ -43,6 +44,15 @@ has views_dir => (
   is        => 'rw',
   isa       => "Str",
   default   => '/usr/share/kanku/views',
+);
+
+has cache_dir => (
+  is        =>'rw',
+  isa       =>'Str',
+  lazy      => 1,
+  default   => sub {
+    return $_[0]->config()->{cache_dir};
+  }
 );
 
 sub _build_config {

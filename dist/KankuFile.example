@@ -2,7 +2,6 @@ domain_name: obs-server-devel
 default_job: obs-server
 login_user: root
 login_pass: opensuse
-use_cache: 1
 
 qemu:
   user: frank

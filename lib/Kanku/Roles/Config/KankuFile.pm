@@ -55,4 +55,13 @@ sub job_list {
   return keys(%{$_[0]->config->{jobs}});
 }
 
+has cache_dir => (
+  is        =>'rw',
+  isa       =>'Str',
+  lazy      => 1,
+  default   => sub {
+    return Path::Class::Dir->new($ENV{HOME},".cache","kanku")->stringify;
+  }
+);
+
 1;

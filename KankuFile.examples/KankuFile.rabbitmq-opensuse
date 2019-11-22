@@ -29,8 +29,6 @@ jobs:
       package: openSUSE-Leap-42.3-JeOS
   -
     use_module: Kanku::Handler::ImageDownload
-    options:
-      use_cache: 1
   -
     use_module: Kanku::Handler::CreateDomain
     options:

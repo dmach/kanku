@@ -1,27 +1,22 @@
 domain_name: fstest
 default_job: testfs
 login_user: root
-login_pass: vagrant
-
-qemu:
-  user: <user>
+login_pass: fedora
 
 jobs:
  testfs:
   -
     use_module: Kanku::Handler::ImageDownload
     options:
-      url: <uri_to_image>
-      use_cache: 1
+      url: http://ftp-stud.hs-esslingen.de/pub/fedora/linux/releases/31/Cloud/x86_64/images/Fedora-Cloud-Base-31-1.9.x86_64.qcow2
   -
     use_module: Kanku::Handler::RemoveDomain
   -
     use_module: Kanku::Handler::CreateDomain
     options:
-      memory: 2097152
+      memory: 2G
       vcpu: 2
       management_interface: eth0
       use_9p: 1
-      images_dir: /var/lib/libvirt/images
   -
     use_module: Kanku::Handler::PrepareSSH

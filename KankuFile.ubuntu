@@ -28,9 +28,6 @@ jobs:
       preferred_extension: qcow2
   -
     use_module: Kanku::Handler::ImageDownload
-    options:
-      use_cache: 1
-
   -
     use_module: Kanku::Handler::CreateDomain
     options:

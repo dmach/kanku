@@ -36,14 +36,11 @@ has [qw/
 ] => (is=>'rw',isa=>'Str');
 
 has [qw/
-
   skip_all_checks
   skip_check_project
   skip_check_package
   skip_download
   offline
-  use_cache
-
 /] => (is => 'ro', isa => 'Bool',default => 0 );
 
 has [qw/
@@ -113,7 +110,7 @@ sub execute {
     os_instance_name os_image_id login_user login_pass 
     privatekey_path publickey_path
     host_dir_9p accessmode_9p
-    vm_image_file use_cache
+    vm_image_file
   /) {
     if ($self->$var()){
       $self->logger->debug("Setting variable $var in context to ".$self->$var());
@@ -181,8 +178,6 @@ For further explaination of these options please have a look at the correspondin
       skip_download
 
       cache_dir
-
-      use_cache
 
       images_dir
 

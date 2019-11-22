@@ -3,6 +3,7 @@
 
 views_dir: /usr/share/kanku/views
 log_dir: /var/log/kanku
+cache_dir: /var/cache/kanku
 
 Kanku::Util::DoD:
   use_oscrc: 0

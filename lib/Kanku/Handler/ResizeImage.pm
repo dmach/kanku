@@ -22,6 +22,7 @@ use Data::Dumper;
 use File::Temp;
 use File::Copy;
 use Carp;
+use Kanku::Config;
 
 with 'Kanku::Roles::Handler';
 
@@ -29,10 +30,6 @@ has [qw/
       vm_image_file
       disk_size
 /] => (is => 'rw',isa=>'Str');
-
-has 'disk_size'         => ( is => 'rw',isa => 'Str' );
-
-has 'use_cache'         => ( is => 'rw',isa => 'Bool' );
 
 has gui_config => (
   is => 'ro',
@@ -54,15 +51,11 @@ sub distributable { return 1; }
 sub execute {
   my $self = shift;
   my $ctx  = $self->job->context();
-  my ($img, $size, $tmp);
+  my $cfg = Kanku::Config->instance();
+  my ($tmp);
 
-  $ctx->{use_cache} = $self->use_cache if defined $self->use_cache;
-
-  if ($ctx->{use_cache}) {
-    $self->vm_image_file(Path::Class::File->new($ctx->{cache_dir},$ctx->{vm_image_file})->stringify);
-  } else {
-    $self->vm_image_file($ctx->{vm_image_file});
-  }
+  my $img  = ($ctx->{vm_image_file} =~ m#/#) ? $ctx->{vm_image_file} : Path::Class::File->new($cfg->cache_dir,$ctx->{vm_image_file});
+  my $size = $self->disk_size;
 
   # 0 means that format is the same as suffix
   my %supported_formats = (
@@ -71,22 +64,21 @@ sub execute {
     img      => 'raw',
     vhdfixed => 'raw',
   );
+
   my $supported_suf = join q{|}, keys %supported_formats;
-  if ( $self->vm_image_file =~ /[.]($supported_suf)$/ ) {
+
+  if ( $img =~ /[.]($supported_suf)$/ ) {
     my $ext = $1;
-    if ( $self->disk_size ) {
+    if ( $size ) {
       my $template = 'XXXXXXXX';
       my $format = '-f ' . ( $supported_formats{$ext} || $ext );
-      $ctx->{tmp_image_file} = File::Temp->new(
+      $tmp = $ctx->{tmp_image_file} = File::Temp->new(
                                  TEMPLATE => $template,
-                                 DIR      => $ctx->{cache_dir},
+                                 DIR      => $cfg->cache_dir,
                                  SUFFIX   => ".$ext",
                                );
-      $tmp  = $ctx->{tmp_image_file};
-      $img  = $self->vm_image_file;
-      $size = $self->disk_size;
       $self->logger->debug("--- copying image '$img' to '$tmp'");
-      copy($img, $tmp);
+      copy($img, $tmp) or croak("Copy failed: $!");
       $self->logger->debug("--- trying to resize image '$tmp' to $size (format: $format)");
       my @out = `qemu-img resize $format $tmp $size`;
       my $ec = $? >> 8;
@@ -98,7 +90,7 @@ sub execute {
       return "Sucessfully resized image '$tmp' to $size";
     }
   } else {
-    croak('Image file has wrong suffix \''.$self->vm_image_file."'.\nList of supported suffixes: <$supported_suf> !\n");
+    croak("Image file has wrong suffix '$img'.\nList of supported suffixes: <$supported_suf> !\n");
   }
   return ();
 }

@@ -23,14 +23,14 @@ use feature 'say';
 use File::Copy;
 use Try::Tiny;
 use Archive::Cpio;
+use Kanku::Config;
 extends 'Kanku::Handler::HTTPDownload';
 
 with 'Kanku::Roles::Handler';
 with 'Kanku::Roles::Logger';
 
 has ['vm_image_file','url'] => (is=>'rw',isa=>'Str');
-has ['use_cache','offline'] => (is=>'rw',isa=>'Bool',default=>0);
-has ['cache_dir'] => (is=>'rw',isa=>'Str');
+has ['offline'] => (is=>'rw',isa=>'Bool',default=>0);
 
 sub distributable { 1 }
 
@@ -39,8 +39,6 @@ sub prepare {
   my $ctx  = $self->job()->context();
 
   $self->offline(1)   if ($ctx->{offline});
-  $self->use_cache(1) if ($ctx->{use_cache});
-  $self->cache_dir($ctx->{cache_dir}) if ($ctx->{cache_dir});
 
   return {
     state => 'succeed',
@@ -66,21 +64,15 @@ sub execute {
       die "Neither vm_image_url nor obs_direct_url found in context"
     }
   }
+  my $cfg  = Kanku::Config->instance();
 
-  my $curl =  Kanku::Util::CurlHttpDownload->new(
-    url => $self->url,
-    etag => $self->get_etag
+  my $curl = Kanku::Util::CurlHttpDownload->new(
+    url       => $self->url,
+    etag      => $self->get_etag,
+    cache_dir => $cfg->cache_dir,
   );
 
   $curl->output_file($self->_calc_output_file());
-
-  $ctx->{use_cache} = 1;
-  $curl->use_cache(1);
-  if ( $self->cache_dir ) {
-    $curl->cache_dir(Path::Class::Dir->new($self->cache_dir));
-  } else {
-    $ctx->{cache_dir} |= $curl->cache_dir();
-  }
 
   $logger->debug("Using output file: ".$curl->output_file);
 
@@ -138,11 +130,6 @@ sub execute {
     }
   };
 
-  push(
-    @{$ctx->{"Kanku::Handler::FileMove"}->{files_to_move}},
-    [$tmp_file,$ctx->{vm_image_file}]
-  );
-
   $self->update_history($tmp_file, $etag);
 
   return {
@@ -161,7 +148,6 @@ sub _calc_output_file {
   } else {
     $output_file =  $self->url;
     $output_file =~ s#.*/(.*)$#$1#;
-    $self->use_cache(1);
   }
 
   return $output_file;
@@ -206,7 +192,6 @@ sub get_from_history {
   die "Could not find result for vm_image_url: $ctx->{vm_image_url}\n" unless $rs;
 
 
-  $ctx->{use_cache} = 1;
   $ctx->{vm_image_file} |= $rs->vm_image_file;
 
   return {
@@ -231,7 +216,6 @@ Here is an example how to configure the module in your jobs file or KankuFile
   -
     use_module: Kanku::Handler::ImageDownload
     options:
-      use_cache: 1
       url: http://example.com/path/to/image.qcow2
       output_file: /tmp/mydomain.qcow2
 
@@ -246,9 +230,9 @@ This handler downloads a file from a given url to the local filesystem and sets 
 
   vm_image_file   : absolute path to file where image will be store in local filesystem
 
-  offline         : proceed in offline mode ( skip download and set use_cache in context)
+  offline         : proceed in offline mode (skip download and lookup last
+                    downloaded image in database)
 
-  use_cache       : use cached files in users cache directory
 
 =head1 CONTEXT
 

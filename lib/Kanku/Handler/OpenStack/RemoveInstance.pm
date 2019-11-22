@@ -57,8 +57,6 @@ sub prepare {
   $self->name($ctx->{os_instance_name})	      if $ctx->{os_instance_name};
 
   die "No name for instance set!\n" unless $self->name;
-#  die "No container_format set in image_properties\n" unless $self->image_properties->{container_format};
-#  die "No disk_format set in image_properties\n"      unless $self->image_properties->{disk_format};
 
   return {
     state => 'succeed',
@@ -92,16 +90,20 @@ __END__
 =head1 NAME
 
 Kanku::Handler::OpenStack::Image
+
 =head1 SYNOPSIS
 
 Here is an example how to configure the module in your jobs file or KankuFile
 FIXME: This has to be updated
   -
-    use_module: Kanku::Handler::ImageDownload
+    use_module: Kanku::Handler::OpenStack::Image
     options:
-      use_cache: 1
-      url: http://example.com/path/to/image.qcow2
-      output_file: /tmp/mydomain.qcow2
+      name: your_vm_name
+      import_from: http://example.com/path/to/image.qcow2
+      os_auth_url: 
+      os_tenant_name:
+      os_username: 
+      os_password: 
 
 
 =head1 DESCRIPTION
@@ -110,13 +112,7 @@ This handler downloads a file from a given url to the local filesystem and sets 
 
 =head1 OPTIONS
 
-  url             : url to download file from
-
-  vm_image_file   : absolute path to file where image will be store in local filesystem
-
-  offline         : proceed in offline mode ( skip download and set use_cache in context)
-
-  use_cache       : use cached files in users cache directory
+  TODO: write documentation
 
 =head1 CONTEXT
 

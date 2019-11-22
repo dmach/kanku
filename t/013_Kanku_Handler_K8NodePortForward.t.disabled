@@ -23,7 +23,6 @@ my $logger = get_logger();
 
 my $job = Kanku::Job->new();
 
-#$job->context()->{cache_dir} = $FindBin::Bin."/tmp/cache/";
 $job->context()->{ipaddress} = "192.168.199.18";
 
 my $handler = Kanku::Handler::K8NodePortForward->new(

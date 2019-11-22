@@ -29,12 +29,6 @@ jobs:
       use_oscrc: 0
   -
     use_module: Kanku::Handler::ImageDownload
-    options:
-      use_cache: 1
-#  -
-#    use_module: Kanku::Handler::ResizeImage
-#    options:
-#      disk_size: 10G
   -
     use_module: Kanku::Handler::CreateDomain
     options:

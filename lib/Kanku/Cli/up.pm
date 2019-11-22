@@ -118,7 +118,6 @@ sub run {
           domain_name        => $dn,
           login_user         => $cfg->config->{login_user},
           login_pass         => $cfg->config->{login_pass},
-          use_cache          => $cfg->config->{use_cache},
           offline            => $self->offline            || 0,
           skip_all_checks    => $self->skip_all_checks    || 0,
           skip_check_project => $self->skip_check_project || 0,

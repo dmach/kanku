@@ -44,13 +44,7 @@ has url => (
   required  => 1
 );
 
-has use_temp_file => (
-  is        =>'rw',
-  isa       =>'Bool',
-  default   => 0
-);
-
-has [ qw/use_cache use_temp_file offline/ ] => (
+has [ qw/offline use_temp_file/ ] => (
   is        =>'rw',
   isa       =>'Bool',
   default   => 0
@@ -58,15 +52,9 @@ has [ qw/use_cache use_temp_file offline/ ] => (
 
 has cache_dir => (
   is        =>'rw',
-  isa       =>'Object',
+  isa       =>'Str',
   lazy      => 1,
-  default   => sub {
-    my $pkg  = __PACKAGE__;
-    my $cdir = Kanku::Config->instance->config()->{$pkg}->{cache_dir};
-    return ($cdir)
-           ? Path::Class::Dir->new($cdir)
-           : Path::Class::Dir->new($ENV{HOME},".cache","kanku");
-  }
+  default   => sub { return Kanku::Config->instance->config()->cache_dir; },
 );
 
 has [qw/username password/] => (
@@ -89,13 +77,9 @@ sub download {
 
   if ( $self->output_file ) {
     if ( $self->output_dir ) {
-      $self->logger("ATTENTION: You have set output_dir _and_ output_file - output_file will be preferred");
+      $self->logger->warn('ATTENTION: You have set output_dir _and_ output_file - output_file will be preferred');
     }
-    if ( $self->use_cache ) {
-      $file = Path::Class::File->new($self->cache_dir,$self->output_file);
-    } else {
-      $file = Path::Class::File->new($self->output_file);
-    }
+    $file = Path::Class::File->new($self->cache_dir,$self->output_file);
   }
   elsif ( $self->output_dir )
   {

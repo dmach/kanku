@@ -129,7 +129,7 @@ has get_image_file_from_url => (
   },
 );
 
-has [qw/skip_all_checks skip_check_project skip_check_package use_cache/ ] => (is => 'ro', isa => 'Bool',default => 0 );
+has [qw/skip_all_checks skip_check_project skip_check_package/ ] => (is => 'ro', isa => 'Bool',default => 0 );
 has [qw/use_oscrc/ ] => (is => 'ro', isa => 'Bool',default => 1);
 
 has pkg_config => (
@@ -187,17 +187,14 @@ sub download {
   my $file  = $self->images_dir() . q{/} . $fn;
 
   $self->logger->debug(' -- state of skip_all_checks : '.$self->skip_all_checks);
-  $self->logger->debug(' -- use_cache : '.$self->use_cache);
 
 
-  if (! $self->use_cache ) {
-    $self->check_before_download();
-  }
+  $self->check_before_download();
+
 
   my $curl = Kanku::Util::CurlHttpDownload->new(
       url         => $url,
       output_file => $file,
-      use_cache   => $self->use_cache,
   );
 
   return $curl->download();

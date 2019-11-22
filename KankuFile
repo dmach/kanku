@@ -31,8 +31,10 @@ jobs:
       package: openSUSE-Leap-15.2-JeOS
   -
     use_module: Kanku::Handler::ImageDownload
+  -
+    use_module: Kanku::Handler::ResizeImage
     options:
-      use_cache: 1
+      disk_size: 100G
   -
     use_module: Kanku::Handler::CreateDomain
     options:
@@ -95,8 +97,10 @@ jobs:
       package: openSUSE-Leap-15.2-JeOS
   -
     use_module: Kanku::Handler::ImageDownload
+  -
+    use_module: Kanku::Handler::ResizeImage
     options:
-      use_cache: 1
+      disk_size: 100G
   -
     use_module: Kanku::Handler::CreateDomain
     options:
@@ -120,7 +124,7 @@ jobs:
         - zypper -n in vim-data curl make apache2 systemd-bash-completion sqlite3
         - zypper -n in kanku-cli
         - make -C /tmp/kanku install
-        - "rclibvirtd stop;perl -p -i -e 's/192.168.122/192.168.129/g' /etc/libvirt/qemu/networks/default.xml ; rclibvirtd start"
+        - "rclibvirtd stop;perl -p -i -e 's/192.168.122/192.168.128/g' /etc/libvirt/qemu/networks/default.xml ; rclibvirtd start"
         - kanku setup --devel --user kanku
   -
     use_module: Kanku::Handler::ExecuteCommandViaSSH

@@ -37,7 +37,6 @@ has dod_object => (
       project             => $self->project,
       package             => $self->package,
       api_url             => $self->api_url,
-      use_cache           => $self->use_cache,
       preferred_extension => $self->preferred_extension,
       use_oscrc           => $self->use_oscrc,
     );
@@ -55,7 +54,7 @@ has _changed => (is=>'rw',isa=>'Bool',default=>0);
 has _binary => (is=>'rw',isa=>'HashRef',lazy=>1,default=>sub { { } });
 
 has [qw/skip_check_project skip_check_package skip_download/ ] => (is => 'ro', isa => 'Bool',default => 0 );
-has [qw/offline use_cache skip_all_checks use_oscrc/ ] => (is => 'rw', isa => 'Bool',default => 0 );
+has [qw/offline skip_all_checks use_oscrc/ ] => (is => 'rw', isa => 'Bool',default => 0 );
 has [qw/use_oscrc/ ] => (is => 'rw', isa => 'Bool',default => 1);
 
 
@@ -99,7 +98,6 @@ sub prepare {
   my $ctx       = $self->job()->context();
 
   $self->offline(1)           if ( $ctx->{offline} );
-  $self->use_cache(1)         if ( $ctx->{use_cache} );
   $self->skip_all_checks(1)   if ( $ctx->{skip_all_checks} );
 
   return {
@@ -144,8 +142,6 @@ sub execute {
       (! $self->job->triggered) and
       (! $self->skip_all_checks)
   ) {
-    # TODO: implement offline mode
-    #
     my $prep_result = $last_run->{prepare}->{binary};
     foreach my $key (qw/mtime filename size/) {
       my $bv = $binary->{$key} || q{};
@@ -169,24 +165,22 @@ sub execute {
     };
   }
 
-  if ( ! $self->use_cache ) {
-    try {
-      $dod->check_before_download();
-    }
-    catch {
-      my $e = $_;
-      if (! ref($e) && $e =~ /^(Project|Package) not ready yet$/ ) {
-        $self->logger->warn($e);
-        $self->job->skipped(1);
-        return {
-          code    => 0,
-          state   => 'skipped',
-          message => $e,
-        };
-      }
-      croak($e);
-    };
+  try {
+    $dod->check_before_download();
   }
+  catch {
+    my $e = $_;
+    if (! ref($e) && $e =~ /^(Project|Package) not ready yet$/ ) {
+      $self->logger->warn($e);
+      $self->job->skipped(1);
+      return {
+	code    => 0,
+	state   => 'skipped',
+	message => $e,
+      };
+    }
+    croak($e);
+  };
 
   $ctx->{vm_image_url}   = $binary->{url};
   $ctx->{obs_direct_url} = $binary->{bin_url};
@@ -281,7 +275,6 @@ Here is an example how to configure the module in your jobs file or KankuFile
       project: devel:kanku:images
       package: openSUSE-Leap-15.0-JeOS
       repository: images_leap_15_0
-      use_cache: 1
 
 
 =head1 DESCRIPTION
@@ -308,17 +301,14 @@ This handler downloads a file from a given url to the local filesystem and sets 
 
   skip_download       : no changes detected in OBS skip downloading image file if found in cache
 
-  offline             : proceed in offline mode ( skip download and set use_cache in context)
-
-  use_cache           : use cached files if found in users cache directory
+  offline             : proceed in offline mode (skip download and lookup last
+                        downloaded image in database)
 
 =head1 CONTEXT
 
 =head2 getters
 
   offline
-
-  use_cache
 
   skip_all_checks
 
