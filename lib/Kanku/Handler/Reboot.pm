@@ -132,7 +132,8 @@ Here is an example how to configure the module in your jobs file or KankuFile
     options:
       wait_for_console: 1
       wait_for_network: 1
-      timeout:          600 
+      timeout:          600
+      allow_ip_change:  1
       ....
 
 =head1 DESCRIPTION
@@ -148,6 +149,8 @@ This handler reboots the VM and optional waits for network and console.
 
     timeout :          wait only <seconds>
 
+    allow_ip_change:   allow VM to change ip address on reboot
+
 =head1 CONTEXT
 
 =head2 getters
@@ -162,7 +165,9 @@ This handler reboots the VM and optional waits for network and console.
  
     wait_for_network : 1 (true)
 
-    timeout : 600 seconds
+    timeout          : 600 seconds
+
+    allow_ip_change  : 0 (false)
 
 =cut
 
