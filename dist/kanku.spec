@@ -359,17 +359,19 @@ Requires: smtp_daemon
 TODO:
  add a useful description
 
-%pre web
-%service_add_pre kanku-web.service
+#%systemd_post()
+#%systemd_preun()
+#%systemd_postun()
+#%systemd_postun_with_restart() \
 
 %post web
-%service_add_post kanku-web.service
+%systemd_post kanku-web.service
 
 %preun web
-%service_del_preun kanku-web.service
+%systemd_preun kanku-web.service
 
 %postun web
-%service_del_postun kanku-web.service
+%systemd_postun_with_restart kanku-web.service
 
 %files web
 %attr(755,root,root) /usr/lib/kanku/kanku-app.psgi
@@ -424,17 +426,14 @@ Recommends: apache2
 %description worker
 A simple remote worker for kanku based on RabbitMQ
 
-%pre worker
-%service_add_pre kanku-worker.service
-
 %post worker
-%service_add_post kanku-worker.service
+%systemd_post kanku-worker.service
 
 %preun worker
-%service_del_preun kanku-worker.service
+%systemd_preun kanku-worker.service
 
 %postun worker
-%service_del_postun kanku-worker.service
+%systemd_postun_with_restart kanku-worker.service
 
 %files worker
 /etc/apache2/conf.d/kanku-worker.conf
@@ -455,17 +454,14 @@ Recommends: rabbitmq-server
 %description dispatcher
 A simple dispatcher for kanku based on RabbitMQ
 
-%pre dispatcher
-%service_add_pre kanku-dispatcher.service
-
 %post dispatcher
-%service_add_post kanku-dispatcher.service
+%systemd_post kanku-dispatcher.service
 
 %preun dispatcher
-%service_del_preun kanku-dispatcher.service
+%systemd_preun kanku-dispatcher.service
 
 %postun dispatcher
-%service_del_postun kanku-dispatcher.service
+%systemd_postun_with_restart kanku-dispatcher.service
 
 %files dispatcher
 %{_unitdir}/kanku-dispatcher.service
@@ -483,17 +479,14 @@ Requires: kanku-common-server
 %description scheduler
 A simple scheduler for kanku based on RabbitMQ
 
-%pre scheduler
-%service_add_pre kanku-scheduler.service
-
 %post scheduler
-%service_add_post kanku-scheduler.service
+%systemd_post kanku-scheduler.service
 
 %preun scheduler
-%service_del_preun kanku-scheduler.service
+%systemd_preun kanku-scheduler.service
 
 %postun scheduler
-%service_del_postun kanku-scheduler.service
+%systemd_postun_with_restart kanku-scheduler.service
 
 %files scheduler
 %attr(755,root,root) %{_sbindir}/kanku-scheduler
