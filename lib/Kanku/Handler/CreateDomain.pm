@@ -260,6 +260,8 @@ sub execute {
 
   $vm->create_domain();
 
+  $ctx->{tmp_image_file} = undef if exists $ctx->{tmp_image_file};
+
   my $con = $vm->console();
 
   $con->cmd_timeout($self->default_console_timeout);
