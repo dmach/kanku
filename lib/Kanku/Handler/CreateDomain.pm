@@ -165,9 +165,7 @@ sub prepare {
     if $self->management_interface;
 
   $self->logger->debug("*** vm_image_file: ".$self->vm_image_file);
-  if ($self->root_disk_size && $self->vm_image_file !~ /(\.raw(\.gz|\.xz)?)$/) {
-    die "Option \"root_disk_size\" is only available for raw images (extension: $1)!\n";
-  }
+  $self->logger->debug("*** tmp_image_file: ".$ctx->{tmp_image_file}) if $ctx->{tmp_image_file};
 
   return {
     code    => 0,
@@ -211,8 +209,14 @@ sub execute {
 
   my $final_file = ($ctx->{tmp_image_file} ) ? basename($ctx->{tmp_image_file}->filename) : $self->vm_image_file;
 
+  if ($self->root_disk_size) {
+    croak("Using Kanku::Handler::ResizeImage AND root_disk_size is not supported") if $ctx->{tmp_image_file};
+    my $img_obj = Kanku::Util::VM::Image->new();
+    $ctx->{tmp_image_file} = $img_obj->resize_image($final_file, $self->root_disk_size);
+    $final_file = $ctx->{tmp_image_file}->filename;
+  }
 
-  my ($vol, $image) = $self->_create_image_file_from_cache({file=>$final_file}, $self->root_disk_size, $self->domain_name);
+  my ($vol, $image) = $self->_create_image_file_from_cache({file=>$final_file}, 0, $self->domain_name);
 
   $final_file = $vol->get_path();
   for my $file(@{$self->additional_disks}) {
@@ -455,9 +459,10 @@ sub _create_image_file_from_cache {
   );
   my $supported_formats = join('|', keys %suffix2format);
   $self->logger->debug("file: --- $file");
-  my $in = Path::Class::File->new($self->cache_dir,$file);
+  my $cache_dir = ($file =~ m#/#) ? '' : $self->cache_dir;
+  my $in = Path::Class::File->new($cache_dir, $file);
+
   $self->logger->debug("Using file ".$in->stringify);
-  $self->logger->info("Resizing to new root_disk_size: $size");
   if ( $file =~ /\.($supported_formats)(\.(gz|bz2|xz))?$/ ) {
     my $fmt      = $1;
     my $vol_name = $file;

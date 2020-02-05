@@ -20,17 +20,15 @@ use Moose;
 
 use Sys::Virt;
 use Sys::Virt::Stream;
-use Expect;
-use Template;
-use Cwd;
-use Net::IP;
-use Kanku::Util::VM::Console;
-use XML::XPath;
 use Try::Tiny;
 use File::LibMagic;
-use IO::Uncompress::AnyUncompress qw/$AnyUncompressError/;
 use File::Temp;
+use File::Copy;
+use IO::Uncompress::AnyUncompress qw/$AnyUncompressError/;
 use Carp;
+
+use Kanku::Util::VM::Console;
+use Kanku::Config;
 
 has [qw/uri pool_name vol_name source_file size format/ ]  => ( is=>'rw', isa => 'Str');
 has 'final_size'  => ( is=>'rw', isa => 'Str',default=>0);
@@ -159,10 +157,55 @@ sub get_image_size {
   }
   my $vol  = $self->vol_name;
   my $size = $self->_string2bytes($self->size);
+  $self->logger->debug(" -------- size: $size");
 
   croak("Size of volume '$vol' could not be determined\n") unless $size;
 
   return $size;
+}
+
+sub resize_image {
+  my ($self, $img, $size) = @_;
+  my $cfg = Kanku::Config->instance();
+  my $tmp;
+
+  $img =Path::Class::File->new($cfg->cache_dir, $img) unless ($img =~ m#/#);
+
+  # 0 means that format is the same as suffix
+  my %supported_formats = (
+    qcow2    => 0,
+    raw      => 0,
+    img      => 'raw',
+    vhdfixed => 'raw',
+  );
+
+  my $supported_suf = join q{|}, keys %supported_formats;
+
+  if ( $img =~ /[.]($supported_suf)$/ ) {
+    my $ext = $1;
+    if ( $size ) {
+      my $template = 'XXXXXXXX';
+      my $format = '-f ' . ( $supported_formats{$ext} || $ext );
+      $tmp = File::Temp->new(
+                                 TEMPLATE => $template,
+                                 DIR      => $cfg->cache_dir,
+                                 SUFFIX   => ".$ext",
+                               );
+      $self->logger->debug("--- copying image '$img' to '$tmp'");
+      copy($img, $tmp) or croak("Copy failed: $!");
+      $self->logger->debug("--- trying to resize image '$tmp' to $size (format: $format)");
+      my @out = `qemu-img resize $format $tmp $size`;
+      my $ec = $? >> 8;
+
+      croak("ERROR while resizing (exit code: $ec): @out") if $ec;
+
+      $self->logger->info("Sucessfully resized image '$tmp' to $size");
+    }
+  } else {
+    croak("Image file has wrong suffix '$img'.\nList of supported suffixes: <$supported_suf> !\n");
+  }
+
+  return $tmp;
 }
 
 sub _string2bytes {

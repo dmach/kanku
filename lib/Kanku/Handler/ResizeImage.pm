@@ -23,6 +23,7 @@ use File::Temp;
 use File::Copy;
 use Carp;
 use Kanku::Config;
+use Kanku::Util::VM::Image;
 
 with 'Kanku::Roles::Handler';
 
@@ -54,45 +55,16 @@ sub execute {
   my $cfg = Kanku::Config->instance();
   my ($tmp);
 
-  my $img  = ($ctx->{vm_image_file} =~ m#/#) ? $ctx->{vm_image_file} : Path::Class::File->new($cfg->cache_dir,$ctx->{vm_image_file});
+  my $img  = ($ctx->{vm_image_file} =~ m#/#)
+    ? $ctx->{vm_image_file}
+    : Path::Class::File->new($cfg->cache_dir, $ctx->{vm_image_file});
   my $size = $self->disk_size;
 
-  # 0 means that format is the same as suffix
-  my %supported_formats = (
-    qcow2    => 0,
-    raw      => 0,
-    img      => 'raw',
-    vhdfixed => 'raw',
-  );
+  my $img_obj = Kanku::Util::VM::Image->new();
 
-  my $supported_suf = join q{|}, keys %supported_formats;
+  $ctx->{tmp_image_file} = $img_obj->resize_image($img, $size);
 
-  if ( $img =~ /[.]($supported_suf)$/ ) {
-    my $ext = $1;
-    if ( $size ) {
-      my $template = 'XXXXXXXX';
-      my $format = '-f ' . ( $supported_formats{$ext} || $ext );
-      $tmp = $ctx->{tmp_image_file} = File::Temp->new(
-                                 TEMPLATE => $template,
-                                 DIR      => $cfg->cache_dir,
-                                 SUFFIX   => ".$ext",
-                               );
-      $self->logger->debug("--- copying image '$img' to '$tmp'");
-      copy($img, $tmp) or croak("Copy failed: $!");
-      $self->logger->debug("--- trying to resize image '$tmp' to $size (format: $format)");
-      my @out = `qemu-img resize $format $tmp $size`;
-      my $ec = $? >> 8;
-
-      croak("ERROR while resizing (exit code: $ec): @out") if $ec;
-
-      $self->logger->info("Sucessfully resized image '$img' to $size");
-
-      return "Sucessfully resized image '$tmp' to $size";
-    }
-  } else {
-    croak("Image file has wrong suffix '$img'.\nList of supported suffixes: <$supported_suf> !\n");
-  }
-  return ();
+  return "Sucessfully resized image '$ctx->{tmp_image_file}' to $size";
 }
 
 1;
