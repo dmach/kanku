@@ -47,7 +47,7 @@ has gui_config => (
   },
 );
 
-sub distributable { return 1; }
+sub distributable { return -1; }
 
 sub execute {
   my $self = shift;

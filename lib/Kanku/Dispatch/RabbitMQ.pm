@@ -30,12 +30,13 @@ our $VERSION = "0.0.1";
 
 use JSON::XS;
 use POSIX;
+use Try::Tiny;
+use Carp;
 use Kanku::RabbitMQ;
 use Kanku::Task;
 use Kanku::Task::Local;
 use Kanku::Task::Remote;
 use Kanku::Task::RemoteAll;
-use Try::Tiny;
 
 with 'Kanku::Roles::Dispatcher';
 with 'Kanku::Roles::ModLoader';
@@ -344,7 +345,9 @@ sub run_task {
 
   my $tr;
 
-  if ( $distributable == 0 ) {
+  if ( $distributable < 0 ) {
+    croak("The configured module $mod is not distributable!\n");
+  } elsif ( $distributable == 0 ) {
     $tr = Kanku::Task::Local->new(
       %defaults,
       schema          => $self->schema
@@ -357,14 +360,13 @@ sub run_task {
       daemon	=> $self,
     );
   } elsif ( $distributable == 2 ) {
-
     $tr = Kanku::Task::RemoteAll->new(
       %defaults,
       kmq => $opts{kmq},
       local_job_queue_name => $opts{kmq}->queue_name,
     );
   } else {
-    die "Unknown distributable value '$distributable' for module $mod\n"
+    croak("Unknown distributable value '$distributable' for module $mod\n");
   }
 
   return $task->run($tr);
