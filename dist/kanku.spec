@@ -359,11 +359,6 @@ Requires: smtp_daemon
 TODO:
  add a useful description
 
-#%systemd_post()
-#%systemd_preun()
-#%systemd_postun()
-#%systemd_postun_with_restart() \
-
 %post web
 %systemd_post kanku-web.service
 
@@ -502,17 +497,14 @@ Requires: kanku-common-server
 %description triggerd
 A simple triggerd for kanku based on RabbitMQ
 
-%pre triggerd
-%service_add_pre kanku-triggerd.service
-
 %post triggerd
-%service_add_post kanku-triggerd.service
+%systemd_post kanku-triggerd.service
 
 %preun triggerd
-%service_del_preun kanku-triggerd.service
+%systemd_preun kanku-triggerd.service
 
 %postun triggerd
-%service_del_postun kanku-triggerd.service
+%systemd_postun_with_restart kanku-triggerd.service
 
 %files triggerd
 %attr(755,root,root) %{_sbindir}/kanku-triggerd
