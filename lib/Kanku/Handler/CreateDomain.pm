@@ -212,6 +212,7 @@ sub execute {
   if ($self->root_disk_size) {
     croak("Using Kanku::Handler::ResizeImage AND root_disk_size is not supported") if $ctx->{tmp_image_file};
     my $img_obj = Kanku::Util::VM::Image->new();
+    $self->logger->debug("CreateDomain: resizing to ". $self->root_disk_size);
     $ctx->{tmp_image_file} = $img_obj->resize_image($final_file, $self->root_disk_size);
     $final_file = $ctx->{tmp_image_file}->filename;
   }
