@@ -56,7 +56,7 @@ sub run {
 
   while ( ! $self->apiurl ) {
     print 'Please enter your apiurl: ';
-    my $url = <>;
+    my $url = <STDIN>;
     chomp $url;
     $self->apiurl($url) if $url;
   }
