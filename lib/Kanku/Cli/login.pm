@@ -118,6 +118,7 @@ sub save_settings {
   $self->settings->{$self->apiurl}->{password} = $self->password;
 
   Kanku::YAML::DumpFile($self->rc_file, $self->settings);
+  chmod 0600, $self->rc_file;
 
   return 0;
 }
