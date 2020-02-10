@@ -24,7 +24,7 @@ use Try::Tiny;
 use File::LibMagic;
 use File::Temp;
 use File::Copy;
-use IO::Uncompress::AnyUncompress qw/$AnyUncompressError/;
+use IO::Uncompress::AnyUncompress qw/anyuncompress $AnyUncompressError/;
 use Carp;
 
 use Kanku::Util::VM::Console;
@@ -169,7 +169,7 @@ sub resize_image {
   my $cfg = Kanku::Config->instance();
   my $tmp;
 
-  $img =Path::Class::File->new($cfg->cache_dir, $img) unless ($img =~ m#/#);
+  $img = Path::Class::File->new($cfg->cache_dir, $img) unless ($img =~ m#/#);
 
   # 0 means that format is the same as suffix
   my %supported_formats = (
@@ -181,8 +181,9 @@ sub resize_image {
 
   my $supported_suf = join q{|}, keys %supported_formats;
 
-  if ( $img =~ /[.]($supported_suf)$/ ) {
-    my $ext = $1;
+  if ( $img =~ /[.]($supported_suf)(\.xz|\.gz|\.bz2)?$/ ) {
+    my $ext         = $1;
+    my $compression = $2 || q{};
     if ( $size ) {
       my $template = 'XXXXXXXX';
       my $format = '-f ' . ( $supported_formats{$ext} || $ext );
@@ -191,8 +192,15 @@ sub resize_image {
                                  DIR      => $cfg->cache_dir,
                                  SUFFIX   => ".$ext",
                                );
-      $self->logger->debug("--- copying image '$img' to '$tmp'");
-      copy($img, $tmp) or croak("Copy failed: $!");
+      if ($compression)  {
+        $self->logger->debug("--- uncompress '$img' to '$tmp'");
+        my $input = (ref $img) ? $img->stringify : $img;
+        my $status = anyuncompress $input => $tmp->filename
+          or croak("anyuncompress failed: $AnyUncompressError\n");
+      } else {
+        $self->logger->debug("--- copying image '$img' to '$tmp'");
+        copy($img, $tmp) or croak("Copy failed: $!");
+      }
       $self->logger->debug("--- trying to resize image '$tmp' to $size (format: $format)");
       my @out = `qemu-img resize $format $tmp $size`;
       my $ec = $? >> 8;
