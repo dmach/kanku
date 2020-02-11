@@ -22,6 +22,7 @@ use MooseX::App::Command;
 extends qw(Kanku::Cli);
 
 use Term::ReadKey;
+use Carp;
 use Kanku::YAML;
 
 with 'Kanku::Cli::Roles::Remote';
@@ -46,13 +47,15 @@ sub run {
     if ( ! $self->apiurl ) {
       $self->apiurl( $self->settings->{apiurl} || q{});
     }
+    if ( ! $self->keyring ) {
+      $self->keyring( $self->settings->{keyring} || q{});
+    }
     if ( ! $self->user ) {
       $self->user( $self->settings->{$self->apiurl}->{user} || q{});
     }
-    if ( ! $self->password ) {
-      $self->password( $self->settings->{$self->apiurl}->{password} || q{});
-    }
   }
+
+  $self->choose_keyring() if (!$self->keyring);
 
   while ( ! $self->apiurl ) {
     print 'Please enter your apiurl: ';
@@ -78,16 +81,26 @@ sub run {
 
   while ( ! $self->user ) {
     print 'Please enter your user: ';
-    my $user = <>;
+    my $user = <STDIN>;
     chomp $user;
     $self->user($user) if $user;
+  }
+  my $keyring;
+  if($self->keyring && $self->keyring ne 'None') {
+    my $krmod  = my $krpkg = $self->settings->{keyring};
+    $krmod =~ s#::#/#g;
+    require "$krmod.pm";
+    $keyring = $krpkg->new(app=>'kanku', group => 'kanku');
+    if(! $self->password) {
+      $self->password($keyring->get_password($self->user, $self->apiurl) || q{});
+    }
   }
 
   while ( ! $self->password ) {
 
      print "Please enter your password for the remote server:\n";
      ReadMode('noecho');
-     my $read = <>;
+     my $read = <STDIN>;
      chomp $read;
 
      $self->password($read || qw{});
@@ -100,6 +113,7 @@ sub run {
 
   if ( $self->login() ) {
     # Store new default settings
+    $keyring->set_password($self->user, $self->password, $self->apiurl) if $keyring;
     $self->save_settings();
     $logger->info('Login succeed!');
   } else {
@@ -114,13 +128,57 @@ sub save_settings {
   my $self    = shift;
 
   $self->settings->{apiurl}                    = $self->apiurl;
+  $self->settings->{keyring}                   = $self->keyring;
   $self->settings->{$self->apiurl}->{user}     = $self->user;
-  $self->settings->{$self->apiurl}->{password} = $self->password;
+  # Cleanup old settings from former buggy implementation
+  delete $self->settings->{user};
+  delete $self->settings->{password};
 
   Kanku::YAML::DumpFile($self->rc_file, $self->settings);
   chmod 0600, $self->rc_file;
 
   return 0;
+}
+
+sub choose_keyring {
+  my ($self) = @_;
+  my @keyrings = qw/KDEWallet Gnome/;
+  my @found_keyrings = ('None');
+
+  for my $keyring (@keyrings) {
+    my $mod = "Passwd/Keyring/$keyring.pm";
+    my $pkg = "Passwd::Keyring::$keyring";
+    eval { require "$mod"; import $pkg };
+    push @found_keyrings, $pkg unless $@;
+  }
+
+  if (@found_keyrings == 1) {
+    $self->logger->warn(
+      'No keyring modules found. Please install Passwd::Keyring::KDEWallet or '.
+      'Passwd::Keyring::Gnome if you want to use a keyring manager!'
+    );
+    $self->keyring($found_keyrings[0]);
+    return;
+  }
+
+  print "Please choose one of the following keyring managers to store your password:\n";
+  my $cnt = 0;
+  for my $keyring (@found_keyrings) {
+    print "($cnt) $keyring\n";
+    $cnt++;
+  }
+  print "\n\n";
+
+  while (1) {
+    my $choice = <STDIN>;
+    chomp($choice);
+    if ($choice =~ /^\d+$/) {
+      my $kr = $self->keyring($found_keyrings[$choice]||q{});
+      return $kr if $kr;
+    }
+    print "Invalid input! Please try again\n";
+  }
+
 }
 
 __PACKAGE__->meta->make_immutable;

@@ -296,6 +296,8 @@ Requires(pre): libvirt-daemon libvirt-daemon-driver-qemu qemu-kvm
 Requires(pre): sudo
 Requires: perl(Net::AMQP::RabbitMQ)
 Requires: perl(IO::Interactive)
+Requires: perl(Passwd::Keyring::KDEWallet) if kwalletd5
+Requires: perl(Passwd::Keyring::Gnome) if gnome-keyring
 
 %description cli
 Command line client for kanku, mainly used for setup tasks

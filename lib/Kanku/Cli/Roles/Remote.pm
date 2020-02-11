@@ -57,6 +57,13 @@ option 'rc_file' => (
   default       => "$ENV{HOME}/.kankurc",
 );
 
+option 'keyring' => (
+  isa           => 'Str',
+  is            => 'rw',
+  cmd_aliases   => 'k',
+  documentation => 'Name of keyring backend (KDEWallet/Gnome/Memory)',
+);
+
 has settings => (
   isa           => 'HashRef',
   is            => 'rw',
@@ -72,8 +79,7 @@ has settings => (
     }
     return {
 	apiurl	 => $self->apiurl,
-	password => $self->password,
-        user     => $self->user
+        keyring  => $self->keyring,
     }
   },
 );
@@ -164,7 +170,7 @@ sub login {
     my $result = decode_json($response->decoded_content);
     if ( $result->{authenticated} ) {
       $self->cookie_jar->extract_cookies($response);
-      $self->cookie_jar->save("$ENV{'HOME'}/.kanku_cookiejar");
+      $self->cookie_jar->save($self->_cookie_jar_file);
       return 1;
     } else {
       return 0;
@@ -196,10 +202,10 @@ sub logout {
   if ($response->is_success) {
     unlink $self->_cookie_jar_file ||
       croak('Could not remove '.$self->_cookie_jar_file.": $!");
-    return 1;
   } else {
      croak($response->status_line);
   }
+  return;
 }
 
 sub session_valid {
