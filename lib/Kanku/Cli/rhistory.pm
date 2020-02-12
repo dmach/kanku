@@ -54,6 +54,12 @@ option 'page' => (
   documentation => 'show page X of job history',
 );
 
+option 'state' => (
+  isa           => 'ArrayRef',
+  is            => 'rw',
+  documentation => 'filter for states',
+);
+
 sub run {
   my ($self)  = @_;
   Kanku::Config->initialize;
@@ -82,6 +88,7 @@ sub _list {
   my %params = (
     limit => $self->limit || 10,
     page  => $self->page || 1,
+    state => $self->state || [],
   );
 
   my $data = $kr->get_json( path => 'jobs/list' , params => \%params );

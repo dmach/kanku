@@ -246,7 +246,11 @@ sub get_json {
   my @param_arr;
 
   while (my ($p,$v) = each %{$opts{params}}) {
-    push @param_arr, "$p=$v";
+    if ((ref $v) eq "ARRAY") {
+      push @param_arr, "$p=$_" for @{$v};
+    } else {
+      push @param_arr, "$p=$v";
+    }
   }
 
   my $param_string = join q{&}, @param_arr;
