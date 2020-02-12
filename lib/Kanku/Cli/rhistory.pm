@@ -101,7 +101,6 @@ sub _list {
       $job->{duration} = 'Not started yet';
     }
   }
-
   $self->view('jobs.tt', $data);
   return;
 };
@@ -144,8 +143,8 @@ sub _truncate_result {
 	  $max_lines--;
 	}
 	push @tmp, q{}, '...',"TRUNCATING to $ml lines - use --full to see full output";
-	$task->{result}->{error_message} = join "\n", reverse @tmp . "\n";
-
+	$task->{result}->{error_message} = join "\n", reverse @tmp;
+        $task->{result}->{error_message} .= "\n";
       }
     }
   }
