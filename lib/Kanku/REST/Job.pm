@@ -9,19 +9,34 @@ use Kanku::Config;
 
 sub list {
   my ($self) = @_;
+  my $opts;
+  my $search = {};
   my $limit = $self->params->{limit} || 10;
 
-  my %opts = (
-    rows => $limit,
-    page => $self->params->{page} || 1,
-  );
-
-  my $search = {};
-  if ($self->params->{state}) {
-    $search->{state} = $self->params->{state};
+  if ($self->params->{show_only_latest_results}) {
+    $opts = {
+      order_by =>{-asc =>'name'},
+      distinct => 1,
+      group_by => ['name'],
+      rows => $limit,
+      page => $self->params->{page} || 1,
+    };
+    if ($self->params->{state}) {
+      $search->{state} = $self->params->{state};
+    }
   } else {
-    $search->{state} = [qw/succeed running failed dispatching/];
+    $opts = {
+      order_by =>{-desc  =>'id'},
+      rows => $limit,
+      page => $self->params->{page} || 1,
+    };
+    if ($self->params->{state}) {
+      $search->{state} = $self->params->{state};
+    } else {
+      $search->{state} = [qw/succeed running failed dispatching/];
+    }
   }
+
 
   if ($self->params->{job_name}) {
 	my $jn = $self->params->{job_name};
@@ -29,12 +44,7 @@ sub list {
 	$search->{name}= { like => $jn };
   }
 
-  my $rs = $self->rset('JobHistory')->search(
-		  $search,
-                  {order_by =>{-desc  =>'id'},
-                   %opts,
-                  },
-              );
+  my $rs = $self->rset('JobHistory')->search($search, $opts);
 
   my $rv = [];
 

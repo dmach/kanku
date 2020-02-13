@@ -422,7 +422,7 @@ Vue.component('limit-select',{
     }
   },
   template: ''
-    + '<div v-on:change="setNewLimit()">'
+    + '<div v-on:change="setNewLimit()" class="col-md-3">'
     + '  Show rows:'
     + '  <select v-model="limit">'
     + '    <option v-for="option in [5,10,20,50,100]" v-bind:value="option">{{ option }}</option>'
@@ -475,6 +475,21 @@ Vue.component('job-state-checkbox',{
     + '    </div>'
 });
 
+Vue.component('show-only-latest-results',{
+  props: ['show_only_latest_results'],
+  methods: {
+    updateJobSearch: function() {
+      this.$root.$emit('toggle_show_only_latest_results');
+      this.$parent.updateJobList();
+    },
+  },
+  template: ''
+    + '    <div class="col col-md-5">'
+    + '        Show only latest results'
+    + '        <input type="checkbox" name="show_only_latest_results" v-on:change="updateJobSearch" style="margin:7px" >'
+    + '    </div>'
+});
+
 var vm = new Vue({
   el: '#vue_app',
   data: {
@@ -482,31 +497,33 @@ var vm = new Vue({
     page: 1,
     limit: 10,
     job_name: '',
-    job_states: {'succeed':1, 'failed':1,'dispatching':1,'running':1,'scheduled':0,'triggered':0,'skipped':0}
+    job_states: {'succeed':1, 'failed':1,'dispatching':1,'running':1,'scheduled':0,'triggered':0,'skipped':0},
+    show_only_latest_results : false,
   },
   created() {
     this.$root.$on('toggle_state', state => {
        this.job_states[state] = ! this.job_states[state];
+    });
+    this.$root.$on('toggle_show_only_latest_results', value => {
+       this.show_only_latest_results = !this.show_only_latest_results
     });
   },
   methods: {
     updateJobList: function() {
       var url    = uri_base + "/rest/jobs/list.json";
       var self   = this;
-      var params = {
-        page:  self.page,
-        limit: self.limit,
-        state: self.job_states,
-      };
+      var params = {};
       var params = new URLSearchParams();
       params.append("page",  self.page);
       params.append("limit", self.limit);
 
+      if (this.show_only_latest_results) { params.append("show_only_latest_results",  1); }
+
+      if (self.job_name) { params.append('job_name', self.job_name); }
+
       for (key in self.job_states) {
         if (self.job_states[key]) { params.append("state", key); }
       };
-
-      if (self.job_name) { params.append('job_name', self.job_name); }
 
       axios.get(url, { params: params }).then(function(response) {
 	response.data.jobs.forEach(function(job) {

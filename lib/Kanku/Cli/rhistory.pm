@@ -60,6 +60,19 @@ option 'state' => (
   documentation => 'filter for states',
 );
 
+option 'latest' => (
+  isa           => 'Bool',
+  is            => 'rw',
+  documentation => 'show only the latest result of each job',
+);
+
+option 'job_name' => (
+  isa           => 'Str',
+  is            => 'rw',
+  documentation => 'filter list by job_name (wildcard %)',
+);
+
+
 sub run {
   my ($self)  = @_;
   Kanku::Config->initialize;
@@ -77,21 +90,23 @@ sub run {
 
 sub _list {
   my $self = shift;
-
+  my $params;
   my $kr;
   try {
 	$kr = $self->connect_restapi();
   } catch {
 	exit 1;
   };
+  $params = {
+    limit    => $self->limit || 10,
+    page     => $self->page || 1,
+    state    => $self->state || [],
+    job_name => $self->job_name || q{},
+  };
 
-  my %params = (
-    limit => $self->limit || 10,
-    page  => $self->page || 1,
-    state => $self->state || [],
-  );
+  $params->{show_only_latest_results} = 1 if $self->latest;
 
-  my $data = $kr->get_json( path => 'jobs/list' , params => \%params );
+  my $data = $kr->get_json( path => 'jobs/list' , params => $params );
 
   foreach my $job ( @{$data->{jobs}} ) {
     if ( $job->{start_time} ) {

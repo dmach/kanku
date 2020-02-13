@@ -16,8 +16,7 @@
   </div>
   <div id=top_pager class=row>
     <job-search></job-search>
-    <div class="col col-md-5">
-    </div>
+    <show-only-latest-results></show-only-latest-results>
     <limit-select selected_limit="limit"></limit-select>
   </div>
   </div>
