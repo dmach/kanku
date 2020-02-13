@@ -462,7 +462,7 @@ Vue.component('job-state-checkbox',{
   },
   methods: {
     updateJobSearch: function() {
-      this.$parent.job_states = this.job_states;
+      this.$root.$emit('toggle_state', this.name);
       this.$parent.updateJobList();
     },
   },
@@ -482,7 +482,12 @@ var vm = new Vue({
     page: 1,
     limit: 10,
     job_name: '',
-    job_states: ['succeed','failed','dispatching','running']
+    job_states: {'succeed':1, 'failed':1,'dispatching':1,'running':1,'scheduled':0,'triggered':0,'skipped':0}
+  },
+  created() {
+    this.$root.$on('toggle_state', state => {
+       this.job_states[state] = ! this.job_states[state];
+    });
   },
   methods: {
     updateJobList: function() {
@@ -497,9 +502,9 @@ var vm = new Vue({
       params.append("page",  self.page);
       params.append("limit", self.limit);
 
-      self.job_states.forEach(function(state) {
-        params.append("state", state);
-      });
+      for (key in self.job_states) {
+        if (self.job_states[key]) { params.append("state", key); }
+      };
 
       if (self.job_name) { params.append('job_name', self.job_name); }
 
