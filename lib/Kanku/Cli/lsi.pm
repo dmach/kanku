@@ -20,12 +20,18 @@ use strict;
 use warnings;
 use MooseX::App::Command;
 extends qw(Kanku::Cli);
-
 use Net::OBS::Client::Project;
 
 command_short_description  'list standard kanku images';
 command_long_description   'This command lists the standard kanku images which'.
   ' are based on (open)SUSEs JeOS images';
+
+option 'name' => (
+  isa           => 'Str',
+  is            => 'rw',
+  cmd_aliases   => 'n',
+  documentation => 'filter list by name ',
+);
 
 
 sub run {
@@ -37,10 +43,12 @@ sub run {
   );
 
   my $res = $prj->fetch_resultlist;
+  my $reg ='.*'.$self->name.'.*';
 
   foreach my $tmp (@$res) {
     foreach my $pkg (@{$tmp->{status}}) {
       if ($pkg->{code} !~ /disabled|excluded/) {
+        if ($pkg->{package} =~ $reg) {
 	print <<EOF
 
     # --- $pkg->{package}
@@ -51,7 +59,7 @@ sub run {
 
 EOF
   ;
-
+      }
     }
   }
 }
