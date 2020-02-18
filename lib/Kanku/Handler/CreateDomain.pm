@@ -24,6 +24,7 @@ use Path::Class::File;
 use Data::Dumper;
 use Session::Token;
 use File::Basename qw/basename/;
+use Carp;
 
 use Kanku::Config;
 use Kanku::Util::VM;
@@ -327,6 +328,21 @@ sub _prepare_vm_via_console {
   my $cfg    = Kanku::Config->instance()->config();
 
   $con->login();
+
+  if ($self->use_9p) {
+    my $output = $con->cmd('cat /boot/config-$(uname -r)');
+    my @out = split /\n/, $output->[0];
+    my @supports_9p = grep { /^CONFIG_NET_9P=m/ } @out;
+    $logger->debug("supports 9p: $supports_9p[0]");
+    if (!$supports_9p[0]) {
+      croak(
+        "\n".
+        "Kanku::Handler::CreateDomain: ".
+        "You have enabled 'use_9p' but the guest kernel doesn't support.\n".
+        "Please disable 'use_9p' in your kanku config!\n"
+      );
+    }
+  }
 
   $self->_randomize_passwords($con) if keys %{$self->pwrand};
 
