@@ -1,15 +1,8 @@
 #
-Kanku::Util::IPTables:
-  start_port: 49001
-
-
 domain_name: [% domain_name %]
 default_job: [% default_job %]
 login_user: root
 login_pass: kankudai
-
-qemu:
-  user: [% qemu_user %]
 
 jobs:
  [% default_job %]:
@@ -22,7 +15,7 @@ jobs:
     options:
       api_url: https://api.opensuse.org/public
       # Please have a look at
-      # https://build.opensuse.org/project/show/devel:kanku:images
+      # kanku lsi
       # to find more official Images
       project: [% project %]
       package: [% package %]
