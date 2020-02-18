@@ -52,6 +52,7 @@ sub run {
 	print <<EOF
 
     # --- $pkg->{package}
+      ## kanku init --project $prj_name --package $pkg->{package} --repository $tmp->{repository}
       ## state: $pkg->{code}
       project: $prj_name
       package: $pkg->{package}
