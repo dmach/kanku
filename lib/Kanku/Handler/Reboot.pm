@@ -97,7 +97,7 @@ sub execute {
     $con->logout();
   }
 
-  my $new_ip;
+  my $new_ip='';
 
   if ($self->allow_ip_change) {
     $con->login();
