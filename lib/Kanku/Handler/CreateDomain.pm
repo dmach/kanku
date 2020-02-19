@@ -330,7 +330,7 @@ sub _prepare_vm_via_console {
   $con->login();
 
   if ($self->use_9p) {
-    my $output = $con->cmd('grep "^CONFIG_NET_9P=m" /boot/config-$(uname -r)||true');
+    my $output = $con->cmd('grep --color=never "^CONFIG_NET_9P=m" /boot/config-$(uname -r)||true');
     my @out = split /\n/, $output->[0];
     my @supports_9p = grep { /^CONFIG_NET_9P=m/ } @out;
     $logger->debug("supports 9p: @supports_9p");
