@@ -14,12 +14,14 @@ sub list {
   my $limit = $self->params->{limit} || 10;
 
   if ($self->params->{show_only_latest_results}) {
+    my $cfg = Kanku::Config->instance();
     $opts = {
       order_by =>{-asc =>'name'},
       distinct => 1,
       group_by => ['name'],
       rows => $limit,
       page => $self->params->{page} || 1,
+      where => { name => [$cfg->job_list]},
     };
     if ($self->params->{state}) {
       $search->{state} = $self->params->{state};
