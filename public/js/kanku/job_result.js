@@ -55,7 +55,7 @@ function update_job_result(xhr) {
         start_time = new Date(1000 * job.start_time);
         var due = Math.floor(Date.now() / 1000);
 
-        if ( this.end_time ) { due = job.end_time; }
+        if ( job.end_time ) { due = job.end_time; }
 
         var duration = due - job.start_time;
         duration_min = Math.floor( duration / 60 );
