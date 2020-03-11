@@ -132,6 +132,8 @@ $( document ).ready(
           obj = jQuery.parseJSON(j_string);
         }
 
+        $("#job_list").empty();
+
         $.each(
           gui_config.config,
           function (job_id) {

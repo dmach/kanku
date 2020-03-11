@@ -1,6 +1,6 @@
 <h1>Job</h1>
 
-<div id="job_list"></div>
+<div id="job_list">[% INCLUDE spinner.tt %]</div>
 
 <!-- TEMPLATES -->
 

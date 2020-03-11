@@ -40,6 +40,7 @@ $( document ).ready(
           }
         )
 
+        $("#guest_list").empty();
         $.each(
           //gc.guest_list,
 	  gl,

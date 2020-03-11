@@ -1,7 +1,8 @@
 <h1>Guest</h1>
 <div id="worker_errors"></div>
 
-<div id="guest_list"></div>
+<div id="guest_list">[% INCLUDE spinner.tt %]
+</div>
 
 <script id="guest_panel" type="x-tmpl-mustache">
 
