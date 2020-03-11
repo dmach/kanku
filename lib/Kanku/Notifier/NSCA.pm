@@ -42,6 +42,10 @@ in /etc/kanku/kanku-config.yml:
 	send_report:
 	  hostname: <hostname_in_icinga>
 	  service:  <servicename_in_icinga>
+        state_map:         # optional
+          succeed: 0       # works with Int
+          failed: WARNING  # works with Strings (OK, WARNING, CRITICAL, UNKNOWN)
+          skipped: unknown # is case insensitive
       states: failed,succeed
 
 
@@ -76,14 +80,7 @@ sub notify {
                || die $template->error()->as_string();
   $output =~ s/\n/\\n/g;
 
-  my $nstat;
-  if($self->state eq 'succeed') {
-    $nstat = $Net::NSCA::Client::STATUS_OK;
-  } elsif ($self->state eq 'failed') {
-    $nstat = $Net::NSCA::Client::STATUS_CRITICAL;
-  } else {
-    $nstat = $Net::NSCA::Client::STATUS_WARNING;
-  }
+  my $nstat = $self->_state2status;
 
   $self->logger->debug("Sending report (status: $nstat  with message: ".$self->short_message);
 
@@ -112,6 +109,29 @@ sub notify {
   );
 
   return;
+}
+
+sub _state2status {
+  my ($self, $state) = @_;
+  my $status_map = {
+    0 		=> $Net::NSCA::Client::STATUS_OK,
+    1 		=> $Net::NSCA::Client::STATUS_WARNING,
+    2 		=> $Net::NSCA::Client::STATUS_CRITICAL,
+    3 		=> $Net::NSCA::Client::STATUS_UNKNOWN,
+    'OK'	=> $Net::NSCA::Client::STATUS_OK,
+    'WARNING' 	=> $Net::NSCA::Client::STATUS_WARNING,
+    'CRITICAL' 	=> $Net::NSCA::Client::STATUS_CRITICAL,
+    'UNKNOWN' 	=> $Net::NSCA::Client::STATUS_UNKNOWN,
+  };
+
+  my $state_map = {
+    'succeed' 		=> 'OK',
+    'failed'		=> 'CRITICAL',
+    'skipped'		=> 'UNKNOWN',
+    %{$self->options->{state_map} || {}},
+  };
+  my $s2s = uc($state_map->{$self->state});
+  return $status_map->{$s2s};
 }
 
 1;
