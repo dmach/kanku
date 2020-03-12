@@ -290,6 +290,13 @@ sub _handle_installation {
 
   $logger->debug("Handling installation");
 
+  my $cursor = {
+    up    => "\x00\x48",
+    down  => "\x00\x50",
+    left  => "\x00\x4b",
+    right => "\x00\x4d",
+  };
+
   for my $step (@{$self->installation}) {
     my ($expect,$send) = ($step->{expect}, $step->{send});
     my $timeout = $step->{timeout} || 300;
@@ -307,6 +314,17 @@ sub _handle_installation {
           if ($send) {
             $logger->debug("Sending '$send'");
             $exp->send($send);
+          }
+          if ($step->{send_cursor}) {
+            foreach my $cur (split /\s+/, $step->{send_cursor}) {
+               my $n2c = $cursor->{$cur};
+               if ($n2c) {
+                 $logger->debug("Sending '$n2c'");
+                 $exp->send($n2c);
+               } else {
+                 croak("Cannot lookup cursor direction '$cur'\n");
+               }
+            }
           }
           if ($step->{send_enter}) {
             $logger->debug("Sending <enter>");
