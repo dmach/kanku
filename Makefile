@@ -1,4 +1,5 @@
 CONFIG_FILES = \
+	templates/with-spice.tt2\
 	templates/cmd/init.tt2\
 	templates/cmd/setup/kanku.conf.mod_perl.tt2\
 	templates/cmd/setup/kanku.conf.mod_proxy.tt2\

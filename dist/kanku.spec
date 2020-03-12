@@ -220,6 +220,7 @@ TODO:
 %dir /etc/kanku/templates
 %dir /etc/kanku/templates/cmd
 %dir /etc/kanku/templates/cmd/setup
+%config /etc/kanku/templates/with-spice.tt2
 %config /etc/kanku/templates/cmd/init.tt2
 %config /etc/kanku/templates/cmd/setup/*
 %dir    /etc/kanku/templates/examples-vm/
