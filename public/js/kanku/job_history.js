@@ -439,7 +439,7 @@ Vue.component('refresh-button',{
   template: ''
     + '<div class="col-md-2">'
 //    + ' <a href="#" class="btn btn-primary btn-lg active float-right" role="button" aria-pressed="true" v-on:click="refreshJobList()">'
-    + '<button type="button" class="btn btn-primary float-right">'
+    + '<button type="button" class="btn btn-primary float-right" v-on:click="refreshJobList()">'
     + '  <i class="fas fa-sync"></i> Refresh'
     + ' </button>'
     + '</div>'
