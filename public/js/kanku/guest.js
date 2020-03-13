@@ -52,7 +52,8 @@ function refresh_body () {
           //gc.guest_list,
 	  gl,
           function (num, domain_id) {
-            var domain_id_js = domain_id.replace(':', '_');
+            var dname = domain_id.split(':', 2);
+            var domain_id_js = dname[0] + '_' + dname[1];
             var guest_data = gc.guest_list[domain_id];
             var r_guest_panel = Mustache.render(
                         guest_panel_template,
@@ -60,15 +61,15 @@ function refresh_body () {
                           id                   : domain_id_js,
                           host                 : guest_data.host,
                           guest_class          : ( guest_data.state == 1 ) ? "success" : "warning",
-                          domain_name          : guest_data.domain_name,
+                          domain_name          : dname[0],
                         }
             );
 
             $("#guest_list").append(r_guest_panel);
-
+            console.log(dname[0]);
             if (active_roles.User && !active_roles.Admin && guest_data.domain_name.match(user_name+'-.*')) {
               $("#guest_action_div_" + domain_id_js).append(
-                '<a class="pull-right" href="#" onClick=trigger_remove_domain("'+guest_data.domain_name+'")>'
+                '<a class="float-right" href="#" onClick=trigger_remove_domain("'+dname[0]+'")>'
                 + '<span class="far fa-trash-alt"/>'
                 + '</a>'
               );

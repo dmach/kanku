@@ -15,7 +15,7 @@
       <div class="col-md-2" id="guest_action_div_{{ id }}">
 	<a class="float-right" href="[% request.uri_base %]/guest#{{ id }}">      <i class="fas fa-link"/></a>
 	[% IF roles.Admin %]
-        <a class="float-right" href="#" onClick=trigger_remove_domain("{{ id }}")><i class="far fa-trash-alt"/></a>
+        <a class="float-right" href="#" onClick=trigger_remove_domain("{{ domain_name }}")><i class="far fa-trash-alt"/></a>
         [% END %]
       </div>
     </div>
