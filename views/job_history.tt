@@ -18,6 +18,7 @@
     <job-search></job-search>
     <show-only-latest-results></show-only-latest-results>
     <limit-select selected_limit="limit"></limit-select>
+    <refresh-button></refresh-button>
   </div>
   </div>
 

@@ -422,11 +422,26 @@ Vue.component('limit-select',{
     }
   },
   template: ''
-    + '<div v-on:change="setNewLimit()" class="col-md-3">'
+    + '<div v-on:change="setNewLimit()" class="col-md-2">'
     + '  Show rows:'
     + '  <select v-model="limit">'
     + '    <option v-for="option in [5,10,20,50,100]" v-bind:value="option">{{ option }}</option>'
     + '  </select>'
+    + '</div>'
+});
+
+Vue.component('refresh-button',{
+  methods: {
+    refreshJobList: function() {
+      this.$parent.updateJobList();
+    }
+  },
+  template: ''
+    + '<div class="col-md-2">'
+//    + ' <a href="#" class="btn btn-primary btn-lg active float-right" role="button" aria-pressed="true" v-on:click="refreshJobList()">'
+    + '<button type="button" class="btn btn-primary float-right">'
+    + '  <i class="fas fa-sync"></i> Refresh'
+    + ' </button>'
     + '</div>'
 });
 
@@ -484,7 +499,7 @@ Vue.component('show-only-latest-results',{
     },
   },
   template: ''
-    + '    <div class="col col-md-5">'
+    + '    <div class="col col-md-4">'
     + '        Show only latest results'
     + '        <input type="checkbox" name="show_only_latest_results" v-on:change="updateJobSearch" style="margin:7px" >'
     + '    </div>'

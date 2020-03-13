@@ -10,8 +10,7 @@ function trigger_remove_domain (domain_name) {
   );
 }
 
-$( document ).ready(
-  function() {
+function refresh_body () {
     var guest_panel_template     = $("#guest_panel").html();
     Mustache.parse(guest_panel_template);
 
@@ -24,12 +23,20 @@ $( document ).ready(
     var href_guest = $("#href_guest").html();
     Mustache.parse(href_guest);
 
+    var spinner = $("#spinner").html();
+    Mustache.parse(spinner);
+
+    $('#guest_list').empty();
+    $('#guest_list').append(spinner);
+
     var url = uri_base + '/rest/guest/list.json';
     axios.get(url).then(function (xhr) {
         var gc     = xhr.data;
         var guests = gc;
         var gl = Object.keys(gc.guest_list).sort();
         var we = gc.errors;
+
+        $('#guest_list').empty();
 
         $.each(
           we,
@@ -155,4 +162,6 @@ $( document ).ready(
             }
           });
     });
-});
+  };
+
+$( document ).ready(refresh_body);

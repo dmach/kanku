@@ -1,6 +1,15 @@
 <h1>Worker</h1>
 
 <div id="vue_app">
+  <div class="row" style="padding-bottom:10px;">
+    <div class="col-lg-12">
+      <button type="button" class="btn btn-primary float-right" v-on:click="updateWorkersList">
+        <i class="fas fa-sync"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+
     <div
       v-for="worker in workers"
       v-bind:key="worker.id"
