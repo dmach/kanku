@@ -207,7 +207,7 @@ sub check_before_download {
   return if ( $self->skip_all_checks() );
   if (!$self->skip_check_project()) {
       my $prj = Net::OBS::Client::Project->new(
-          name     => $self->project,
+          name        => $self->project,
           repository  => $self->repository,
           arch        => $self->arch,
           apiurl      => $self->api_url,
@@ -215,7 +215,13 @@ sub check_before_download {
       );
 
       if ($prj->dirty or $prj->code ne 'published') {
-        croak("Project not ready yet\n");
+        my ($p, $r, $a, $u) = ( $self->project,
+                                $self->repository,
+                                $self->arch,
+                                $self->api_url,);
+        croak("Project '$p' on '$u' not ready yet.\n"
+             ."Please check 'osc r $p -a $a -r $r'\n"
+        );
       }
   }
 
@@ -230,7 +236,14 @@ sub check_before_download {
       );
 
       if ( $pkg->code ne 'succeeded' ) {
-        croak("Package not ready yet\n");
+        my ($p, $r, $a, $u, $pkg) = ($self->project,
+                                     $self->repository,
+                                     $self->arch,
+                                     $self->api_url,
+                                     $self->package,);
+        croak("Package '$p/$pkg' not ready yet\n"
+             ."Please check 'osc r $p $pkg -a $a -r $r'\n"
+        );
       }
   }
 
