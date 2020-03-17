@@ -7,13 +7,10 @@ function toggle_element(id) {
 
 function show_messagebox(state, msg, timeout=10000) {
   var elem = $("#messagebox");
-  elem.removeClass("alert-success");
-  elem.removeClass("alert-warning");
-  elem.removeClass("alert-danger");
-  elem.addClass("alert-" + state);
-  elem.text(msg);
-  elem.show
+  console.log(elem);
+  var div = $('<div class="alert-' + state +' container alert"></div>').text(msg);
+  elem.append(div);
   if(timeout) {
-    var intervalID = setTimeout(function() { elem.hide(); }, 10000);
+    var intervalID = setTimeout(function() { div.remove(); }, timeout);
   }
 }
