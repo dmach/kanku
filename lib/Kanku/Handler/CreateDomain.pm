@@ -330,6 +330,10 @@ sub _handle_installation {
             $logger->debug("Sending <enter>");
             $exp->send("\r");
           }
+          if ($step->{send_esc}) {
+            $logger->debug("Sending <ESC>");
+            $exp->send("\x1B");
+          }
         }
       ],
     );
@@ -564,6 +568,9 @@ Here is an example how to configure the module in your jobs file or KankuFile
         -
           expect: Next Step
           send_ctrl_c: 1
+        -
+          expect: Step 3
+          send_esc: 1
       pwrand:                   # create randomized password
         length: 16              # password length (default: 16 characters)
         user: 			# list of users to
