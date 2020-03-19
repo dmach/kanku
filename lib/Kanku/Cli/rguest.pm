@@ -61,14 +61,6 @@ sub _list {
   $self->view('guests.tt', $data);
 }
 
-sub save_settings {
-  my $self    = shift;
-
-  Kanku::YAML::DumpFile($self->rc_file, $self->settings);
-
-  return 0;
-};
-
 __PACKAGE__->meta->make_immutable;
 
 1;
