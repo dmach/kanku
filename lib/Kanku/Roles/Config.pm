@@ -21,6 +21,7 @@ use Path::Class::File;
 use Path::Class::Dir;
 use Data::Dumper;
 use Kanku::YAML;
+use YAML::PP;
 use Try::Tiny;
 
 with 'Kanku::Roles::Config::Base';
@@ -98,7 +99,7 @@ sub job_config {
 sub load_job_config {
   my ($self,$yml,$job_name) = @_;
   try {
-    return YAML::Load($yml);
+    return YAML::PP::Load($yml);
   } catch {
       die "Error while parsing job config yaml file for job '$job_name':\n$_";
   }

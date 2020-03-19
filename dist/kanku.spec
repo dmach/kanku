@@ -36,7 +36,7 @@ BuildRequires:  systemd-rpm-macros
 # perl requires for %check
 BuildRequires: perl(Const::Fast)
 BuildRequires: perl(Test::Simple)
-BuildRequires: perl(YAML)
+BuildRequires: perl(YAML::PP)
 BuildRequires: perl(Config::Tiny)
 BuildRequires: perl(Path::Class)
 BuildRequires: perl(Sys::Virt)
@@ -135,11 +135,12 @@ Summary: Common files for kanku
 Recommends: osc 
 Recommends: perl(IO::Uncompress::UnXz)
 Recommends: apache2
+Recommends: perl(YAML::PP::LibYAML)
 Requires: libvirt-daemon-qemu qemu-kvm libvirt-daemon-config-network libvirt-daemon-config-nwfilter
 Requires: sudo
 Requires: perl(DBIx::Class::Fixtures)
 Requires: perl(Test::Simple)
-Requires: perl(YAML)
+Requires: perl(YAML::PP)
 Requires: perl(Config::Tiny)
 Requires: perl(Path::Class)
 Requires: perl(Sys::Virt)
