@@ -188,7 +188,7 @@ sub connect {
   if ( ! $ssh2->auth_ok()  ) {
 
     my @err = $ssh2->error;
-    die "Could not authenticate! $err[2]\n";
+    die "Could not authenticate! '@err'\n";
   }
 
   return $ssh2
