@@ -7,7 +7,8 @@ function toggle_element(id) {
 
 function show_messagebox(state, msg, timeout=10000) {
   var elem = $("#messagebox");
-  var div = $('<div class="alert-' + state +' container alert"></div>').text(msg);
+  var div = $('<div class="alert-' + state +' container alert" role=alert></div>').append(msg);
+
   elem.append(div);
   if(timeout) {
     var intervalID = setTimeout(function() { div.remove(); }, timeout);

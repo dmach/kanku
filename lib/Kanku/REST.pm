@@ -177,14 +177,24 @@ get '/logout.:format' => sub {
 get '/gui_config/job.:format' => sub {
   my $cfg = Kanku::Config->instance();
   my @config = ();
+  my @errors = ();
   my @jobs = $cfg->job_list;
-
+  my $filter = params->{filter} || '.*';
   foreach my $job_name (sort @jobs) {
+    next if $job_name !~ m/^$filter$/;
     my $job_config = { job_name => $job_name, sub_tasks => []};
     push @config , $job_config;
-    my $job_cfg = $cfg->job_config($job_name);
+    my $job_cfg;
+    try {
+      $job_cfg = $cfg->job_config($job_name);
+    } catch {
+      $job_cfg = $_;
+    };
 
-    next if (ref($job_cfg) ne 'ARRAY');
+    if (ref($job_cfg) ne 'ARRAY') {
+      push @errors, "Error while parsing config file of job '$job_name': $job_cfg";
+      next;
+    }
 
     foreach my $sub_tasks ( @{$job_cfg}) {
         my $mod = $sub_tasks->{use_module};
@@ -216,7 +226,7 @@ get '/gui_config/job.:format' => sub {
     }
   }
 
-  return {config => \@config};
+  return {config => \@config , errors => \@errors};
 };
 
 get '/test.:format' => sub {  return {test=>'success'} };

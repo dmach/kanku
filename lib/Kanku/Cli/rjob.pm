@@ -44,6 +44,13 @@ option 'config' => (
   documentation => '(*) show config of remote job. Remote job name mandatory',
 );
 
+option 'filter' => (
+  isa           => 'Str',
+  is            => 'rw',
+  cmd_aliases	=> 'f',
+  documentation => 'filter job names by pattern',
+);
+
 sub run {
   my $self  = shift;
   Kanku::Config->initialize;
@@ -69,11 +76,11 @@ sub run {
     } catch {
       exit 1;
     };
-
-    my $tmp_data = $kr->get_json( path => 'gui_config/job');
+    $logger->debug('- filter: '.$self->filter);
+    my $tmp_data = $kr->get_json( path => 'gui_config/job', params =>{filter => $self->filter});
 
     my @job_names = sort map { $_->{job_name} } @{$tmp_data->{config}} ;
-    my $data = { job_names => \@job_names };
+    my $data = { job_names => \@job_names , errors => $tmp_data->{errors}};
 
     $self->view('rjob/list.tt', $data);
 

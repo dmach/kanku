@@ -195,6 +195,12 @@ $( document ).ready(
           }
         );
 
+        $.each(
+          gui_config.errors,
+          function (index, err) {
+            show_messagebox('danger', "<pre>"+err+"</pre>");
+          }
+        );
         var j_string = Cookies.get("kanku_job");
         var obj;
 

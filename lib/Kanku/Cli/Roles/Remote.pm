@@ -257,7 +257,7 @@ sub get_json {
   my $au  = $self->apiurl;
   $au =~ s/\/$//;
   my $url = "$au/rest/$opts{path}.json" . ( ($param_string) ? "?$param_string" : q{} ) ;
-
+  $self->logger->debug("GET Request: '$url'");
   my $request = HTTP::Request->new(GET => $url);
 
   $self->cookie_jar->add_cookie_header( $request );

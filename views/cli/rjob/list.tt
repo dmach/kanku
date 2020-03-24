@@ -4,3 +4,7 @@ Job Name
 [% FOREACH job IN job_names %]
 - [% job +%]
 [% END %]
+================================================================================
+[% FOREACH err IN errors %]
+[% err | color 'red' +%]
+[% END %]
