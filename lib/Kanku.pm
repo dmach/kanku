@@ -62,6 +62,10 @@ get '/job' => require_any_role [qw/Admin User/] => sub {
     template 'job' , { %{ get_defaults_for_views() } , kanku => { module => 'Job' }  };
 };
 
+get '/job2' => require_any_role [qw/Admin User/] => sub {
+    template 'job2' , { %{ get_defaults_for_views() } , kanku => { module => 'Job' }  };
+};
+
 get '/guest' => sub {
     template 'guest' , { %{ get_defaults_for_views() }, kanku => { module => 'Guest' } };
 };

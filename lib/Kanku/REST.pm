@@ -215,6 +215,7 @@ get '/gui_config/job.:format' => sub {
 
         foreach my $opt (@{$tmp}) {
           $defaults->{$opt->{param}} = $sub_tasks->{options}->{$opt->{param}};
+          $opt->{default} = $sub_tasks->{options}->{$opt->{param}};
         }
         push @{$job_config->{sub_tasks}},
             {

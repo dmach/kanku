@@ -1,64 +1,13 @@
 <h1>Job</h1>
-
-<div id="job_list">[% INCLUDE spinner.tt %]</div>
-
-<!-- TEMPLATES -->
-
-<script id="job_panel" type="x-tmpl-mustache">
-
-<div class="card" id="job_panel{{ id }}" style="margin-bottom:5px;">
-  <div class="card-header" id='jp_header_{{ id }}' onClick=toggle_element("#jp_body_{{ id }}")>
-        <span class="badge badge-secondary">{{ id }}</span>
-  </div>
-  <div class="card-body" style='display:none' id="jp_body_{{ id }}">
-      <form role=form id="job_args_{{ name }}">
-{{#task_list}}
-{{{.}}}
-{{/task_list}}
-      </form>
-  </div>
-  <div class="card-footer">
-    <div class="btn btn-success btn-sm" onClick="schedule_job('{{ id }}')">
-      Trigger Job
-    </div>
-    <div class="btn btn-primary btn-sm" onClick="restore_defaults('{{ id }}')">
-      Restore Defaults
-    </div>
-  </div>
-</div>
-
-</script>
-
-<script id="template_module_header" type="x-tmpl-mustache">
-
-<div class=job_task_list id=job_{{ name }}>
-  <h4><span class="badge badge-secondary" style="display:block;">{{ use_module }}</span></h4>
-  <input type=hidden name="use_module" value="{{ use_module }}">
-{{#task_args}}
-{{{.}}}
-{{/task_args}}
-</div>
-</script>
-
-<script id="template_formgroup_text" type="x-tmpl-mustache">
-  <div class="form-group">
-    <label for="{{ id }}">{{ label }} :</label>
-    <input  class="form-control"
-            type=text
-            name="{{ param }}"
-            id="{{ id }}"
-            value="{{ prefix_domain_name }}{{ value }}"
+<div id="vue_app">
+    [% INCLUDE spinner.tt %]
+    <div
+      v-for="job in jobs"
+      v-bind:key="job.job_name"
+      v-bind:job="job"
     >
-  </div>
-</script>
-
-<script id="template_formgroup_checkbox" type="x-tmpl-mustache">
-  <div class="form-group">
-    <label for="{{ id }}">{{ label }} :</label>
-    <input type=checkbox name="{{ param }}" value="1" {{ checked }} id="{{ id }}">
-  </div>
-</script>
-
+      <job-card v-bind:job="job"></job-card>
+    </div>
+</div>
 <script src="[% request.uri_base %]/js/kanku/job.js"></script>
 
-<!-- vim: set ft=html -->

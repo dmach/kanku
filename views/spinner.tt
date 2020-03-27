@@ -1,4 +1,4 @@
-    <div class='row'>
+    <div class='row' id="spinner">
         <div class="col-md-5"></div>
         <div class="col-md-2">
           <div class="spinner-border" role="status">
