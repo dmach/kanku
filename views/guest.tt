@@ -1,5 +1,4 @@
 <h1>Guest</h1>
-<div id="worker_errors"></div>
 [% INCLUDE refresh_button.tt %]
 <div id="guest_list">[% INCLUDE spinner.tt %]
 </div>
@@ -42,17 +41,5 @@
 
 <script id="addr_line" type="x-tmpl-mustache">
     {{ addr }}<span class="badge badge-secondary"> / {{ prefix }}</span>
-</script>
-
-<script id="spinner" type="x-tmpl-mustache">
-    <div class='row'>
-        <div class="col-md-5"></div>
-        <div class="col-md-2">
-          <div class="spinner-border" role="status">
-            <span class="sr-only">Loading...</span>
-          </div>
-        </div>
-        <div class="col-md-5"></div>
-    </div>
 </script>
 <!-- vim: set ft=html -->

@@ -41,9 +41,7 @@ function refresh_body () {
         $.each(
           we,
           function (num, error) {
-            $('#worker_errors').append(
-              '<div class="alert alert-danger">'+error+'</div>'
-            )
+            show_messagebox('danger', error);
           }
         )
 
@@ -66,7 +64,6 @@ function refresh_body () {
             );
 
             $("#guest_list").append(r_guest_panel);
-            console.log(dname[0]);
             if (active_roles.User && !active_roles.Admin && guest_data.domain_name.match(user_name+'-.*')) {
               $("#guest_action_div_" + domain_id_js).append(
                 '<a class="float-right" href="#" onClick=trigger_remove_domain("'+dname[0]+'")>'
