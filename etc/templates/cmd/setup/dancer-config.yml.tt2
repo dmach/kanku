@@ -27,7 +27,7 @@ public_dir: /usr/share/kanku/public
 static_handler: 1
 views: /usr/share/kanku/views
 
-
+environment: production
 
 #template: "simple"
 session: "YAML"

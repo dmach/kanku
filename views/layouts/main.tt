@@ -18,7 +18,11 @@
 <script src="[% request.uri_base %]/js/bootstrap.min.js"></script>
 
 <script src="[% request.uri_base %]/js/axios.min.js"></script>
-<script src="[% request.uri_base %]/js/vue.js"></script>
+[% IF is_devel %]
+<script src="[% request.uri_base %]/js/vue.dev.js"></script>
+[% ELSE %]
+<script src="[% request.uri_base %]/js/vue.min.js"></script>
+[% END %]
 <script src="[% request.uri_base %]/js/polyfill.min.js"></script>
 <script src="[% request.uri_base %]/js/bootstrap-vue.js"></script>
 <script defer src="[% request.uri_base %]/js/fontawesome.min.js"></script>

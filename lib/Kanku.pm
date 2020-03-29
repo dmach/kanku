@@ -30,13 +30,15 @@ sub get_defaults_for_views {
     map { $roles->{$_} = 1 } @{user_roles()};
     $user_id = $logged_in_user->{id};
   }
+  my $is_devel = (config->{'environment'} eq 'development') ? 1 : 0;
 
   return {
     roles           => $roles,
     logged_in_user  => $logged_in_user ,
     messagebar      => $messagebar,
     ws_url          => websocket_url(),
-    user_id         => $user_id
+    user_id         => $user_id,
+    is_devel        => $is_devel,
   };
 };
 
