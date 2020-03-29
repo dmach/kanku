@@ -1,165 +1,104 @@
-function trigger_remove_domain (domain_name) {
-  var data = [ {domain_name : domain_name}];
-  axios.post(
-    uri_base + "/rest/job/trigger/remove-domain.json",
-    data
-  ).then(
-    function(xhr) {
-      show_messagebox(xhr.data.state, xhr.data.msg );
+Vue.component('iface-line', {
+  props: ['data'],
+  template: '<div>'
+    + ' <div class="badge badge-primary">{{ data.name }}</div>'
+    + ' <div class="badge badge-primary">{{ data.hwaddr }}</div>'
+    + ' <div class="badge badge-primary"><!-- placeholder for next line --></div>'
+    + '</div>'
+
+});
+
+Vue.component('port-card',{
+  props: ['port', 'data', 'ipaddr'],
+  computed: {
+    href: function() {
+        if (this.data[1] == 'https' || this.data[1] == 'http') {
+          return this.data[1]+"://"+this.ipaddr+":"+this.port;
+        }
     }
-  );
-}
+  },
+  template: '<div>'
+    + '  <div v-if="data[1] === \'ssh\'">'
+    + '   <pre>ssh -l root -p {{ port }} -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null {{ ipaddr }}</pre>'
+    + '  </div>'
+    + '  <div v-else-if="href">'
+    + '   <a :href="href">Link to Website ({{ ipaddr }}:{{ port }})</a>'
+    + '  </div>'
+    + '  <div v-else><pre>Found unknown port forward ({{ ipaddr }}) {{ port }} to {{ data[0] }} on guest</pre></div>'
+    + '</div>'
+});
 
-function refresh_body () {
-    var guest_panel_template     = $("#guest_panel").html();
-    Mustache.parse(guest_panel_template);
+Vue.component('ipaddr-card', {
+  props: ['ipaddr', 'ports'],
+  template: '<div><port-card v-for="(data,port) in ports" v-bind:key="port" v-bind:data="data" v-bind:port="port" v-bind:ipaddr="ipaddr"></port-card></div>'
+});
 
-    var iface_line_template = $("#iface_line").html();
-    Mustache.parse(iface_line_template);
+Vue.component('guest-card', {
+  props: ['guest', 'data'],
+  data: function() {
+    var alert_class = ( this.data.state == 1 ) ? "success" : "warning";
+    return {
+      showDetails: 0,
+      user : {'roles':{'Admin' : true }},
+      header_classes : ['card-header', 'alert', 'alert-' + alert_class],
+      badge_classes: ['badge', 'badge-' + alert_class],
+      href_vm : uri_base + "/guest#" + this.data.domain_name
+    }
+  },
+  methods: {
+    toggleDetails: function() {
+      this.showDetails = !this.showDetails;
+    },
+    triggerRemoveDomain: function() {
+      var url  = uri_base + "/rest/job/trigger/remove-domain.json";
+      var data = [ {domain_name : this.data.domain_name}];
+      axios.post(url, data).then(function(xhr) {
+          show_messagebox(xhr.data.state, xhr.data.msg );
+      });
+    }
+  },
+  template: '<div class="card guest-card">'
+    + ' <div :class="header_classes" v-on:click="toggleDetails()">'
+    + '  <div class="row">'
+    + '   <div class="col-md-10">'
+    + '    <span :class="badge_classes">{{ data.domain_name }} ({{ data.host  }})</span>'
+    + '   </div>'
+    + '   <div class="col-md-2">'
+    + '    <a class="float-right" :href="href_vm"><i class="fas fa-link"/></a>'
+    + '    <a v-if="user.roles.Admin" class="float-right" href="#" v-on:click="triggerRemoveDomain()"><i class="far fa-trash-alt"/></a>'
+    + '   </div>'
+    + '  </div>'
+    + ' </div>'
+    + ' <div class="card-body" style="padding:5px;" v-show="showDetails">'
+    + '  <iface-line v-for="nic in data.nics" v-bind:data="nic" v-bind:key="nic.hwaddr"></iface-line>'
+    + '  <ipaddr-card v-for="(ports, ipaddr) in data.forwarded_ports" v-bind:ports="ports" v-bind:ipaddr="ipaddr" v-bind:key="ipaddr"></ipaddr-card>'
+    + '  </div>'
+    + ' </div>'
+    + '</div>'
+});
 
-    var addr_line_template = $("#addr_line").html();
-    Mustache.parse(addr_line_template);
+var vm = new Vue({
+  el: '#vue_app',
+  data: {
+    guest_list: {},
+  },
+  methods: {
+    updatePage: function() {
+      $('#spinner').show();
+      var self   = this;
+      var url = uri_base + '/rest/guest/list.json';
+      var params = new URLSearchParams();
 
-    var href_guest = $("#href_guest").html();
-    Mustache.parse(href_guest);
-
-    var spinner = $("#spinner").html();
-    Mustache.parse(spinner);
-
-    $('#guest_list').empty();
-    $('#guest_list').append(spinner);
-
-    var url = uri_base + '/rest/guest/list.json';
-    axios.get(url).then(function (xhr) {
-        var gc     = xhr.data;
-        var guests = gc;
-        var gl = Object.keys(gc.guest_list).sort();
-        var we = gc.errors;
-
-        $('#guest_list').empty();
-
-        $.each(
-          we,
-          function (num, error) {
-            show_messagebox('danger', error);
-          }
-        )
-
-        $("#guest_list").empty();
-        $.each(
-          //gc.guest_list,
-	  gl,
-          function (num, domain_id) {
-            var dname = domain_id.split(':', 2);
-            var domain_id_js = dname[0] + '_' + dname[1];
-            var guest_data = gc.guest_list[domain_id];
-            var r_guest_panel = Mustache.render(
-                        guest_panel_template,
-                        {
-                          id                   : domain_id_js,
-                          host                 : guest_data.host,
-                          guest_class          : ( guest_data.state == 1 ) ? "success" : "warning",
-                          domain_name          : dname[0],
-                        }
-            );
-
-            $("#guest_list").append(r_guest_panel);
-            if (active_roles.User && !active_roles.Admin && guest_data.domain_name.match(user_name+'-.*')) {
-              $("#guest_action_div_" + domain_id_js).append(
-                '<a class="float-right" href="#" onClick=trigger_remove_domain("'+dname[0]+'")>'
-                + '<span class="far fa-trash-alt"/>'
-                + '</a>'
-              );
-            }
-
-            $.each(
-              guest_data.nics,
-              function (i) {
-                  var nic = this;
-
-                  var r_iface_line = Mustache.render(
-                          iface_line_template,
-                          {
-                            domain_name : guest_data.domain_name,
-                            name        : nic.name,
-                            hwaddr      : nic.hwaddr
-                          }
-                  );
-                  $("#gp_body_" + domain_id_js).append(r_iface_line);
-
-                  if ( nic.addrs ) {
-
-                    $.each(
-                      nic.addrs,
-                      function (j) {
-                        var addr = this;
-                        var r_address_line = Mustache.render(
-                                addr_line_template,
-                                addr
-                        );
-
-                        $("#addr_for_" + domain_id_js + "_" + nic.name ).append(r_address_line);
-
-                    });
-
-                };
-
-            });
-
-            $.each(
-              guest_data.forwarded_ports,
-              function (host_ip,forwarded_ports) {
-                $.each(
-                  forwarded_ports,
-                  function(host_port, gp) {
-                    var gen_href   = 0;
-                    var guest_port = gp[0];
-                    var proto      = gp[1];
-
-                    if ( guest_port == 443 || proto == 'https') {
-                      gen_href = 1;
-                      proto    = 'https';
-                    } else if ( guest_port == 80 || proto == 'http') {
-                      gen_href = 1;
-                      proto    = 'http';
-                    } else if ( guest_port == 22 || proto == 'ssh') {
-                      var gp_body_var = "#gp_body_" + domain_id_js;
-                      $("#gp_body_" + domain_id_js).append(
-                        "<pre>ssh -l root -p "+host_port+" -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null "+host_ip+"</pre>"
-                      );
-                    } else {
-                      $("#gp_body_" + domain_id_js).append(
-                        "<pre>Found unknown port forward ("+host_ip+") "+host_port+" => "+guest_port+" on guest</pre>"
-                      );
-                    }
-
-                    if ( gen_href == 1 ) {
-                      var href = Mustache.render(
-                         href_guest,
-                          {
-                            proto      : proto,
-                            host_ip    : host_ip,
-                            host_port  : host_port,
-                            guest_port : guest_port,
-                          }
-                      );
-                      var gp_body_id = "#gp_body_" + domain_id_js;
-                      $(gp_body_id).append(href);
-                    }
-                  }
-                );
-              }
-            );
-            var href = window.location.href;
-            var parts = href.split('#');
-            var vm = parts[1];
-
-            if ( vm == guest_data.domain_name) {
-                var element = $('#gp_body_' + vm );
-                element.css("display","block");
-            }
-          });
-    });
-  };
-
-$( document ).ready(refresh_body);
+      axios.get(url, { params: params }).then(function(response) {
+        self.guest_list = response.data.guest_list;
+        $('#spinner').hide();
+      });
+    },
+    sortedGuests: function() {
+      return Object.keys(this.guest_list).sort();
+    }
+  },
+  mounted: function() {
+      this.updatePage();
+  }
+});

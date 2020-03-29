@@ -1,45 +1,11 @@
 <h1>Guest</h1>
-[% INCLUDE refresh_button.tt %]
-<div id="guest_list">[% INCLUDE spinner.tt %]
+
+
+<div id="vue_app">
+  [% INCLUDE refresh_button.tt %]
+  [% INCLUDE spinner.tt %]
+  <guest-card v-for="guest in sortedGuests()" v-bind:key="guest" v-bind:data="guest_list[guest]"></job-card>
 </div>
-
-<script id="guest_panel" type="x-tmpl-mustache">
-
-<div class="card guest-card" id="guest_panel{{ id }}">
-  <div class="card-header alert alert-{{ guest_class }}" id='gp_header_{{ id }}' onClick=toggle_element("#gp_body_{{ id }}")>
-    <div class='row'>
-      <div class="col-md-10">
-        <span class="badge badge-{{ guest_class }}">{{ domain_name }} ({{ host  }})</span>
-      </div>
-      <div class="col-md-2" id="guest_action_div_{{ id }}">
-	<a class="float-right" href="[% request.uri_base %]/guest#{{ id }}">      <i class="fas fa-link"/></a>
-	[% IF roles.Admin %]
-        <a class="float-right" href="#" onClick=trigger_remove_domain("{{ domain_name }}")><i class="far fa-trash-alt"/></a>
-        [% END %]
-      </div>
-    </div>
-  </div>
-  <div class="card-body" style='display:none;padding:5px;' id="gp_body_{{ id }}">
-  </div>
-</div>
-
-</script>
-
-<script id="href_guest" type="x-tmpl-mustache">
-  <a href="{{ proto }}://{{ host_ip }}:{{ host_port}}" target=_blank>Link to Website ({{ proto }}/{{ guest_port }})</a><br>
-</script>
 
 <script src="[% request.uri_base %]/js/kanku/guest.js"></script>
-
-<script id="iface_line" type="x-tmpl-mustache">
-  <div>
-    <div class="badge badge-primary">{{ name }}</div>
-    <div class="badge badge-primary">{{ hwaddr }}</div>
-    <div class="badge badge-primary" id="addr_for_{{ domain_name }}_{{ name }}"><!-- placeholder for next line --></div>
-  </div>
-</script>
-
-<script id="addr_line" type="x-tmpl-mustache">
-    {{ addr }}<span class="badge badge-secondary"> / {{ prefix }}</span>
-</script>
 <!-- vim: set ft=html -->
