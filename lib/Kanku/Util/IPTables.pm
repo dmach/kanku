@@ -83,6 +83,11 @@ sub get_forwarded_ports_for_domain {
 
   # check each PREROUTING rule if comment matches "/* Kanku:host:<domain_name>:<application_protocol> */"
   # and push line number to rules ARRAY
+  my %port2app = (
+    22  => 'ssh',
+    80  => 'http',
+    443 => 'https',
+  );
   for my $line (@prerouting_rules) {
       if ( $line =~ $re ) {
         chomp $line;
@@ -90,10 +95,11 @@ sub get_forwarded_ports_for_domain {
         my($target,$prot,$opt,$source,$destination,@opts) = split(/\s+/,$line);
         my ($host_port,$guest_port,$app);
         for my $f (@opts) {
-          if ($f =~ /^Kanku:host:\w+:(\w+)$/ ) { $app = $1 }
+          if ($f =~ /^Kanku:host:[^\s:]+:(\w+)$/ ) { $app = $1 }
           if ($f =~ /^dpt:(\d+)$/ ) { $host_port = $1 }
           if ($f =~ /^to:[\d\.]+:(\d+)$/ ) { $guest_port = $1 }
         }
+        $app = $port2app{$guest_port} if (!$app && $port2app{$guest_port});
         $result->{$destination}->{$host_port} = [$guest_port, $app];
       }
   }
