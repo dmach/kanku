@@ -132,7 +132,12 @@ sub trigger {
     args 	  => $self->app->request->body,
   };
 
-  $jd->{trigger_user} = $self->current_user->{username} unless $self->has_role('Admin');
+  if (!$self->has_role('Admin')) {
+    my $user = $jd->{trigger_user} = $self->current_user->{username};
+    for my $task (@{$jd->{args}}) {
+      $task->{options}->{domain_name} =~ s/^($user-)?/$user-/ if defined $task->{options}->{domain_name};
+    }
+  }
 
   my $job = $self->rset('JobHistory')->create($jd);
 
