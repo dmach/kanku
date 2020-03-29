@@ -39,7 +39,7 @@ Vue.component('guest-card', {
     var alert_class = ( this.data.state == 1 ) ? "success" : "warning";
     return {
       showDetails: 0,
-      user : {'roles':{'Admin' : true }},
+      user : {'roles': active_roles},
       header_classes : ['card-header', 'alert', 'alert-' + alert_class],
       badge_classes: ['badge', 'badge-' + alert_class],
       href_vm : uri_base + "/guest#" + this.data.domain_name
@@ -88,7 +88,6 @@ var vm = new Vue({
       var self   = this;
       var url = uri_base + '/rest/guest/list.json';
       var params = new URLSearchParams();
-
       axios.get(url, { params: params }).then(function(response) {
         self.guest_list = response.data.guest_list;
         $('#spinner').hide();
