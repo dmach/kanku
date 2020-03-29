@@ -133,12 +133,20 @@ sub trigger {
   };
 
   if (!$self->has_role('Admin')) {
-    my $user = $jd->{trigger_user} = $self->current_user->{username};
-    for my $task (@{$jd->{args}}) {
-      $task->{options}->{domain_name} =~ s/^($user-)?/$user-/ if defined $task->{options}->{domain_name};
+    $self->log('debug', "NO ADMIN ROLE");
+    my $user = $self->current_user->{username};
+    $jd->{trigger_user} = $self->current_user->{username};
+    my $json = JSON::XS->new();
+    my $args = $json->decode($jd->{args});
+    for my $task (@$args) {
+      $task->{domain_name} =~ s/^($user-)?/$user-/ if $task->{domain_name};
     }
+    $jd->{args} = $json->encode($args);
+  } else {
+    $self->log('debug', "FOUND ADMIN ROLE");
   }
 
+  $self->log('debug', " ----- ARGS: $jd->{args}");
   my $job = $self->rset('JobHistory')->create($jd);
 
   return {state => 'success', msg => "Successfully triggered job '$name' with id ".$job->id};

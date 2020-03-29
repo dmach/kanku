@@ -333,7 +333,7 @@ sub run_task {
   # to avoid overwriting
   my $un = $job->trigger_user || "";
   $logger->debug("--- trigger_user $un");
-  $defaults{final_args}->{domain_name} =~ s{^($un-)?}{$un-}smx if ($un && exists $defaults{final_args}->{domain_name});
+  $defaults{final_args}->{domain_name} =~ s{^($un-)?}{$un-}smx if ($un && $defaults{final_args}->{domain_name});
   $logger->trace('--- final_args = '.$self->dump_it($defaults{final_args}));
 
   my $task = Kanku::Task->new(
