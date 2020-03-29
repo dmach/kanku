@@ -30,8 +30,18 @@ function restore_settings() {
 
 Vue.component('text-input',{
   props: ['gui_config'],
+  data: function() {
+    return { user_name : user_name }
+  },
+  computed: {
+    needsPrefix: function() {
+      if (this.gui_config.param == 'domain_name' && active_roles.User && ! active_roles.Admin) {
+        return true
+      }
+    }
+  },
   template: '<div class="form-group">'
-    + ' <label>{{ gui_config.label }} :</label>'
+    + ' <label>{{ gui_config.label }} :<strong v-if="needsPrefix"> (Will be prefixed by \'{{ user_name }}-\')</strong></label>'
     + ' <input  class="form-control"'
     + '        type=text'
     + '        :name="gui_config.param"'

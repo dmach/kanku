@@ -57,6 +57,18 @@ Vue.component('guest-card', {
       });
     }
   },
+  computed: {
+    allowDelete: function() {
+      if ( active_roles.Admin ) {
+        return true;
+      }
+      var split = this.data.domain_name.split("-",1);
+      if (active_roles.User && split[0] == user_name) {
+        return true;
+      }
+      return false;
+    }
+  },
   template: '<div class="card guest-card">'
     + ' <div :class="header_classes" v-on:click="toggleDetails()">'
     + '  <div class="row">'
@@ -65,7 +77,7 @@ Vue.component('guest-card', {
     + '   </div>'
     + '   <div class="col-md-2">'
     + '    <a class="float-right" :href="href_vm"><i class="fas fa-link"/></a>'
-    + '    <a v-if="user.roles.Admin" class="float-right" href="#" v-on:click="triggerRemoveDomain()"><i class="far fa-trash-alt"/></a>'
+    + '    <a v-if="allowDelete" class="float-right" href="#" v-on:click="triggerRemoveDomain()"><i class="far fa-trash-alt"/></a>'
     + '   </div>'
     + '  </div>'
     + ' </div>'
