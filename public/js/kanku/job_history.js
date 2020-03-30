@@ -36,15 +36,7 @@ function calc_additional_job_parameters(job) {
 };
 
 Vue.component('worker-info',{
-  data: function() {
-    return {
-      worker: {
-        host:  '',
-        queue: '',
-        pid:   ''
-      }
-    }
-  },
+  props: ['worker'],
   template: '<div class="worker_info">'
     + '  <div class="row">'
     + '    <div class="col-md-2">'
@@ -130,7 +122,7 @@ Vue.component('task-result',{
 });
 
 Vue.component('task-list',{
-  props: ['result'],
+  props: ['result', 'workerinfo', 'subtasks'],
   data: function() {
     return {
       isShown: 0,
@@ -139,17 +131,14 @@ Vue.component('task-list',{
     }
   },
   updated: function() {
-    this.$refs.workerinfo.worker = {
-      host:   this.jobData.workerhost,
-      pid:    this.jobData.workerpid,
-      queue:  this.jobData.workerqueue,
-      error:  JSON.parse(this.jobData.result).error_message
-    };
     calc_additional_job_parameters(this.jobData);
-    this.$parent.job = this.jobData;
+    this.$parent.job.state_class          = this.jobData.state_class;
+    this.$parent.job.start_time_formatted = this.jobData.start_time_formatted;
+    this.$parent.job.duration             = this.jobData.duration;
+    this.$parent.workerInfo.host          = this.jobData.workerhost
   },
   template: '<div class="card-body">'
-    + '  <worker-info ref="workerinfo"></worker-info>'
+    + '  <worker-info v-bind:worker="workerinfo"></worker-info>'
     + '  <task-card v-bind:key="task.id" v-bind:task="task" v-for="task in jobData.subtasks"></task-card>'
     +'</div>'
 });
@@ -172,6 +161,7 @@ Vue.component('job-card',{
       show_comments:       show_comments,
       show_pwrand:         show_pwrand,
       comment: '',
+      subtasks: [],
     }
   },
   computed: {
@@ -202,6 +192,7 @@ Vue.component('job-card',{
            task.state_class = alert_map[task.state];
            task.result      = task.result || {};
         });
+        self.substasks = response.data.subtasks;
       });
     },
     showModal: function() {
@@ -248,7 +239,7 @@ Vue.component('job-card',{
     + '    </div>'
     + '  </div>'
     + '</div>'
-    + '<task-list v-show="showTaskList" ref="tasklist"></task-list>'
+    + '<task-list v-show="showTaskList" ref="tasklist" v-bind:workerinfo="workerInfo" v-bind:subtasks="subtasks"></task-list>'
     + '  <b-modal ref="modalComment" hide-footer title="Comments for Job">'
     + '    <div>'
     + '      <single-job-comment v-for="cmt in job.comments" v-bind:key="cmt.id" v-bind:comment="cmt">'
