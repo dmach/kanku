@@ -19,7 +19,7 @@
 =head3 For production environment
 
  # In server mode
- export KANKU_DSN=dbi:SQLite:/opt/kanku/var/db/kanku-schema.db
+ export KANKU_DSN=dbi:SQLite:/var/lib/kanku/db/kanku-schema.db
  # In developer mode
  # export KANKU_DSN=dbi:SQLite:$HOME/.kanku/kanku-schema.db
  export KANKU_PATH=/opt/kanku
