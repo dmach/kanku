@@ -144,18 +144,24 @@ var vm = new Vue({
 	self.jobs = response.data.config;
         self.original_jobs = Object.assign(self.jobs, self.original_jobs);
         var cookie = restore_settings();
+        var errors = Object();
         self.jobs.forEach(function(job) {
           $.each(cookie[job.job_name], function(iter, cookie_config) {
             $.each(Object.keys(cookie_config), function(iter2, key) {
-               $.each(job.sub_tasks[iter].gui_config, function(iter3, config_element) {
-                 if (config_element.param === key) {
-                   config_element.original_default = config_element.default;
-                   config_element.default = cookie_config[key];
-                 }
-               });
+               if (job.sub_tasks[iter]) {
+		 $.each(job.sub_tasks[iter].gui_config, function(iter3, config_element) {
+		   if (config_element.param === key) {
+		     config_element.original_default = config_element.default;
+		     config_element.default = cookie_config[key];
+		   }
+		 });
+               } else {
+                 errors[job.job_name] = "Error while loading config for job '"+job.job_name+"'. No subtasks defined!";
+               }
             });
           });
         });
+        $.each(Object.keys(errors), function(iter, job) { show_messagebox('danger', errors[job]); });
         $('#spinner').hide();
       });
     }
