@@ -163,6 +163,9 @@ var vm = new Vue({
         });
         $.each(Object.keys(errors), function(iter, job) { show_messagebox('danger', errors[job]); });
         $('#spinner').hide();
+      }).catch(function (error) {
+        // handle error
+        show_messagebox('danger', "URL: " + url + "<br>" +error, timeout=0);
       });
     }
   },
