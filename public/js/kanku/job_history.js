@@ -131,6 +131,11 @@ Vue.component('task-list',{
     }
   },
   updated: function() {
+    // Workaround if data gets updated but jobData is empty
+    // like it happens when "Refresh" button is pressed
+    if (! this.jobData.name) {
+      return;
+    }
     calc_additional_job_parameters(this.jobData);
     this.$parent.job.state_class          = this.jobData.state_class;
     this.$parent.job.start_time_formatted = this.jobData.start_time_formatted;
@@ -200,7 +205,7 @@ Vue.component('job-card',{
     },
     closeModal: function() {
       this.$refs.modalComment.hide();
-      this.$root.updateJobList();
+      this.$root.updatePage();
     },
     createJobComment: function() {
       var url    = uri_base+'/rest/job/comment/'+this.job.id+'.json';
@@ -386,7 +391,7 @@ Vue.component('prev-button',{
     prevpage: function() {
       if (this.$parent.page <= 1) {return}
       this.$parent.page--;
-      this.$parent.updateJobList();
+      this.$root.updatePage();
     }
   },
   template: '<div class="col-md-1"><button v-on:click="prevpage()" class="btn btn-default">&lt;&lt;&lt;</button></div>'
@@ -396,7 +401,7 @@ Vue.component('next-button',{
   methods: {
     nextpage: function() {
       this.$parent.page++;
-      this.$parent.updateJobList();
+      this.$root.updatePage();
     }
   },
   template: '<div class="col-md-1"><button v-on:click="nextpage()" class="btn btn-default">&gt;&gt;&gt;</button></div>'
@@ -409,7 +414,7 @@ Vue.component('limit-select',{
   methods: {
     setNewLimit: function() {
       this.$parent.limit = this.limit;
-      this.$parent.updateJobList();
+      this.$root.updatePage();
     }
   },
   template: ''
@@ -424,7 +429,7 @@ Vue.component('limit-select',{
 Vue.component('refresh-button',{
   methods: {
     refreshJobList: function() {
-      this.$parent.updateJobList();
+      this.$root.updatePage();
     }
   },
   template: ''
@@ -443,12 +448,12 @@ Vue.component('job-search',{
   methods: {
     updateJobSearch: function() {
       this.$parent.job_name = this.job_name;
-      this.$parent.updateJobList();
+      this.$root.updatePage();
     },
     clearJobSearch: function() {
       this.job_name = '';
       this.$parent.job_name = this.job_name;
-      this.$parent.updateJobList();
+      this.$root.updatePage();
     }
   },
   template: ''
@@ -469,7 +474,7 @@ Vue.component('job-state-checkbox',{
   methods: {
     updateJobSearch: function() {
       this.$root.$emit('toggle_state', this.name);
-      this.$parent.updateJobList();
+      this.$root.updatePage();
     },
   },
   template: ''
@@ -486,7 +491,7 @@ Vue.component('show-only-latest-results',{
   methods: {
     updateJobSearch: function() {
       this.$root.$emit('toggle_show_only_latest_results');
-      this.$parent.updateJobList();
+      this.$root.updatePage();
     },
   },
   template: ''
@@ -515,7 +520,7 @@ var vm = new Vue({
     });
   },
   methods: {
-    updateJobList: function() {
+    updatePage: function() {
       var url    = uri_base + "/rest/jobs/list.json";
       var self   = this;
       var params = {};
@@ -530,7 +535,6 @@ var vm = new Vue({
       for (key in self.job_states) {
         if (self.job_states[key]) { params.append("state", key); }
       };
-
       axios.get(url, { params: params }).then(function(response) {
 	response.data.jobs.forEach(function(job) {
 	  calc_additional_job_parameters(job);
@@ -540,6 +544,6 @@ var vm = new Vue({
     }
   },
   mounted: function() {
-      this.updateJobList();
+      this.updatePage();
   }
 })
