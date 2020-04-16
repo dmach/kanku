@@ -123,7 +123,7 @@ sub email_welcome_send {
         $reset_link =~ s#([^:])//+#$1/#;
         $message{subject} = "Welcome to $host";
         $message{from}    = $plugin->mail_from;
-        $message{plain}   = <<'__EMAIL';
+        $message{plain}   = <<"__EMAIL";
 An account has been created for you at $host. If you would like
 to accept this, please follow the link below to set a password:
 
@@ -295,9 +295,11 @@ sub check_filters {
   $key = $dd->{'type'}.'-'.$dd->{'event'};
   $log->trace("Step 1 $key $fd->{$key}");
   return 0 if (exists $fd->{$key} && ! $fd->{$key});
-  $key = $dd->{'type'}.'-'.$dd->{'event'}.'-'.$dd->{'result'};
-  $log->trace("Step 3 $key");
-  return 0 if ($dd->{'result'} && exists $fd->{$key} && ! $fd->{$key});
+  if ($dd->{'result'}) {
+     $key = $dd->{'type'}.'-'.$dd->{'event'}.'-'.$dd->{'result'};
+     $log->trace("Step 3 $key");
+     return 0 if( exists $fd->{$key} && ! $fd->{$key});
+  }
 
   return 1;
 }
@@ -350,20 +352,27 @@ websocket_on_open sub {
 	debug "Got Token $data->{token}";
 	$ws_session->auth_token($data->{token});
 	my $perms = $ws_session->authenticate;
-        my $msg;
-        if ($perms == -1) {
-          $msg = 'Authentication failed!';
-        } else {
-          $msg = 'Authentication succeed!';
-        }
+        my $result = ($perms == -1) ? 'failed': 'succeed';
+        my $msg = "Authentication $result!";
         my $uid = $ws_session->user_id;
 	debug "$msg ($perms/$uid)";
-        $notify->send($msg);
+        $notify->send({message=>$msg, result=> $result});
       } elsif ($data->{filters}) {
         debug('Got filters');
-        $ws_session->filters(encode_json($data->{filters}));
+        my $final_filters={};
+        foreach my $event_type (keys %{$data->{filters}}) {
+          foreach my $action (keys %{$data->{filters}->{$event_type}}) {
+            my $filler = ($action =~ /(^succeed|failed|skipped)$/) ? "-finished" : "";
+            $final_filters->{"$event_type$filler-$action"} = $data->{filters}->{$event_type}->{$action};
+          }
+        }
+        $ws_session->filters(encode_json($final_filters));
       } elsif ($data->{bounce}) {
-        $notify->send($data->{bounce});
+        $data->{bounce} =~ /(succeed|failed|warning)/;
+        $notify->send({
+          message => $data->{bounce},
+          result  => $1
+        });
       }
       debug 'Returning from message';
     }
