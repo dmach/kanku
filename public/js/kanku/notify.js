@@ -312,7 +312,6 @@ mySocket.onmessage = function (evt) {
     'failed'  : 'danger',
   };
   var ico = uri_base + '/images/64/kanku-' + ( ico_ext[data.result] || 'success' ) + '.png';
-  console.log(data.result + " #### "+ico);
   var notify_timeout = $('#notification_timeout').val() * 1000;
   Notification.requestPermission(function() {
     var n = new Notification(data.title, {
