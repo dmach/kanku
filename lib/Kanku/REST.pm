@@ -129,6 +129,20 @@ put '/user/:user_id.:format' => sub {
   return $uo->update();
 };
 
+post '/admin/user/deactivate/:user_id.:format' => sub {
+  my ($self) = @_;
+  my $uo = Kanku::REST::Admin::User->new(app_opts());
+
+  return $uo->deactivate(params->{user_id});
+};
+
+post '/admin/user/activate/:user_id.:format' => sub {
+  my ($self) = @_;
+  my $uo = Kanku::REST::Admin::User->new(app_opts());
+
+  return $uo->activate(params->{user_id});
+};
+
 del '/admin/user/:user_id.:format' => requires_role Admin => sub {
   my $uo = Kanku::REST::Admin::User->new(app_opts());
   return $uo->remove(params->{user_id});

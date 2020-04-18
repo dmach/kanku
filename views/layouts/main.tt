@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="[% request.uri_base %]/css/bootstrap-vue.css" />
 <link rel="stylesheet" href="[% request.uri_base %]/css/kanku/mystyle.css" />
 <link rel="stylesheet" href="[% request.uri_base %]/css/kanku/signin.css"  />
+<link rel="stylesheet" href="[% request.uri_base %]/fontawesome/css/all.min.css"  />
 
 <script src="[% request.uri_base %]/js/jquery.min.js"></script>
 <script src="[% request.uri_base %]/js/kanku/common.js"></script>
@@ -25,7 +26,9 @@
 [% END %]
 <script src="[% request.uri_base %]/js/polyfill.min.js"></script>
 <script src="[% request.uri_base %]/js/bootstrap-vue.js"></script>
-<script defer src="[% request.uri_base %]/js/fontawesome.min.js"></script>
+
+<script defer src="[% request.uri_base %]/fontawesome/js/all.min.js"></script>
+
 <script type="text/javascript">
 [% USE JSON.Escape() %]
   // This is used to bring uri_base into js on a

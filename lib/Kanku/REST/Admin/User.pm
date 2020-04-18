@@ -115,6 +115,52 @@ sub remove {
   };
 }
 
+sub activate {
+  my ($self, $user_id)   = @_;
+
+  return {error => 'Permission denied!'} if (! $self->has_role('Admin'));
+
+  my $user_o = $self->schema->resultset('User')->find({id => $user_id});
+  if (! $user_o ) {
+    return {
+      'state' => 'danger',
+      'msg'   => "User with id '$user_id' not found!",
+    };
+  }
+
+  my $data = { deleted => 1 };
+
+  $user_o->update($data);
+
+  return {
+      'state' => 'success',
+      'msg'   => 'Activated User successfully!',
+  };
+}
+
+sub deactivate {
+  my ($self, $user_id)   = @_;
+
+  return {error => 'Permission denied!'} if (! $self->has_role('Admin'));
+
+  my $user_o = $self->schema->resultset('User')->find({id => $user_id});
+  if (! $user_o ) {
+    return {
+      'state' => 'danger',
+      'msg'   => "User with id '$user_id' not found!",
+    };
+  }
+
+  my $data = { deleted => 0 };
+
+  $user_o->update($data);
+
+  return {
+      'state' => 'success',
+      'msg'   => 'Deactivated User successfully!',
+  };
+}
+
 __PACKAGE__->meta->make_immutable();
 
 1;
