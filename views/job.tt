@@ -1,13 +1,1 @@
-<h1>Job</h1>
-<div id="vue_app">
-    [% INCLUDE spinner.tt %]
-    <div
-      v-for="job in jobs"
-      v-bind:key="job.job_name"
-      v-bind:job="job"
-    >
-      <job-card v-bind:job="job"></job-card>
-    </div>
-</div>
 <script src="[% request.uri_base %]/js/kanku/job.js"></script>
-

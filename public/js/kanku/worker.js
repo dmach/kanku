@@ -44,10 +44,11 @@ var vm = new Vue({
   //props: ['workers'],
   data: { workers : [] },
   methods: {
-    updateWorkersList: function() {
+    updatePage: function() {
       var url    = uri_base + "/rest/worker/list.json";
       var params = new URLSearchParams();
       var self   = this;
+      $('#spinner').show();
 
       axios.get(url, { params: params }).then(function(response) {
 	response.data.workers.forEach(function(worker) {
@@ -62,10 +63,24 @@ var vm = new Vue({
           }
 	});
 	self.workers = response.data.workers;
+        $('#spinner').hide();
       })
     }
   },
   mounted: function() {
-      this.updateWorkersList();
-  }
+      this.updatePage();
+  },
+  template: ''
+    + '<div>'
+    + ' <head-line text="Worker"></head-line>'
+    + ' <div class="row" style="padding-bottom:10px;">'
+    + '  <div class="col-lg-10">'
+    + '   <spinner></spinner>'
+    + '  </div>'
+    + '  <div class="col-lg-2">'
+    + '   <refresh-button></refresh-button>'
+    + '  </div>'
+    + ' </div>'
+    + ' <worker-card v-for="worker in workers" v-bind:key="worker.id" v-bind:worker="worker"></worker-card>'
+    + '</div>'
 })

@@ -1,11 +1,1 @@
-<h1>Guest</h1>
-
-
-<div id="vue_app">
-  [% INCLUDE refresh_button.tt %]
-  [% INCLUDE spinner.tt %]
-  <guest-card v-for="guest in sortedGuests()" v-bind:key="guest" v-bind:data="guest_list[guest]"></job-card>
-</div>
-
 <script src="[% request.uri_base %]/js/kanku/guest.js"></script>
-<!-- vim: set ft=html -->

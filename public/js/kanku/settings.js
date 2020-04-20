@@ -1,16 +1,3 @@
-var updateMessageBar = function (p, t, s) {
-    var mb = p.$root.$data.message_bar;
-    mb.show        = true;
-    mb.alert_class = "alert-" + s;
-    mb.text        = t;
-    setTimeout(
-      function() {
-	mb.show = false;
-      },
-      10000
-    );
-  };
-
 Vue.component('role-checkbox', {
   props: ['name', 'checked', 'value'],
   template: '<div class="form-group row">'
@@ -136,4 +123,10 @@ var app = new Vue({
 	self.user_details = response.data;
       });
   },
+  template: '<div>'
+    + ' <message-box :message_bar="message_bar"></message-box>'
+    + ' <head-line text="Settings"></head-line>'
+    + ' <user-settings :user_details="user_details"></user-settings>'
+    + ' <request-roles :user_details="user_details"></request-roles>'
+    + '</div>'
 });

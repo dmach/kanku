@@ -227,11 +227,6 @@ Vue.component('role-list', {
     + '</div>'
 });
 
-Vue.component('head-line', {
-  props: ['text'],
-  template: '<h1>{{ text }}</h1>'
-});
-
 var app = new Vue({
   el: '#vue_app',
   template: '<div>'

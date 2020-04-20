@@ -81,7 +81,7 @@ Vue.component('header-jumbotron', {
 
 Vue.component('header-selector', {
   template: ''
-    + '  <div class="row">'
+    + '  <div class="row" style="margin-bottom:10px;">'
     + '    <div class="col-lg-2">'
     + '       <label for="notification_delay">Show for (seconds)</label>'
     + '    </div>'
@@ -253,7 +253,7 @@ Vue.component('reset-filters-button',{
       this.$root.$emit('reset-filters');
     }
   },
-  template: '<a href="#" class="btn btn-primary active" role="button" aria-pressed="true" v-on:click="resetFilters">Reset</a>'
+  template: '<button class="btn btn-primary active float-right" role="button" aria-pressed="true" v-on:click="resetFilters">Reset</button>'
 });
 
 var vm = new Vue({
@@ -293,7 +293,18 @@ var vm = new Vue({
   },
   mounted: function() {
       this.updatePage();
-  }
+  },
+  template: '<div>'
+    + ' <header-jumbotron></header-jumbotron>'
+    + ' <form> '
+    + '  <h4>Filters</h4>'
+    + '  <header-selector></header-selector>'
+    + '  <admin-filters v-if="has_role_admin"                                   v-bind:form_data="form_data.user_change"   prefix="user_change"></admin-filters>'
+    + '  <daemon-filters v-if="has_role_user || has_role_admin"                 v-bind:form_data="form_data.daemon_change" prefix="daemon_change"></daemon-filters>'
+    + '  <job-filters v-if="has_role_guest || has_role_user || has_role_admin"  v-bind:form_data="form_data.job_change"    prefix="job_change"></job-filters>'
+    + '  <task-filters v-if="has_role_guest || has_role_user || has_role_admin" v-bind:form_data="form_data.task_change"   prefix="task_change"></task-filters>'
+    + ' </form>'
+    + '</div>'
 });
 
 var mySocket = new WebSocket(ws_url);

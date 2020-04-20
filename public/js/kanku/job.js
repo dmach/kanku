@@ -171,5 +171,10 @@ var vm = new Vue({
   },
   mounted: function() {
       this.updatePage();
-  }
+  },
+  template: '<div>'
+    + ' <head-line text="Job"></head-line>'
+    + ' <spinner></spinner>'
+    + ' <job-card v-for="job in jobs" v-bind:key="job.job_name" v-bind:job="job"></job-card>'
+    + '</div>'
 });

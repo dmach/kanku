@@ -13,21 +13,19 @@
 <link rel="stylesheet" href="[% request.uri_base %]/fontawesome/css/all.min.css"  />
 
 <script src="[% request.uri_base %]/js/jquery.min.js"></script>
-<script src="[% request.uri_base %]/js/kanku/common.js"></script>
-<script src="[% request.uri_base %]/js/mustache.min.js"></script>
 <script src="[% request.uri_base %]/js/js.cookie.js"></script>
 <script src="[% request.uri_base %]/js/bootstrap.min.js"></script>
-
 <script src="[% request.uri_base %]/js/axios.min.js"></script>
+<script src="[% request.uri_base %]/js/polyfill.min.js"></script>
+<script defer src="[% request.uri_base %]/fontawesome/js/all.min.js"></script>
 [% IF is_devel %]
 <script src="[% request.uri_base %]/js/vue.dev.js"></script>
 [% ELSE %]
 <script src="[% request.uri_base %]/js/vue.min.js"></script>
 [% END %]
-<script src="[% request.uri_base %]/js/polyfill.min.js"></script>
+<script src="[% request.uri_base %]/js/vue-router.js"></script>
 <script src="[% request.uri_base %]/js/bootstrap-vue.js"></script>
-
-<script defer src="[% request.uri_base %]/fontawesome/js/all.min.js"></script>
+<script src="[% request.uri_base %]/js/kanku/common.js"></script>
 
 <script type="text/javascript">
 [% USE JSON.Escape() %]
@@ -109,6 +107,8 @@
   <div id="messagebox" class="container alert fixed-top" style="margin-top:50px;"></div>
   [% messagebar %]
   <!-- content goes here -->
+  <div id="vue_app">
+  </div>
   [% content %]
   <!-- end of content -->
   </div>

@@ -81,7 +81,22 @@ sub list {
 sub details {
   my ($self) = @_;
   my $job_id = $self->params->{id};
+
+  unless ($job_id) {
+    return {
+      state => 'failed',
+      msg   => "Job ID was empty!",
+    };
+  }
+
   my $job    = $self->rset('JobHistory')->find($job_id);
+
+  unless ($job) {
+    return {
+      state => 'failed',
+      msg   => "No job with ID '$job_id' found!",
+    };
+  }
 
   my $subtasks = [];
 

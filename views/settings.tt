@@ -1,11 +1,1 @@
-<div id="vue_app">
-<transition name="fade">
-  <div v-if="message_bar.show" v-bind:class="message_bar.alert_class" class="alert">{{ message_bar.text }}</div>
-</transition>
-
-<h2>Your Settings</h2>
-
-<user-settings :user_details="user_details"></user-settings>
-<request-roles :user_details="user_details"></request-roles>
-</div>
 <script src="[% request.uri_base %]/js/kanku/settings.js"></script>

@@ -111,5 +111,17 @@ var vm = new Vue({
   },
   mounted: function() {
       this.updatePage();
-  }
+  },
+  template: '<div>'
+   + ' <head-line text="Guest"></head-line>'
+   + '  <div class="row" style="margin-bottom:10px;">'
+   + '   <div class="col-md-10">'
+   + '    <spinner></spinner>'
+   + '   </div>'
+   + '   <div class="col-md-2">'
+   + '     <refresh-button></refresh-button>'
+   + '   </div>'
+   + '  </div>'
+   + '  <guest-card v-for="guest in sortedGuests()" v-bind:key="guest" v-bind:data="guest_list[guest]"></guest-card>'
+   + '</div>'
 });
