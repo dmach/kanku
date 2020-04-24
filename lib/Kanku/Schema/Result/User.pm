@@ -110,6 +110,8 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
+__PACKAGE__->add_unique_constraint([qw(username)]); 
+
 =head1 RELATIONS
 
 =head2 user_roles
