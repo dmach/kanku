@@ -26,14 +26,17 @@ function filters_to_cookie(filters) {
       );
 }
 
-function g_update_filters() {
+function g_update_filters(mySocket) {
+      if (! mySocket) { return; }
       var filters = get_filters_from_cookie();
-      $("form input:checkbox").each(function(idx, elem) {
+      console.log($(".filter_checkbox"));
+      $(".filter_checkbox").each(function(idx, elem) {
 	var id = $(elem).attr('id');
         var r  = id.split('-', 2);
         if (filters[r[0]] === undefined) { filters[r[0]] = {}; }
         var is_checked = $(elem).is(':checked');
 	filters[r[0]][r[1]] = $(elem).is(':checked');
+        console.log("filters: "+filters[r[0]][r[1]]);
       });
       filters_to_cookie(filters);
       var msg = JSON.stringify({"filters" : filters});
@@ -53,12 +56,103 @@ function get_filters_from_cookie() {
   return filters;
 }
 
+function startWSConnection(user_id) {
+  if(!user_id) {
+    return undefined;
+  }
+
+  var mySocket = new WebSocket(ws_url);
+  var token = Cookies.get("kanku_notify_session");
+  console.log("token: "+token);
+
+  mySocket.onerror = function (error) {
+    console.log('WebSocket Error ' + error);
+    console.log(error);
+    show_messagebox('danger', 'WebSocket Error code: ' + error.code, 0);
+  };
+
+  mySocket.onmessage = function (evt) {
+    data = JSON.parse(evt.data);
+    var ico_ext = {
+      'succeed' : 'success',
+      'warning' : 'warning',
+      'failed'  : 'danger',
+    };
+    var ico = uri_base + '/images/64/kanku-' + ( ico_ext[data.result] || 'success' ) + '.png';
+    var notify_timeout = $('#notification_timeout').val() * 1000;
+    Notification.requestPermission(function() {
+      var n = new Notification(data.title, {
+	  body: data.body,
+	  icon: ico
+      });
+      n.onclick = function() {
+	  window.open(data.link, 'newwindow', "menubar=no");
+	  n.close();
+      };
+      if ( notify_timeout > 0 ) {
+	setTimeout(n.close.bind(n), notify_timeout);
+      }
+    });
+  };
+
+  mySocket.onopen = function(evt) {
+    var ico = uri_base + '/images/32/kanku-success.png';
+    var notify_timeout = $('#notification_timeout').val();
+    console.log("mySocket.onopen");
+    Notification.requestPermission(function() {
+      $("#favicon").attr("href",ico);
+      setTimeout(
+	function() {
+	  var msg = '{"token":"'+ token +'"}';
+	  mySocket.send(msg);
+	},
+	notify_timeout
+      );
+      setTimeout(
+	function() {
+	  mySocket.send('{"bounce":"Opening WebSocket succeed!"}');
+	  g_update_filters(mySocket);
+	},
+	notify_timeout
+      );
+    });
+  };
+
+  mySocket.onclose = function(evt) {
+    console.log(evt);
+    Notification.requestPermission(function() {
+      var m = 'Closed WebSocket - no more messages will be displayed';
+      var ico = uri_base + '/images/64/kanku-danger.png';
+
+      var n = new Notification('Kanku Desktop Notification', {
+	  body: m,
+	  icon: ico
+      });
+      show_messagebox('danger', m, 20000);
+      n.onclick = function() {
+	  window.location.href = 'notify';
+	  n.close();
+      };
+      setTimeout(n.close.bind(n), 20000);
+    });
+    var ico = uri_base + '/images/32/kanku-danger.png';
+    $("#favicon").attr("href",ico);
+  };
+
+  if (! window.Notification ) {
+    alert("Notifications not availible in your browser!");
+  } else if (Notification.permission !== "granted") {
+     Notification.requestPermission(function() {});
+  }
+ 
+  return mySocket;
+}
 
 Vue.component('notify-test-button', {
   props: ['css_class', 'action', 'text'],
   methods: {
     sendTestNotify: function() {
-      mySocket.send('{"bounce":"Kanku Test Notification - '+this.action+'"}');
+      this.$root.sock.send('{"bounce":"Kanku Test Notification - '+this.action+'"}');
     }
   },
   computed: {
@@ -108,7 +202,7 @@ Vue.component('filter-checkbox', {
   }, 
   template: ' <div class="col-lg-1">'
     + '  <span class="input-group-addon">'
-    + '   <input type=checkbox :value="value" v-model="checked" v-on:click="updateValues" :aria-label="label" :id="elem_id">'
+    + '   <input type=checkbox class="filter_checkbox" :value="value" v-model="checked" v-on:click="updateValues" :aria-label="label" :id="elem_id">'
     + '  </span>'
     + ' </div>'
 });
@@ -126,7 +220,7 @@ Vue.component('header-checkbox', {
     }
   }, 
   template: ' <div class="col-lg-1 text-center">'
-    + '   <input type=checkbox :value="value" v-model="checked" v-on:click="updateValues" :id="elem_id">'
+    + '   <input type=checkbox class="filter_checkbox" :value="value" v-model="checked" v-on:click="updateValues" :id="elem_id">'
     + ' </div>'
 });
 
@@ -256,13 +350,15 @@ Vue.component('reset-filters-button',{
   template: '<button class="btn btn-primary active float-right" role="button" aria-pressed="true" v-on:click="resetFilters">Reset</button>'
 });
 
-var vm = new Vue({
-  el: '#vue_app',
-  data: {
-    has_role_admin:       active_roles['Admin'],
-    has_role_user:        active_roles['User'],
-    has_role_guest:       active_roles['Guest'],
-    form_data:            get_filters_from_cookie(),
+const notifyPage = {
+  props: ['user_id'],
+  data: function() {
+    return {
+      has_role_admin:       active_roles['Admin'],
+      has_role_user:        active_roles['User'],
+      has_role_guest:       active_roles['Guest'],
+      form_data:            get_filters_from_cookie(),
+    };
   },
   created() {
     this.$root.$on('updated-filters', result => {
@@ -277,7 +373,7 @@ var vm = new Vue({
       console.log("updatePage started");
     },
     updateFilters: function () {
-      g_update_filters();
+      g_update_filters(this.$root.sock);
     },
     resetFilters: function () {
       self = this;
@@ -297,93 +393,17 @@ var vm = new Vue({
   template: '<div>'
     + ' <header-jumbotron></header-jumbotron>'
     + ' <form> '
+    + ' <div v-if="user_id">'
     + '  <h4>Filters</h4>'
     + '  <header-selector></header-selector>'
-    + '  <admin-filters v-if="has_role_admin"                                   v-bind:form_data="form_data.user_change"   prefix="user_change"></admin-filters>'
-    + '  <daemon-filters v-if="has_role_user || has_role_admin"                 v-bind:form_data="form_data.daemon_change" prefix="daemon_change"></daemon-filters>'
-    + '  <job-filters v-if="has_role_guest || has_role_user || has_role_admin"  v-bind:form_data="form_data.job_change"    prefix="job_change"></job-filters>'
-    + '  <task-filters v-if="has_role_guest || has_role_user || has_role_admin" v-bind:form_data="form_data.task_change"   prefix="task_change"></task-filters>'
+    + '  <admin-filters v-if="has_role_admin"                                   :form_data="form_data.user_change"   prefix="user_change"></admin-filters>'
+    + '  <daemon-filters v-if="has_role_user || has_role_admin"                 :form_data="form_data.daemon_change" prefix="daemon_change"></daemon-filters>'
+    + '  <job-filters v-if="has_role_guest || has_role_user || has_role_admin"  :form_data="form_data.job_change"    prefix="job_change"></job-filters>'
+    + '  <task-filters v-if="has_role_guest || has_role_user || has_role_admin" :form_data="form_data.task_change"   prefix="task_change"></task-filters>'
+    + ' </div> '
+    + ' <div v-else>'
+    + '   <h1>Please Login!</h1>'
+    + ' </div>'
     + ' </form>'
     + '</div>'
-});
-
-var mySocket = new WebSocket(ws_url);
-var token = Cookies.get("kanku_notify_session");
-
-mySocket.onerror = function (error) {
-  console.log('WebSocket Error ' + error);
-  show_messagebox('danger', 'WebSocket Error ' + error, 0);
 };
-
-mySocket.onmessage = function (evt) {
-  data = JSON.parse(evt.data);
-  var ico_ext = {
-    'succeed' : 'success',
-    'warning' : 'warning',
-    'failed'  : 'danger',
-  };
-  var ico = uri_base + '/images/64/kanku-' + ( ico_ext[data.result] || 'success' ) + '.png';
-  var notify_timeout = $('#notification_timeout').val() * 1000;
-  Notification.requestPermission(function() {
-    var n = new Notification(data.title, {
-	body: data.body,
-	icon: ico
-    });
-    n.onclick = function() {
-        window.open(data.link, 'newwindow', "menubar=no");
-        n.close();
-    };
-    if ( notify_timeout > 0 ) {
-      setTimeout(n.close.bind(n), notify_timeout);
-    }
-  });
-};
-
-mySocket.onopen = function(evt) {
-  var ico = uri_base + '/images/32/kanku-success.png';
-  var notify_timeout = $('#notification_timeout').val();
-  console.log("mySocket.onopen");
-  Notification.requestPermission(function() {
-    $("#favicon").attr("href",ico);
-    setTimeout(
-      function() {
-	var msg = '{"token":"'+ token +'"}';
-	mySocket.send(msg);
-      },
-      notify_timeout
-    );
-    setTimeout(
-      function() {
-	mySocket.send('{"bounce":"Opening WebSocket succeed!"}');
-        g_update_filters();
-      },
-      notify_timeout
-    );
-  });
-};
-
-mySocket.onclose = function(evt) {
-  Notification.requestPermission(function() {
-    var m = 'Closed WebSocket - no more messages will be displayed';
-    var ico = uri_base + '/images/64/kanku-danger.png';
-
-    var n = new Notification('Kanku Desktop Notification', {
-	body: m,
-	icon: ico
-    });
-    show_messagebox('danger', m, 0);
-    n.onclick = function() {
-        window.location.href = 'notify';
-        n.close();
-    };
-    setTimeout(n.close.bind(n), 20000);
-  });
-  var ico = uri_base + '/images/32/kanku-danger.png';
-  $("#favicon").attr("href",ico);
-};
-
-if (! window.Notification ) {
-  alert("Notifications not availible in your browser!");
-} else if (Notification.permission !== "granted") {
-   Notification.requestPermission(function() {});
-}

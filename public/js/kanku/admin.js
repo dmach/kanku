@@ -227,8 +227,7 @@ Vue.component('role-list', {
     + '</div>'
 });
 
-var app = new Vue({
-  el: '#vue_app',
+const adminPage = {
   template: '<div>'
     + ' <head-line text="Administration"></head-line>'
     + ' <hr/>'
@@ -239,4 +238,4 @@ var app = new Vue({
     + ' <role-list></role-list>'
     + ' <hr/>'
     + '</div>'
-});
+};

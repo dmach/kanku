@@ -38,6 +38,16 @@ sub app_opts {
   return 'app'=> app, 'current_user' => ( logged_in_user || {} ), 'schema' => schema;
 }
 
+sub userinfo {
+  my $liu = logged_in_user;
+  my $ret = {};
+  # filter out some sensitive information
+  for (qw/id name username email deleted lastlogin role_id/) {
+   $ret->{$_} = $liu->{$_};
+  }
+  return $ret;
+}
+
 ################################################################################
 # Routes
 ################################################################################
@@ -129,6 +139,11 @@ put '/user/:user_id.:format' => sub {
   return $uo->update();
 };
 
+get '/userinfo.:format' => sub {
+  my ($self) = @_;
+  return { logged_in_user => userinfo() };
+};
+
 post '/admin/user/deactivate/:user_id.:format' => sub {
   my ($self) = @_;
   my $uo = Kanku::REST::Admin::User->new(app_opts());
@@ -174,16 +189,36 @@ post '/login.:format' => sub {
     # user successfully authenticated by username/password
     session logged_in_user       => $username;
     session logged_in_user_realm => $realm;
+    my $ws_session = Kanku::WebSocket::Session->new(
+      user_id => userinfo()->{id},
+      schema  => schema,
+    );
+    debug "Session auth_token: ".$ws_session->auth_token;
+ 
 
-    return { authenticated => 1 };
+    return { 
+     authenticated  => 1,
+     kanku_notify_session => $ws_session->auth_token,
+     logged_in_user => userinfo(),
+    };
   } else {
     # could not authrenticate user
     return { authenticated => 0 };
   }
 };
 
-get '/logout.:format' => sub {
-    app->destroy_session;
+post '/logout.:format' => require_login sub {
+    my $uid    = userinfo()->{id},
+    my $token  = params->{kanku_notify_session};
+    my $result = app->destroy_session;
+    if ($token) { 
+      my $ws_session = Kanku::WebSocket::Session->new(
+	user_id => $uid,
+	schema  => schema,
+      );
+      $ws_session->auth_token(params->{kanku_notify_session});
+      $ws_session->cleanup_session();
+    }
     return { authenticated => 0 };
 };
 
@@ -249,6 +284,41 @@ get '/test.:format' => sub {  return {test=>'success'} };
 get '/worker/list.:format' => sub {
   my $jo = Kanku::REST::Worker->new(app_opts());
   return $jo->list;
+};
+
+get '/pwreset/:user.:format' => sub {
+  my $user = params->{user};
+
+  if (defined password_reset_send username => $user ) {
+    return {state => 'success', msg => 'Succeed'};
+  } else {
+    return {state => 'danger', msg => 'Failed'};
+  }
+};
+
+post '/signup.:format' => sub {
+  my $fullname = params->{fullname};
+  my $username = params->{username};
+  my $email    = params->{email};
+
+  # email_welcome_send
+  my $res = create_user username => $username, email => $email, email_welcome => 1, name => $fullname;
+
+  if (defined $res) {
+    return {state => 'success', msg => 'Signup succeed. Please check your emails and set your password!'};
+  } else {
+    return {state => 'danger', msg => 'Signup failed'};
+  }
+};
+
+post '/setpass.:format' => sub {
+  my $res = user_password code => params->{code}, new_password => params->{new_password};
+
+  if (defined $res) {
+    return {state => 'success', msg => "Setting new password for user '$res' succeed!"};
+  } else {
+    return {state => 'danger', msg => 'Setting new password failed'};
+  }
 };
 
 __PACKAGE__->meta->make_immutable();

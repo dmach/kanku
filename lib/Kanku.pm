@@ -15,7 +15,7 @@ use Kanku::RabbitMQ;
 use Kanku::WebSocket::Session;
 use Kanku::WebSocket::Notification;
 
-our $VERSION = '0.0.2';
+our $VERSION = '0.8.0';
 
 Kanku::Config->initialize();
 
@@ -33,12 +33,13 @@ sub get_defaults_for_views {
   my $is_devel = (config->{'environment'} eq 'development') ? 1 : 0;
 
   return {
-    roles           => $roles,
-    logged_in_user  => $logged_in_user ,
-    messagebar      => $messagebar,
-    ws_url          => websocket_url(),
-    user_id         => $user_id,
-    is_devel        => $is_devel,
+    roles               => $roles,
+    logged_in_user      => $logged_in_user ,
+    messagebar          => $messagebar,
+    ws_url              => websocket_url(),
+    user_id             => $user_id,
+    is_devel            => $is_devel,
+    logged_in_user_json => ($logged_in_user) ? encode_json($logged_in_user) : "undefined",
   };
 };
 
@@ -50,59 +51,6 @@ sub messagebar {
 
 get '/' => sub {
     template 'index' , { %{ get_defaults_for_views() } };
-};
-
-get '/job_history' => sub {
-    template 'job_history' , { %{ get_defaults_for_views() }, page => ( param('page') || 1 ), kanku => { module => 'History'} };
-};
-
-get '/job_result/:id' => sub {
-    template 'job_result' , { %{ get_defaults_for_views() }, id => param('id'), kanku => { module => 'Result'} };
-};
-
-get '/job' => require_any_role [qw/Admin User/] => sub {
-    template 'job' , { %{ get_defaults_for_views() } , kanku => { module => 'Job' }  };
-};
-
-get '/job2' => require_any_role [qw/Admin User/] => sub {
-    template 'job2' , { %{ get_defaults_for_views() } , kanku => { module => 'Job' }  };
-};
-
-get '/guest' => sub {
-    template 'guest' , { %{ get_defaults_for_views() }, kanku => { module => 'Guest' } };
-};
-
-get '/worker' => sub {
-    template 'worker' , { %{ get_defaults_for_views() }, kanku => { module => 'Worker' } };
-};
-
-get '/login/denied' => sub {
-    template 'login/denied' , { %{ get_defaults_for_views() } };
-};
-
-get '/admin' => requires_role Admin =>  sub {
-  template 'admin', {
-      %{get_defaults_for_views()},
-      kanku => {module => 'Administration'},
-  };
-};
-
-get '/settings' => require_login sub {
-  my @all_roles = schema('default')->resultset('Role')->search();
-
-  for my $r (@all_roles) { debug 'Role: '.$r->id.' - '.$r->role; }
-
-  my $user_roles;
-  map { $user_roles->{$_} = 1 } @{user_roles()};
-
-  for my $r (keys(%$user_roles)) { debug "UserRole: $r"; }
-  template 'settings' ,
-    {
-      %{get_defaults_for_views()},
-      kanku => {module => 'Settings'},
-      all_roles => \@all_roles,
-      user_roles => $user_roles
-  };
 };
 
 ### LOGIN / SIGNIN / SIGNUP
@@ -119,8 +67,9 @@ sub email_welcome_send {
         my $site       = $plugin->app->request->base;
         my $host       = $site->host;
         my $appname    = $plugin->app->config->{appname} || '[unknown]';
-        my $reset_link = $site . "/login/$options{code}";
+        my $reset_link = $site . "/#/login?code=$options{code}";
         $reset_link =~ s#([^:])//+#$1/#;
+        $reset_link =~ s#rest/##;
         $message{subject} = "Welcome to $host";
         $message{from}    = $plugin->mail_from;
         $message{plain}   = <<"__EMAIL";
@@ -142,60 +91,6 @@ get '/pwreset' => sub {
 post '/pwreset' => sub {
   password_reset_send username => params->{username};
   redirect params->{return_url};
-};
-
-get qr{/login(/[\w]{32})?} => sub {
-  my $code = splat;
-  $code =~ s#/## if ($code);
-  debug "code $code";
-  if ($code) {
-    template 'reset_password' ,
-      { return_url => params->{return_url} ,
-        pw_reset_token => $code,
-        kanku => { module => 'Reset Password' }
-      };
-  } else {
-    template 'login' , { return_url => params->{return_url} , kanku => { module => 'Login' } };
-  }
-};
-
-post qr{/login(/[\w]{32})?} => sub {
-  my $username;
-  my $password = params->{password};
-  my ($code) = splat;
-  $code =~ s#/## if ($code);
-  $code = $code || params->{pw_reset_token};
-  if ($code) {
-    debug "using code to reset password $code";
-    $username = user_password code => $code, new_password => $password;
-    debug "setting password for $username";
-    if (! $username) {
-      session messagebar => messagebar('danger', 'Password reset failed!');
-      redirect params->{return_url};
-    } else {
-      session messagebar => messagebar('success', 'Password reset succeed!');
-    }
-  } else {
-      $username = params->{username};
-  }
-
-  my ($success, $realm) = authenticate_user($username, $password);
-  if ($success) {
-    session logged_in_user => $username;
-    session logged_in_user_realm => $realm;
-    params->{username} = '';
-    params->{password} = '';
-    redirect params->{return_url};
-  } else {
-    session messagebar => messagebar('danger', 'Authentication failed!');
-    redirect params->{return_url};
-    # authentication failed
-  }
-};
-
-get '/logout' => sub {
-    app->destroy_session;
-    redirect '/';
 };
 
 ### LOGIN / SIGNIN/
@@ -245,28 +140,6 @@ post '/signup' => sub {
 
 get '/signup' => sub {
     template 'signup' , { return_url => params->{return_url} };
-};
-
-#
-# WebSocket
-
-get '/notify' => requires_any_role [qw(Admin User Guest)] => sub {
-  my $self = shift;
-  my $cfg = Kanku::Config->instance();
-  my $config = $cfg->config->{'Kanku::RabbitMQ'};
-
-  if ($config) {
-    my $user = logged_in_user;
-    my $ws_session = Kanku::WebSocket::Session->new(
-      user_id => $user->{id},
-      schema  => schema,
-    );
-    debug "Session auth_token: ".$ws_session->auth_token;
-    cookie 'kanku_notify_session' => $ws_session->auth_token, http_only => 0, path => $self->app->request->uri;
-    template 'notify' , { %{ get_defaults_for_views() }, kanku => { module => 'Desktop Notifications' } };
-  } else {
-    template 'notify_disabled' , { %{ get_defaults_for_views() }, kanku => { module => 'Desktop Notifications' } };
-  }
 };
 
 sub check_filters {
@@ -332,12 +205,8 @@ websocket_on_open sub {
   debug 'Setting up WebSocket Connection callbacks';
   $conn->on(
     'close' => sub {
-      debug "closing websocket\n";
       if ($ws_session) {
         debug 'closing session '.$ws_session->session_token;
-        $ws_session->close_session();
-        debug 'cleanup session '.$ws_session->session_token;
-        $ws_session->cleanup_session();
       };
     },
     message => sub {
@@ -429,7 +298,6 @@ websocket_on_open sub {
           $log->debug('Perms count less than zero');
           $log->debug("Authentication failed ($perms)") if ($perms == -1);
           $log->debug("Detected connection closed ($perms)") if ($perms == -2);
-	  $ws_session->cleanup_session();
           if ($mq->queue->is_connected) {
             $log->debug('Unbinding queue');
 	    $mq->queue->queue_unbind(1, $qn, 'amq.direct', '');

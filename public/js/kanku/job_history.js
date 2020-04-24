@@ -8,7 +8,7 @@ Vue.component('prev-button',{
     prevpage: function() {
       if (this.$parent.page <= 1) {return}
       this.$parent.page--;
-      this.$root.updatePage();
+      this.$emit('updateJobHistoryPage');
     }
   },
   template: '<div class="col-md-1"><button v-on:click="prevpage()" class="btn btn-default">&lt;&lt;&lt;</button></div>'
@@ -18,7 +18,7 @@ Vue.component('next-button',{
   methods: {
     nextpage: function() {
       this.$parent.page++;
-      this.$root.updatePage();
+      this.$emit('updateJobHistoryPage');
     }
   },
   template: '<div class="col-md-1"><button v-on:click="nextpage()" class="btn btn-default">&gt;&gt;&gt;</button></div>'
@@ -31,7 +31,7 @@ Vue.component('limit-select',{
   methods: {
     setNewLimit: function() {
       this.$parent.limit = this.limit;
-      this.$root.updatePage();
+      this.$emit('updateJobHistoryPage');
     }
   },
   template: ''
@@ -50,12 +50,12 @@ Vue.component('job-search',{
   methods: {
     updateJobSearch: function() {
       this.$parent.job_name = this.job_name;
-      this.$root.updatePage();
+      this.$emit('updateJobHistoryPage');
     },
     clearJobSearch: function() {
       this.job_name = '';
       this.$parent.job_name = this.job_name;
-      this.$root.updatePage();
+      this.$emit('updateJobHistoryPage');
     }
   },
   template: ''
@@ -76,7 +76,7 @@ Vue.component('job-state-checkbox',{
   methods: {
     updateJobSearch: function() {
       this.$root.$emit('toggle_state', this.name);
-      this.$root.updatePage();
+      this.$emit('updateJobHistoryPage');
     },
   },
   template: ''
@@ -93,7 +93,7 @@ Vue.component('show-only-latest-results',{
   methods: {
     updateJobSearch: function() {
       this.$root.$emit('toggle_show_only_latest_results');
-      this.$root.updatePage();
+      this.$emit('updateJobHistoryPage');
     },
   },
   template: ''
@@ -103,15 +103,24 @@ Vue.component('show-only-latest-results',{
     + '    </div>'
 });
 
-var vm = new Vue({
-  el: '#vue_app',
-  data: {
-    jobs: {},
-    page: 1,
-    limit: 10,
-    job_name: '',
-    job_states: {'succeed':1, 'failed':1,'dispatching':1,'running':1,'scheduled':0,'triggered':0,'skipped':0},
-    show_only_latest_results : false,
+Vue.component('job-history-list',{
+  props: ['jobs'],
+  template: '<div>'
+    + ' <job-history-card v-for="job in jobs" v-bind:key="job.id" v-bind:job="job"></job-history-card>'
+    + '</div>'
+});
+
+const jobHistoryPage = {
+  data: function() {
+    return {
+      jobs: {},
+      page: this.$route.params.page,
+      limit: 10,
+      job_name: '',
+      job_states: {'succeed':1, 'failed':1,'dispatching':1,'running':1,'scheduled':0,'triggered':0,'skipped':0},
+      show_only_latest_results : false,
+      this: this,
+    };
   },
   created() {
     this.$root.$on('toggle_state', state => {
@@ -122,7 +131,9 @@ var vm = new Vue({
     });
   },
   methods: {
-    updatePage: function() {
+    refreshPage: function() {
+      console.log("updateJobHistoryPage starting");
+      $('#spinner').show();
       var url    = uri_base + "/rest/jobs/list.json";
       var self   = this;
       var params = {};
@@ -137,50 +148,60 @@ var vm = new Vue({
       for (key in self.job_states) {
         if (self.job_states[key]) { params.append("state", key); }
       };
-      axios.get(url, { params: params }).then(function(response) {
-	response.data.jobs.forEach(function(job) {
-	  calc_additional_job_parameters(job);
-	});
-	self.jobs = response.data.jobs;
-      });
+      axios.get(url, { params: params })
+        .then(function(response) {
+	  response.data.jobs.forEach(function(job) {
+	    calc_additional_job_parameters(job);
+	  });
+	  self.jobs = response.data.jobs;
+        })
+        .catch(function (error) {
+          show_messagebox('danger', error);
+          console.log(error);
+        })
+        .then(function () {
+          $('#spinner').hide();
+        });
     }
   },
   mounted: function() {
-      this.updatePage();
+      console.log(this);
+      this.refreshPage();
   },
   template: '<div>'
-    + '  <head-line>Job History</head-line>'
-    + '  <div class=row>'
-    + '    <job-state-checkbox name="succeed"     state_class="badge badge-success"></job-state-checkbox>'
-    + '    <job-state-checkbox name="failed"      state_class="badge badge-danger" ></job-state-checkbox>'
-    + '    <job-state-checkbox name="dispatching" state_class="badge badge-primary"></job-state-checkbox>'
-    + '    <job-state-checkbox name="running"     state_class="badge badge-primary"></job-state-checkbox>'
+    + '  <head-line text="Job History"></head-line>'
+    + '  <div class="row top_pager">'
+    + '    <job-state-checkbox name="succeed"     state_class="badge badge-success" @updateJobHistoryPage="refreshPage"></job-state-checkbox>'
+    + '    <job-state-checkbox name="failed"      state_class="badge badge-danger"  @updateJobHistoryPage="refreshPage"></job-state-checkbox>'
+    + '    <job-state-checkbox name="dispatching" state_class="badge badge-primary" @updateJobHistoryPage="refreshPage"></job-state-checkbox>'
+    + '    <job-state-checkbox name="running"     state_class="badge badge-primary" @updateJobHistoryPage="refreshPage"></job-state-checkbox>'
     + '  </div>'
-    + '  <div class=row>'
-    + '    <job-state-checkbox name="scheduled"   state_class="badge badge-warning"></job-state-checkbox>'
-    + '    <job-state-checkbox name="triggered"   state_class="badge badge-warning"></job-state-checkbox>'
-    + '    <job-state-checkbox name="skipped"     state_class="badge badge-warning"></job-state-checkbox>'
+    + '  <div class="row top_pager">'
+    + '    <job-state-checkbox name="scheduled"   state_class="badge badge-warning" @updateJobHistoryPage="refreshPage"></job-state-checkbox>'
+    + '    <job-state-checkbox name="triggered"   state_class="badge badge-warning" @updateJobHistoryPage="refreshPage"></job-state-checkbox>'
+    + '    <job-state-checkbox name="skipped"     state_class="badge badge-warning" @updateJobHistoryPage="refreshPage"></job-state-checkbox>'
     + '    <div class="col col-md-3">'
     + '    </div>'
     + '  </div>'
-    + '  <div id=top_pager class=row>'
+    + '  <div class="row top_pager">'
     + '   <job-search></job-search>'
     + '   <show-only-latest-results></show-only-latest-results>'
     + '   <limit-select selected_limit="limit"></limit-select>'
     + '   <div class="col-md-2">'
-    + '    <refresh-button></refresh-button>'
+    + '    <refresh-button @refreshPage="refreshPage"></refresh-button>'
     + '   </div>'
     + '  </div>'
     + '  <div>'
     + '   <job-history-header></job-history-header>'
-    + '   <job-card v-for="job in jobs" v-bind:key="job.id" v-bind:job="job"></job-card>'
+    + '   <spinner></spinner>'
+    + '   <job-history-list :jobs="jobs"></job-history-list>'
     + '  </div>'
     + '  <div id=bottom_pager class=row>'
     + '  <div class="col-md-4"></div>'
-    + '   <prev-button></prev-button>'
+    + '   <prev-button @updateJobHistoryPage="refreshPage"></prev-button>'
     + '   <page-counter v-bind:page="page"></page-counter>'
-    + '   <next-button></next-button>'
+    + '   <next-button @updateJobHistoryPage="refreshPage"></next-button>'
     + ' <div class="col-md-4"></div>'
     + '</div>'
     + '</div>'
-})
+};

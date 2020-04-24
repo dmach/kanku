@@ -1,9 +1,9 @@
-function toggle_element(id) {
-  var element = $(id);
-  var css_display = element.css("display");
-  var style = (css_display == "none") ? "block" : 'none';
-  element.css("display", style);
-}
+var alert_map = {
+  succeed:     'alert-success',
+  failed:      'alert-danger',
+  running:     'alert-primary',
+  dispatching: 'alert-primary',
+};
 
 function show_messagebox(state, msg, timeout=10000) {
   var elem = $("#messagebox");
@@ -14,26 +14,6 @@ function show_messagebox(state, msg, timeout=10000) {
     var intervalID = setTimeout(function() { div.remove(); }, timeout);
   }
 }
-
-var updateMessageBar = function (p, t, s) {
-  var mb = p.$root.$data.message_bar;
-  mb.show        = true;
-  mb.alert_class = "alert-" + s;
-  mb.text        = t;
-  setTimeout(
-    function() {
-      mb.show = false;
-    },
-    10000
-  );
-};
-
-var alert_map = {
-  succeed:     'alert-success',
-  failed:      'alert-danger',
-  running:     'alert-primary',
-  dispatching: 'alert-primary',
-};
 
 function calc_job_start_and_end(start_time, end_time) {
   if (start_time > 0) {
@@ -67,12 +47,12 @@ function calc_additional_job_parameters(job) {
 
 Vue.component('refresh-button',{
   methods: {
-    updatePage: function() {
-      this.$root.updatePage();
+    refreshPage: function() {
+      this.$emit('refreshPage');
     }
   },
   template: ''
-    + '<button type="button" class="btn btn-primary float-right" v-on:click="updatePage()">'
+    + '<button type="button" class="btn btn-primary float-right" @click="refreshPage">'
     + '  <i class="fas fa-sync"></i> Refresh'
     + ' </button>'
 });
@@ -101,6 +81,10 @@ Vue.component('message-box',{
     + '<transition name="fade">'
     + '  <div v-if="message_bar.show" v-bind:class="message_bar.alert_class" class="alert">{{ message_bar.text }}</div>'
     + '</transition>'
+});
+
+Vue.component('message-box-placeholder', {
+ template: '<div id="messagebox" class="container alert fixed-top" style="margin-top:50px;"></div>'
 });
 
 Vue.component('head-line', {
@@ -143,7 +127,7 @@ Vue.component('worker-info',{
     + '</div>'
 });
 
-Vue.component('task-card',{
+Vue.component('job-history-task-card',{
   props: ['task'],
   data: function() {
     return {
@@ -217,11 +201,11 @@ Vue.component('task-list',{
   },
   template: '<div class="card-body">'
     + '  <worker-info v-bind:worker="workerinfo"></worker-info>'
-    + '  <task-card v-bind:key="task.id" v-bind:task="task" v-for="task in jobData.subtasks"></task-card>'
+    + '  <job-history-task-card v-bind:key="task.id" v-bind:task="task" v-for="task in jobData.subtasks"></job-history-task-card>'
     +'</div>'
 });
 
-Vue.component('job-card',{
+Vue.component('job-history-card',{
   props: ['job'],
   data: function () {
     var show_comments     = false;
@@ -268,11 +252,13 @@ Vue.component('job-card',{
       var url = uri_base + "/rest/job/"+this.job.id+".json";
       var self = this;
       axios.get(url).then(function(response) {
+/*
         console.log(response.data);
         if (response.data.state == 'failed') {
           show_messagebox('danger', response.data.msg);
           return;
         }
+*/
         self.$refs.tasklist.jobData = response.data;
         response.data.subtasks.forEach(function(task) {
            task.state_class = alert_map[task.state];
@@ -319,7 +305,7 @@ Vue.component('job-card',{
     + '    <div class="col-md-2">'
     + '      <!-- ACTIONS -->'
     + '      <console-log-link v-bind:loglink="workerInfo.loglink"></console-log-link>'
-    + '      <job-details-link v-bind:href="uri_base + \'/job_result/\'+job.id"></job-details-link>'
+    + '      <job-details-link v-bind:id="job.id"></job-details-link>'
     + '      <pwrand-link v-show="show_pwrand" v-bind:job_id="job.id"></pwrand-link>'
     + '      <comments-link v-bind:job="job" ref="commentsLink"></comments-link>'
     + '    </div>'
@@ -368,7 +354,8 @@ Vue.component('comments-link',{
 });
 
 Vue.component('job-details-link',{
-  template: '<a class="float-right" style="margin-left:5px;"><i class="fas fa-link"></i></a>'
+  props: ['id'],
+  template: '<router-link class="float-right" style="margin-left:5px;" :to="\'/job_result/\'+id"><i class="fas fa-link"></i></router-link>'
 });
 
 Vue.component('pwrand-link',{
@@ -477,3 +464,113 @@ Vue.component('job-history-header', {
     + '     </div>'
     + '    </div>'
 });
+
+Vue.component('navigation-dropdown', {
+  props: ['user_id', 'user_label', 'active_roles'],
+  template: ''
+    + '<ul class="navbar-nav ml-auto">'
+    + ' <li class="nav-item active dropdown">'
+    + '<a href="#"'
+    + '  class="nav-link dropdown-toggle"'
+    + '  data-toggle="dropdown"'
+    + '  aria-haspopup="true"'
+    + '  aria-expanded="false"'
+    + '  id="navbarDropdown"'
+    + ' >'
+    + '  {{ user_label }}'
+    + '</a>'
+    + '  <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown" style="padding:10px;">'
+    + '  <div v-if="user_id">'
+    + '   <router-link class="dropdown-item"   to="/settings" >Settings</router-link>'
+    + '   <a class="dropdown-item" @click="$emit(\'logout\')">Logout</a>'
+    + '   <div v-if="active_roles.Admin">'
+    + '    <div class="dropdown-divider"></div>'
+    + '     <router-link class="dropdown-item" to="/admin"   >Administration</router-link>'
+    + '    </div>'
+    + '   </div>'
+    + '   <div v-else>'
+    + '    <input type=hidden name=return_url value="uri_base + request_path">'
+    + '    <label for="username" class=sr-only>Login Name</label>'
+    + '    <input style="margin-bottom: 5px" id="username" name=username class="form-control" placeholder="Login Name" required autofocus>'
+    + '    <label for="password" class=sr-only>Password</label>'
+    + '    <input style="margin-bottom: 5px;" type="password" name=password id="password" class="form-control" placeholder="Password" required>'
+    + '    <button class="btn btn-success btn-block" @click="$emit(\'login\')">Sign in</button>'
+    + '    <hr/>'
+    + '    <router-link class="btn btn-primary btn-block" to="/signup">Sign Up</router-link>'
+    + '    <router-link class="dropdown-item"  to="/pwreset">Forgot password?</router-link>'
+    + '   </div>'
+    + '   <a class="dropdown-item" href="https://m0ses.github.io/kanku/" target=_blank>About Kanku</a>'
+    + '   <a class="dropdown-item" href="https://github.com/M0ses/kanku" target=_blank>Code on github</a>'
+    + '  </div>'
+    + ' </li>'
+    + '</ul>'
+});
+
+Vue.component('navigation', {
+  props: ['active_roles', 'request_path', 'user_label', 'roles', 'user_id'],
+  data: function() {
+    console.log("REfreshing data");
+    return {
+      uri_base:   uri_base,
+    };
+  },
+  methods: {
+    logout: function() {
+      var url  = uri_base + "/rest/logout.json";
+      var self = this;
+      var params = { kanku_notify_session : Cookies.get('kanku_notify_session') };
+      axios.post(url, params).then(function(response) {
+        if (response.data.authenticated == '0') {
+          show_messagebox('success', "Logout succeed!");
+        } else {
+          show_messagebox('danger', "Logout failed!");
+        }
+        self.$emit("user-state-changed");
+      })
+      .catch(function (error) {
+           console.log(error);
+      });
+    },
+    login: function() {
+      var req = {
+        username: $('#username').val(),
+        password: $('#password').val(),
+      };
+      var url = uri_base + "/rest/login.json";
+      var self = this;
+      var resp;
+      axios.post(url, req).then(function(response) {
+        resp = response.data;
+        if (response.data.authenticated) {
+          Cookies.set("kanku_notify_session", response.data.kanku_notify_session);
+          show_messagebox('success', "Login succeed!");
+        } else {
+          show_messagebox('danger', "Login failed!");
+        }
+        self.$emit("user-state-changed");
+      });
+    },
+  },
+  template: ''
+    + '    <nav class="navbar navbar-expand-lg navbar-light fixed-top bg-light" style="z-index:1040;">'
+    + '     <div class="container">'
+    + '        <div class="navbar-header">'
+    + '           <router-link to="/" class="navbar-brand">Kanku</router-link>'
+    + '        </div>'
+    + '        <div id="navbarSupportedContent" class="collapse navbar-collapse">'
+    + '          <ul class="navbar-nav">'
+    + '            <li class="nav-item active">                                    <router-link class="nav-link" to="/job_history/1" >Job History</router-link></li>'
+    + '            <li class="nav-item active">                                    <router-link class="nav-link" to="/guest"       >Guest</router-link></li>'
+    + '            <li class="nav-item active">                                    <router-link class="nav-link" to="/worker"      >Worker</router-link></li>'
+    + '            <li v-if="(active_roles.User || active_roles.Admin)" class="nav-item active"> <router-link class="nav-link" to="/job"         >Job</router-link></li>'
+    + '            <li v-if="roles.length > 0" class="nav-item active">            <router-link class="nav-link" to="/notify"      >Notify</router-link></li>'
+    + '          </ul>'
+    + '          <navigation-dropdown :user_id="user_id" :active_roles="active_roles" :user_label="user_label" @logout="logout" @login="login"></navigation-dropdown>'
+    + '        </div>'
+    + '     </div>'
+    + '    </nav>'
+});
+
+const pageNotFound = {
+  template: '<head-line text="404 - Page not found"></head-line>'
+};

@@ -1,14 +1,15 @@
-var vm = new Vue({
-  el: '#vue_app',
-  data: {
-    job: { id: 0}
+const jobResultPage = {
+  data: function() {
+    return {
+      job: { id : this.$route.params.job_id }
+    };
   },
   methods: {
     updatePage: function() {
       var currentUrl = window.location.pathname;
       var urlParts = currentUrl.split('/');
       var job_id = urlParts.pop();
-      var url = uri_base + "/rest/job/" + job_id + ".json";
+      var url = uri_base + "/rest/job/" + this.$route.params.job_id + ".json";
       var self   = this;
       var params = new URLSearchParams();
       axios.get(url, { params: params }).then(function(response) {
@@ -23,6 +24,6 @@ var vm = new Vue({
   template: '<div>'
     + ' <head-line text="Job Result"></head-line>'
     + '   <job-history-header></job-history-header>'
-    + '   <job-card :job="job"></job-card>'
+    + '   <job-history-card :job="job"></job-history-card>'
     + '</div>'
-})
+};

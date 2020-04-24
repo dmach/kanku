@@ -89,13 +89,15 @@ Vue.component('guest-card', {
     + '</div>'
 });
 
-var vm = new Vue({
-  el: '#vue_app',
-  data: {
-    guest_list: {},
+const guestPage = {
+  data: function(){
+    return {
+      guest_list: {},
+    };
   },
   methods: {
-    updatePage: function() {
+    refreshPage: function() {
+      console.log("guestPage.refreshPage()");
       $('#spinner').show();
       var self   = this;
       var url = uri_base + '/rest/guest/list.json';
@@ -110,18 +112,16 @@ var vm = new Vue({
     }
   },
   mounted: function() {
-      this.updatePage();
+      this.refreshPage();
   },
   template: '<div>'
    + ' <head-line text="Guest"></head-line>'
    + '  <div class="row" style="margin-bottom:10px;">'
-   + '   <div class="col-md-10">'
-   + '    <spinner></spinner>'
-   + '   </div>'
-   + '   <div class="col-md-2">'
-   + '     <refresh-button></refresh-button>'
+   + '   <div class="col-md-12">'
+   + '     <refresh-button @refreshPage="refreshPage"></refresh-button>'
    + '   </div>'
    + '  </div>'
+   + '  <spinner></spinner>'
    + '  <guest-card v-for="guest in sortedGuests()" v-bind:key="guest" v-bind:data="guest_list[guest]"></guest-card>'
    + '</div>'
-});
+};

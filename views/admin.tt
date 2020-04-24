@@ -1,3 +1,0 @@
-<div id="vue_app">
-</div>
-<script src="[% request.uri_base %]/js/kanku/admin.js"></script>

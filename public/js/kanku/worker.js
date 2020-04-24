@@ -39,19 +39,22 @@ Vue.component('worker-card',{
     + '</div>'
 });
 
-var vm = new Vue({
-  el: '#vue_app',
-  //props: ['workers'],
-  data: { workers : [] },
+const workerPage = {
+  data: function() {
+    return {
+     workers : [],
+    };
+  },
   methods: {
-    updatePage: function() {
+    refreshPage: function() {
+      console.log("workerPage.refreshPage() - starting");
       var url    = uri_base + "/rest/worker/list.json";
       var params = new URLSearchParams();
       var self   = this;
       $('#spinner').show();
 
       axios.get(url, { params: params }).then(function(response) {
-	response.data.workers.forEach(function(worker) {
+        response.data.workers.forEach(function(worker) {
           worker.last_seen_date = new Date(worker.last_seen * 1000);
           worker.last_update_date = new Date(worker.last_update * 1000);
           worker.pids_string = worker.info.active_childs.join(',');
@@ -61,26 +64,24 @@ var vm = new Vue({
           } else {
             worker.header_class = 'card-header alert-success';
           }
-	});
-	self.workers = response.data.workers;
+        });
+        self.workers = response.data.workers;
         $('#spinner').hide();
       })
     }
   },
   mounted: function() {
-      this.updatePage();
+      this.refreshPage();
   },
   template: ''
     + '<div>'
     + ' <head-line text="Worker"></head-line>'
     + ' <div class="row" style="padding-bottom:10px;">'
-    + '  <div class="col-lg-10">'
-    + '   <spinner></spinner>'
-    + '  </div>'
-    + '  <div class="col-lg-2">'
-    + '   <refresh-button></refresh-button>'
+    + '  <div class="col-lg-12">'
+    + '    <refresh-button @refreshPage="refreshPage"></refresh-button>'
     + '  </div>'
     + ' </div>'
+    + ' <spinner></spinner>'
     + ' <worker-card v-for="worker in workers" v-bind:key="worker.id" v-bind:worker="worker"></worker-card>'
     + '</div>'
-})
+};

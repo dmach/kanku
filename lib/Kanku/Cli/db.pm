@@ -112,6 +112,23 @@ option 'share_dir' => (
     default       => '/usr/share/kanku',
 );
 
+option 'dbuser' => (
+    isa           => 'Str',
+    is            => 'rw',
+    cmd_aliases   => 'U',
+    documentation => 'User to connect to database',
+    lazy          => 1,
+    default       => 'kanku',
+);
+
+option 'dbpass' => (
+    isa           => 'Str',
+    is            => 'rw',
+    cmd_aliases   => 'P',
+    documentation => 'Password to connect to database',
+    lazy          => 1,
+    default       => '',
+);
 
 has _dbdir => (
 	isa 	=> 'Object',
@@ -137,7 +154,7 @@ sub run {
   # prepare database setup
   my $migration = DBIx::Class::Migration->new(
     schema_class   => 'Kanku::Schema',
-    schema_args	   => [$self->dsn],
+    schema_args	   => [$self->dsn, $self->dbuser, $self->dbpass],
     target_dir	   => $self->share_dir,
   );
 

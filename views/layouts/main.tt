@@ -25,92 +25,38 @@
 [% END %]
 <script src="[% request.uri_base %]/js/vue-router.js"></script>
 <script src="[% request.uri_base %]/js/bootstrap-vue.js"></script>
-<script src="[% request.uri_base %]/js/kanku/common.js"></script>
 
 <script type="text/javascript">
 [% USE JSON.Escape() %]
   // This is used to bring uri_base into js on a
   // centralized place
-
-  var uri_base     = "[% request.uri_base %]";
-  var ws_url       = "[% ws_url %]";
-  var user_id      = "[% user_id %]";
-  var user_name    = "[% logged_in_user.username %]";
-  var active_roles = [% roles.json || "{}" %];
-
+  var uri_base       = "[% request.uri_base %]";
+  var ws_url         = "[% ws_url %]";
+  var user_id        = "[% user_id %]";
+  var user_name      = "[% logged_in_user.username %]";
+  var active_roles   = [% roles.json || "{}" %];
+  var logged_in_user = [% logged_in_user.json || "undefined" %];
+  var request_path   = "[% request.path %]";
 </script>
+
+<script src="[% request.uri_base %]/js/kanku/common.js"></script>
+<script src="[% request.uri_base %]/js/kanku/admin.js"></script>
+<script src="[% request.uri_base %]/js/kanku/guest.js"></script>
+<script src="[% request.uri_base %]/js/kanku/job_history.js"></script>
+<script src="[% request.uri_base %]/js/kanku/job.js"></script>
+<script src="[% request.uri_base %]/js/kanku/job_result.js"></script>
+<script src="[% request.uri_base %]/js/kanku/notify.js"></script>
+<script src="[% request.uri_base %]/js/kanku/settings.js"></script>
+<script src="[% request.uri_base %]/js/kanku/worker.js"></script>
+<script src="[% request.uri_base %]/js/kanku/index.js"></script>
+<script src="[% request.uri_base %]/js/kanku/pwreset.js"></script>
+<script src="[% request.uri_base %]/js/kanku/signup.js"></script>
 
 </head>
 <body>
-
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top bg-light">
-<div class="container">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="[% request.uri_base %]">Kanku</a>
-        </div>
-        <div id="navbarSupportedContent" class="collapse navbar-collapse">
-          <ul class="navbar-nav">
-            <li class="nav-item active"><a class="nav-link" href="[% request.uri_base %]/job_history">Job History</a></li>
-            <li class="nav-item active"><a class="nav-link" href="[% request.uri_base %]/guest">Guest</a></li>
-            <li class="nav-item active"><a class="nav-link" href="[% request.uri_base %]/worker">Worker</a></li>
-            [% IF roles.User %]
-            <li class="nav-item active"><a class="nav-link" href="[% request.uri_base %]/job">Job</a></li>
-            [% END %]
-            [% IF roles %]
-            <li class="nav-item active"><a class="nav-link" href="[% request.uri_base %]/notify">Notify</a></li>
-            [% END %]
-          </ul>
-          <ul class="navbar-nav ml-auto">
-            <li class="nav-item active dropdown">
-              <a href="#"
-                      class="nav-link dropdown-toggle"
-                      data-toggle="dropdown"
-                      aria-haspopup="true"
-                      aria-expanded="false"
-                      id="navbarDropdown">
-                  [% logged_in_user.name || "Sign In" %]
-              </a>
-              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown" style="padding:10px;">
-            [% IF logged_in_user %]
-                <a class="dropdown-item" href="[% request.uri_base %]/settings">Settings</a>
-                <a class="dropdown-item" href="[% request.uri_base %]/logout">Logout</a>
-                [% IF roles.Admin %]
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="[% request.uri_base %]/admin">Administration</a>
-                [% END %]
-            [% ELSE %]
-                <form action="[% request.uri_base %]/login/" method=POST>
-                    <input type=hidden name=return_url value="[% request.uri_base %][% request.path %]">
-                    <label for="username" class=sr-only>Login Name</label>
-                    <input style="margin-bottom: 5px" id="username" name=username class="form-control" placeholder="Login Name" value="[% username %]" required autofocus>
-
-                    <label for="password" class=sr-only>Password</label>
-                    <input style="margin-bottom: 5px;" type="password" name=password id="password" class="form-control" placeholder="Password" required>
-
-                    <button class="btn btn-success btn-block" type="submit">Sign in</button>
-
-                    <hr/>
-                    <a class="btn btn-primary btn-block"  href="[% request.uri_base %]/signup">Sign Up</a>
-                    <hr/>
-                </form>
-                <a class="dropdown-item" href="[% request.uri_base %]/pwreset">Forgot password?</a>
-            [% END %]
-                <a class="dropdown-item" href="https://m0ses.github.io/kanku/" target=_blank>About Kanku</a>
-                <a class="dropdown-item" href="https://github.com/M0ses/kanku" target=_blank>Code on github</a>
-              </div>
-            </li>
-          </ul>
-        </div><!--/.nav-collapse -->
-</div>
-    </nav>
-  <div id="content" class="container">
-  <div id="messagebox" class="container alert fixed-top" style="margin-top:50px;"></div>
-  [% messagebar %]
-  <!-- content goes here -->
   <div id="vue_app">
   </div>
   [% content %]
-  <!-- end of content -->
-  </div>
+  <script src="[% request.uri_base %]/js/kanku/router.js"></script>
 </body>
 </html>

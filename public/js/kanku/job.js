@@ -58,6 +58,7 @@ Vue.component('checkbox-input',{
     + '</div>'
 });
 
+
 Vue.component('task-card',{
   props: ['task'],
   data: function() {
@@ -103,7 +104,7 @@ Vue.component('job-card',{
     }
   },
   template: '<div class="card" style="margin-bottom:5px;">'
-    + ' <div class="card-header" v-on:click=toggleTaskList()>'
+    + ' <div class="card-header" v-on:click="toggleTaskList()">'
     + '  <span class="badge badge-secondary">{{ job.job_name }}</span>'
     + ' </div>'
     + ' <form :id="job.job_name">'
@@ -129,17 +130,21 @@ Vue.component('job-card',{
     + '</div>'
 });
 
-var vm = new Vue({
-  el: '#vue_app',
-  data: {
-    jobs: [],
-    original_jobs: []
+
+const jobPage = {
+  props: ['user_id'],
+  data: function() {
+    return {
+      jobs: [],
+      original_jobs: []
+    };
   },
   methods: {
     updatePage: function() {
       var url    = uri_base + "/rest/gui_config/job.json";
       var self   = this;
       var params = new URLSearchParams();
+console.log("updatePage");
       axios.get(url, { params: params }).then(function(response) {
 	self.jobs = response.data.config;
         self.original_jobs = Object.assign(self.jobs, self.original_jobs);
@@ -166,15 +171,25 @@ var vm = new Vue({
       }).catch(function (error) {
         // handle error
         show_messagebox('danger', "URL: " + url + "<br>" +error, timeout=0);
+      }).then(function() {
+        $('#spinner').hide();
       });
     }
   },
   mounted: function() {
       this.updatePage();
   },
+  updated: function() {
+    $('#spinner').hide();
+  },
   template: '<div>'
-    + ' <head-line text="Job"></head-line>'
-    + ' <spinner></spinner>'
-    + ' <job-card v-for="job in jobs" v-bind:key="job.job_name" v-bind:job="job"></job-card>'
+    + ' <div v-if="user_id">'
+    + '  <head-line text="Job"></head-line>'
+    + '  <spinner></spinner>'
+    + '  <job-card v-for="job in jobs" v-bind:key="job.job_name" v-bind:job="job"></job-card>'
+    + ' </div>'
+    + ' <div v-else>'
+    + '  <h1>Please Login!</h1>'
+    + ' </div>'
     + '</div>'
-});
+};

@@ -22,10 +22,11 @@ Vue.component('user-settings', {
         url,
         request,
       ).then(function(response) {
-        updateMessageBar(self, response.data.msg, response.data.state);
+        show_messagebox('success', response.data.msg);
+        self.$emit("user-state-changed");
       }).catch(function(error) {
         console.log(error);
-        updateMessageBar(self, error.response.data, "alert-danger");
+        show_messagebox('danger', error);
       });
     },
   },
@@ -67,7 +68,7 @@ Vue.component('user-settings', {
 });
 
 Vue.component('request-roles', {
-  props: ['user_details'],
+  props: ['user_details', 'roles'],
   methods: {
     sendRoleRequest() {
       var roles   = new Array();
@@ -80,7 +81,10 @@ Vue.component('request-roles', {
       var self    = this;
 
       axios.post(url, request).then(function(response) {
-        updateMessageBar(self, response.data.msg, response.data.state);
+         show_messagebox(response.data.state, response.data.msg);
+      }).catch(function(error) {
+         console.log("Error while sending role request to url: "+ url)
+         console.log(error);
       });
     },
   },
@@ -90,7 +94,7 @@ Vue.component('request-roles', {
     + ' <a href=# v-on:click="sendRoleRequest" class="btn btn-primary btn-sm active float-right" role="button" aria-pressed="true">Send</a>'
     + ' <h3>Request Roles</h3>'
     + ' <role-checkbox'
-    + '    v-for="role in user_details.roles"'
+    + '    v-for="role in roles"'
     + '    v-bind:value="role.id"'
     + '    v-bind:key="role.id"'
     + '    v-bind:name="role.role"'
@@ -105,28 +109,53 @@ Vue.component('request-roles', {
     + '</form>'
 });
 
-var app = new Vue({
-  el: '#vue_app',
-  data: {
-    user_details: {},
-    message_bar: {
-      text:        'No message',
-      show:        false,
-      alert_class: 'alert-danger'
-    },
-    alert_class: '',
+const settingsPage = {
+  props: ['user_id'],
+  data: function() {
+    return {
+      user_details: {},
+      message_bar: {
+        text:        'No message',
+        show:        false,
+        alert_class: 'alert-danger'
+      },
+      is_user: false,
+      alert_class: '',
+      roles: [],
+    };
   },
-  mounted: function() {
-      var url  = uri_base + "/rest/user/"+ user_name +".json";
+  methods: {
+    getUserDetails: function() {
+      var url  = uri_base + "/rest/userinfo.json";
       var self = this;
       axios.get(url).then(function(response) {
-	self.user_details = response.data;
+	info = response.data.logged_in_user;
+	if (info.username) {
+	  self.is_user = true;
+	  url = uri_base + "/rest/user/"+info.username+".json";
+	  axios.get(url).then(function(response) {
+            self.roles = response.data.roles; 
+            self.user_details = response.data; 
+	  });
+	}
       });
+    },
+  },
+  mounted: function() {
+   this.getUserDetails();
+  },
+  updated: function() {
+    console.log("updated settingsPage");
   },
   template: '<div>'
     + ' <message-box :message_bar="message_bar"></message-box>'
     + ' <head-line text="Settings"></head-line>'
-    + ' <user-settings :user_details="user_details"></user-settings>'
-    + ' <request-roles :user_details="user_details"></request-roles>'
+    + ' <div v-if="user_id">'
+    + '  <user-settings :user_details="user_details" @user-state-changed="$emit(\'user-state-changed\')"></user-settings>'
+    + '  <request-roles :user_details="user_details" :roles="roles"></request-roles>'
+    + ' </div>'
+    + ' <div v-else>'
+    + '  <h1>Please Login</h1>'
+    + ' </div>'
     + '</div>'
-});
+};
