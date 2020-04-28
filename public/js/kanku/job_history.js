@@ -184,7 +184,7 @@ const jobHistoryPage = {
     + '  </div>'
     + '  <div class="row top_pager">'
     + '   <job-search></job-search>'
-    + '   <show-only-latest-results></show-only-latest-results>'
+    + '   <show-only-latest-results  @updateJobHistoryPage="refreshPage"></show-only-latest-results>'
     + '   <limit-select selected_limit="limit"></limit-select>'
     + '   <div class="col-md-2">'
     + '    <refresh-button @refreshPage="refreshPage"></refresh-button>'
