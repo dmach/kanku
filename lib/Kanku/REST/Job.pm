@@ -139,26 +139,26 @@ sub trigger {
       };
     }
   }
+  my $json = JSON::XS->new();
+  my $body = $json->decode($self->app->request->body);
 
   my $jd = {
     name          => $name,
     state         => 'triggered',
     creation_time => time(),
-    args 	  => $self->app->request->body,
   };
 
-  if (!$self->has_role('Admin')) {
-    $self->log('debug', "NO ADMIN ROLE");
+  if ($self->has_role('Admin') && $body->{is_admin}) {
+    $self->log('debug', "ADMIN ROLE ACTIVE");
+    $jd->{args} = $json->encode($body->{data});
+  } else {
+    $self->log('debug', "ADMIN ROLE NOT ACTIVE");
     my $user = $self->current_user->{username};
     $jd->{trigger_user} = $self->current_user->{username};
-    my $json = JSON::XS->new();
-    my $args = $json->decode($jd->{args});
-    for my $task (@$args) {
+    for my $task (@{$body->{data}}) {
       $task->{domain_name} =~ s/^($user-)?/$user-/ if $task->{domain_name};
     }
-    $jd->{args} = $json->encode($args);
-  } else {
-    $self->log('debug', "FOUND ADMIN ROLE");
+    $jd->{args} = $json->encode($body->{data});
   }
 
   $self->log('debug', " ----- ARGS: $jd->{args}");

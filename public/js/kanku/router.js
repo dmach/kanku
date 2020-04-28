@@ -26,6 +26,7 @@ var app = new Vue({
     logged_in_user: logged_in_user,
     request_path:   request_path,
     uri_base:       uri_base,
+    is_admin:       0,
   },
   computed: {
     user_label: function() { return (this.logged_in_user && this.logged_in_user.name) ? this.logged_in_user.name : 'Sign In' },
@@ -64,7 +65,6 @@ var app = new Vue({
   },
   methods: {
     refreshUserInfo: function() {
-      console.log("refreshing user info ...");
       var url = uri_base + "/rest/userinfo.json";
       var self = this;
       axios.get(url).then(function(response) {
@@ -74,12 +74,15 @@ var app = new Vue({
         }
       });;
     },
+    toogleIsAdmin: function() {
+       this.is_admin = !this.is_admin;
+    },
   },
   template: '<div>'
-    + ' <navigation :user_id="user_id" :user_label="user_label" :roles="roles" :active_roles="active_roles" :request_path="request_path" @user-state-changed="refreshUserInfo"></navigation>'
+    + ' <navigation :user_id="user_id" :user_label="user_label" :roles="roles" :active_roles="active_roles" :request_path="request_path" :is_admin="is_admin" @user-state-changed="refreshUserInfo" @changed-is-admin="toogleIsAdmin"></navigation>'
     + ' <message-box-placeholder></message-box-placeholder>'
     + ' <div id="content" class="container">'
-    + ' <router-view :user_id="user_id" @user-state-changed="refreshUserInfo"></router-view>'
+    + ' <router-view :user_id="user_id" :is_admin="is_admin" @user-state-changed="refreshUserInfo"></router-view>'
     + ' <!-- content goes here -->'
     + ' </div>'
     + '</div>'

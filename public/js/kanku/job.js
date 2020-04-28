@@ -29,13 +29,13 @@ function restore_settings() {
 
 
 Vue.component('text-input',{
-  props: ['gui_config'],
+  props: ['gui_config', 'is_admin'],
   data: function() {
     return { user_name : user_name }
   },
   computed: {
     needsPrefix: function() {
-      if (this.gui_config.param == 'domain_name' && active_roles.User && ! active_roles.Admin) {
+      if (this.gui_config.param == 'domain_name' && active_roles.User && ! this.is_admin) {
         return true
       }
     }
@@ -60,7 +60,7 @@ Vue.component('checkbox-input',{
 
 
 Vue.component('task-card',{
-  props: ['task'],
+  props: ['task', 'is_admin'],
   data: function() {
     return {
       showTaskList: 0
@@ -70,14 +70,14 @@ Vue.component('task-card',{
     + '   <h4><span class="badge badge-secondary" style="display:block;" v-on:click="showValues()">{{ task.use_module }}</span></h4>'
     + '     <input type=hidden name="use_module" :value="task.use_module">'
     + '   <div v-for="c in task.gui_config">'
-    + '    <text-input v-if="c.type == \'text\'" v-bind:gui_config=c></text-input>'
+    + '    <text-input v-if="c.type == \'text\'" v-bind:gui_config=c :is_admin="is_admin"></text-input>'
     + '    <checkbox-input v-if="c.type == \'checkbox\'" v-bind:gui_config=c></checkbox-input>'
     + '   </div>'
     + '</div>'
 });
 
 Vue.component('job-card',{
-  props: ['job'],
+  props: ['job', 'is_admin'],
   data: function() {
     return {
       showTaskList: 0
@@ -98,7 +98,7 @@ Vue.component('job-card',{
     triggerJob: function() {
       var url    = uri_base + "/rest/job/trigger/"+this.job.job_name+".json";
       var data = save_settings(this.job.job_name);
-      axios.post(url, data).then(function(response) {
+      axios.post(url, { data: data, is_admin: this.is_admin}).then(function(response) {
         show_messagebox(response.data.state, response.data.msg);
       });
     }
@@ -114,7 +114,7 @@ Vue.component('job-card',{
     + '    v-for="task in job.sub_tasks"'
     + '    v-bind:task="task"'
     + '    >'
-    + '     <task-card v-bind:task="task"></task-card>'
+    + '     <task-card v-bind:task="task" :is_admin="is_admin"></task-card>'
     + '   </div>'
     + '  </div>'
     + ' </div>'
@@ -132,7 +132,7 @@ Vue.component('job-card',{
 
 
 const jobPage = {
-  props: ['user_id'],
+  props: ['user_id', 'is_admin'],
   data: function() {
     return {
       jobs: [],
@@ -186,7 +186,7 @@ console.log("updatePage");
     + ' <div v-if="user_id">'
     + '  <head-line text="Job"></head-line>'
     + '  <spinner></spinner>'
-    + '  <job-card v-for="job in jobs" v-bind:key="job.job_name" v-bind:job="job"></job-card>'
+    + '  <job-card v-for="job in jobs" v-bind:key="job.job_name" v-bind:job="job" :is_admin="is_admin"></job-card>'
     + ' </div>'
     + ' <div v-else>'
     + '  <h1>Please Login!</h1>'

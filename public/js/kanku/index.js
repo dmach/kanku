@@ -18,7 +18,7 @@ const indexPage = {
     + '   <strong>PLEASE BE AWARE:<br> Triggering a new job might be executed immediately, without any other confirmation.</strong>'
     + '  </p>'
     + '  <p>'
-    + '   Feel free to trigger a new job in our <router-link "/job">Job Interface</router-link> '
+    + '   Feel free to trigger a new job in our <router-link to="/job">Job Interface</router-link> '
     + '   but keep in mind that keeping the default domain name might break others work. '
     + '   Please use your login name in the domain name, so we can easily reach you via email (Just in case).'
     + '  </p>'

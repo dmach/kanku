@@ -206,24 +206,18 @@ Vue.component('task-list',{
 });
 
 Vue.component('job-history-card',{
-  props: ['job'],
+  props: ['job', 'is_admin'],
   data: function () {
     var show_comments     = false;
-    var show_pwrand       = false;
     if (active_roles['Admin'] || active_roles['User']) {
       show_comments = true
-    }
-    if (active_roles['Admin'] && this.job.pwrand) {
-      show_pwrand = true;
     }
     return {
       showTaskList:        0,
       uri_base:            uri_base,
-      user_is_admin:       active_roles['Admin'],
-      show_comments:       show_comments,
-      show_pwrand:         show_pwrand,
       comment: '',
       subtasks: [],
+      show_comments: show_comments,
     }
   },
   computed: {
@@ -238,7 +232,11 @@ Vue.component('job-history-card',{
         queue: tmp[2] || '',
         loglink: 'http://'+tmp[0]+'/kanku-console-logs/job-'+this.job.id+'-console.log'
       }
-    }
+    },
+    show_pwrand: function() {
+      if (this.is_admin && this.job.pwrand && this.job.pwrand !='{}') { return true }
+      return false;
+    },
   },
   methods: {
     toggleJobDetails: function() {
@@ -248,17 +246,9 @@ Vue.component('job-history-card',{
       this.getJobDetails();
     },
     getJobDetails: function() {
-      console.log(this.job.id);
       var url = uri_base + "/rest/job/"+this.job.id+".json";
       var self = this;
       axios.get(url).then(function(response) {
-/*
-        console.log(response.data);
-        if (response.data.state == 'failed') {
-          show_messagebox('danger', response.data.msg);
-          return;
-        }
-*/
         self.$refs.tasklist.jobData = response.data;
         response.data.subtasks.forEach(function(task) {
            task.state_class = alert_map[task.state];
@@ -306,7 +296,7 @@ Vue.component('job-history-card',{
     + '      <!-- ACTIONS -->'
     + '      <console-log-link v-bind:loglink="workerInfo.loglink"></console-log-link>'
     + '      <job-details-link v-bind:id="job.id"></job-details-link>'
-    + '      <pwrand-link v-show="show_pwrand" v-bind:job_id="job.id"></pwrand-link>'
+    + '      <pwrand-link v-show="show_pwrand" :job_id="job.id"></pwrand-link>'
     + '      <comments-link v-bind:job="job" ref="commentsLink"></comments-link>'
     + '    </div>'
     + '  </div>'
@@ -466,7 +456,7 @@ Vue.component('job-history-header', {
 });
 
 Vue.component('navigation-dropdown', {
-  props: ['user_id', 'user_label', 'active_roles'],
+  props: ['user_id', 'user_label', 'is_admin'],
   template: ''
     + '<ul class="navbar-nav ml-auto">'
     + ' <li class="nav-item active dropdown">'
@@ -483,7 +473,7 @@ Vue.component('navigation-dropdown', {
     + '  <div v-if="user_id">'
     + '   <router-link class="dropdown-item"   to="/settings" >Settings</router-link>'
     + '   <a class="dropdown-item" @click="$emit(\'logout\')">Logout</a>'
-    + '   <div v-if="active_roles.Admin">'
+    + '   <div v-if="is_admin">'
     + '    <div class="dropdown-divider"></div>'
     + '     <router-link class="dropdown-item" to="/admin"   >Administration</router-link>'
     + '    </div>'
@@ -507,9 +497,8 @@ Vue.component('navigation-dropdown', {
 });
 
 Vue.component('navigation', {
-  props: ['active_roles', 'request_path', 'user_label', 'roles', 'user_id'],
+  props: ['active_roles', 'request_path', 'user_label', 'roles', 'user_id', 'is_admin'],
   data: function() {
-    console.log("REfreshing data");
     return {
       uri_base:   uri_base,
     };
@@ -565,7 +554,12 @@ Vue.component('navigation', {
     + '            <li v-if="(active_roles.User || active_roles.Admin)" class="nav-item active"> <router-link class="nav-link" to="/job"         >Job</router-link></li>'
     + '            <li v-if="roles.length > 0" class="nav-item active">            <router-link class="nav-link" to="/notify"      >Notify</router-link></li>'
     + '          </ul>'
-    + '          <navigation-dropdown :user_id="user_id" :active_roles="active_roles" :user_label="user_label" @logout="logout" @login="login"></navigation-dropdown>'
+    + '<!-- Default switch -->'
+    + '<div class="custom-control custom-switch float-left" v-if="active_roles.Admin">'
+    + '  <input @change="$emit(\'changed-is-admin\')" type="checkbox" class="custom-control-input" id="customSwitches">'
+    + '  <label class="custom-control-label" for="customSwitches">Admin</label>'
+    + '</div>'
+    + '          <navigation-dropdown :user_id="user_id" :is_admin="is_admin" :user_label="user_label" @logout="logout" @login="login"></navigation-dropdown>'
     + '        </div>'
     + '     </div>'
     + '    </nav>'

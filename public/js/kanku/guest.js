@@ -34,7 +34,7 @@ Vue.component('ipaddr-card', {
 });
 
 Vue.component('guest-card', {
-  props: ['guest', 'data'],
+  props: ['guest', 'data', 'is_admin'],
   data: function() {
     var alert_class = ( this.data.state == 1 ) ? "success" : "warning";
     return {
@@ -59,7 +59,7 @@ Vue.component('guest-card', {
   },
   computed: {
     allowDelete: function() {
-      if ( active_roles.Admin ) {
+      if ( this.is_admin ) {
         return true;
       }
       var split = this.data.domain_name.split("-",1);
@@ -90,6 +90,7 @@ Vue.component('guest-card', {
 });
 
 const guestPage = {
+  props: ['is_admin'],
   data: function(){
     return {
       guest_list: {},
@@ -97,7 +98,6 @@ const guestPage = {
   },
   methods: {
     refreshPage: function() {
-      console.log("guestPage.refreshPage()");
       $('#spinner').show();
       var self   = this;
       var url = uri_base + '/rest/guest/list.json';
@@ -122,6 +122,6 @@ const guestPage = {
    + '   </div>'
    + '  </div>'
    + '  <spinner></spinner>'
-   + '  <guest-card v-for="guest in sortedGuests()" v-bind:key="guest" v-bind:data="guest_list[guest]"></guest-card>'
+   + '  <guest-card v-for="guest in sortedGuests()" :key="guest" :data="guest_list[guest]" :is_admin="is_admin"></guest-card>'
    + '</div>'
 };

@@ -1,10 +1,8 @@
 const pwResetPage = {
   methods: {
     sendPWResetRequest:function() {
-      console.log($('#pwuser').val()); 
       var user = $('#pwuser').val();
       if (user) {
-	console.log("Send passwort reset request for user " + user);
 	var url  = uri_base + "/rest/pwreset/"+user+".json";
 	axios.get(url).then(function(response) {
 	  show_messagebox(response.data.state, response.data.msg );
@@ -34,7 +32,6 @@ const pwSetPage = {
   },
   methods: {
     sendPWResetRequest:function() {
-      console.log(this.code);
       if ( $('#set_password').val() == $('#set_repeat_password').val()) {
 	var data = {
 	  code: this.code,

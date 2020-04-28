@@ -144,9 +144,6 @@ const settingsPage = {
   mounted: function() {
    this.getUserDetails();
   },
-  updated: function() {
-    console.log("updated settingsPage");
-  },
   template: '<div>'
     + ' <message-box :message_bar="message_bar"></message-box>'
     + ' <head-line text="Settings"></head-line>'

@@ -47,7 +47,6 @@ const workerPage = {
   },
   methods: {
     refreshPage: function() {
-      console.log("workerPage.refreshPage() - starting");
       var url    = uri_base + "/rest/worker/list.json";
       var params = new URLSearchParams();
       var self   = this;

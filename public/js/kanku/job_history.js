@@ -104,13 +104,14 @@ Vue.component('show-only-latest-results',{
 });
 
 Vue.component('job-history-list',{
-  props: ['jobs'],
+  props: ['jobs', 'is_admin'],
   template: '<div>'
-    + ' <job-history-card v-for="job in jobs" v-bind:key="job.id" v-bind:job="job"></job-history-card>'
+    + ' <job-history-card v-for="job in jobs" :key="job.id" :job="job" :is_admin="is_admin"></job-history-card>'
     + '</div>'
 });
 
 const jobHistoryPage = {
+  props:['is_admin'],
   data: function() {
     return {
       jobs: {},
@@ -132,7 +133,6 @@ const jobHistoryPage = {
   },
   methods: {
     refreshPage: function() {
-      console.log("updateJobHistoryPage starting");
       $('#spinner').show();
       var url    = uri_base + "/rest/jobs/list.json";
       var self   = this;
@@ -165,7 +165,6 @@ const jobHistoryPage = {
     }
   },
   mounted: function() {
-      console.log(this);
       this.refreshPage();
   },
   template: '<div>'
@@ -194,7 +193,7 @@ const jobHistoryPage = {
     + '  <div>'
     + '   <job-history-header></job-history-header>'
     + '   <spinner></spinner>'
-    + '   <job-history-list :jobs="jobs"></job-history-list>'
+    + '   <job-history-list :jobs="jobs" :is_admin="is_admin"></job-history-list>'
     + '  </div>'
     + '  <div id=bottom_pager class=row>'
     + '  <div class="col-md-4"></div>'

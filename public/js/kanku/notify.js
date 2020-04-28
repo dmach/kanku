@@ -29,14 +29,12 @@ function filters_to_cookie(filters) {
 function g_update_filters(mySocket) {
       if (! mySocket) { return; }
       var filters = get_filters_from_cookie();
-      console.log($(".filter_checkbox"));
       $(".filter_checkbox").each(function(idx, elem) {
 	var id = $(elem).attr('id');
         var r  = id.split('-', 2);
         if (filters[r[0]] === undefined) { filters[r[0]] = {}; }
         var is_checked = $(elem).is(':checked');
 	filters[r[0]][r[1]] = $(elem).is(':checked');
-        console.log("filters: "+filters[r[0]][r[1]]);
       });
       filters_to_cookie(filters);
       var msg = JSON.stringify({"filters" : filters});
@@ -63,7 +61,6 @@ function startWSConnection(user_id) {
 
   var mySocket = new WebSocket(ws_url);
   var token = Cookies.get("kanku_notify_session");
-  console.log("token: "+token);
 
   mySocket.onerror = function (error) {
     console.log('WebSocket Error ' + error);
@@ -98,7 +95,6 @@ function startWSConnection(user_id) {
   mySocket.onopen = function(evt) {
     var ico = uri_base + '/images/32/kanku-success.png';
     var notify_timeout = $('#notification_timeout').val();
-    console.log("mySocket.onopen");
     Notification.requestPermission(function() {
       $("#favicon").attr("href",ico);
       setTimeout(
@@ -119,7 +115,6 @@ function startWSConnection(user_id) {
   };
 
   mySocket.onclose = function(evt) {
-    console.log(evt);
     Notification.requestPermission(function() {
       var m = 'Closed WebSocket - no more messages will be displayed';
       var ico = uri_base + '/images/64/kanku-danger.png';
@@ -369,9 +364,6 @@ const notifyPage = {
     });
   },
   methods: {
-    updatePage: function() {
-      console.log("updatePage started");
-    },
     updateFilters: function () {
       g_update_filters(this.$root.sock);
     },
@@ -386,9 +378,6 @@ const notifyPage = {
 	$(elem).prop('checked', self.form_data[r[0]][r[1]]);
       });
     }
-  },
-  mounted: function() {
-      this.updatePage();
   },
   template: '<div>'
     + ' <header-jumbotron></header-jumbotron>'
