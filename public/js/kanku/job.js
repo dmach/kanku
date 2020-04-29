@@ -142,8 +142,8 @@ Vue.component('search-field',{
       this.$emit('search-term-change');
     },
     clearSearch: function() {
-      this.job_name = '';
-      this.$parent.job_name = this.job_name;
+      this.search_term = '';
+      this.$parent.search_term = this.search_term;
       this.$emit('search-term-change');
     }
   },
