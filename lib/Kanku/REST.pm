@@ -230,7 +230,7 @@ get '/gui_config/job.:format' => sub {
   my @jobs = $cfg->job_list;
   my $filter = params->{filter} || '.*';
   foreach my $job_name (sort @jobs) {
-    next if $job_name !~ m/^$filter$/;
+    next if $job_name !~ m/$filter/;
     my $job_config = { job_name => $job_name, sub_tasks => []};
     push @config , $job_config;
     my $job_cfg;

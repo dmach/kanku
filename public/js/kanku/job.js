@@ -93,7 +93,7 @@ Vue.component('job-card',{
           gc.default = gc.original_default;
         });
       });
-      save_settings(this.job.job_name);
+      ave_settings(this.job.job_name);
     },
     triggerJob: function() {
       var url    = uri_base + "/rest/job/trigger/"+this.job.job_name+".json";
@@ -130,24 +130,53 @@ Vue.component('job-card',{
     + '</div>'
 });
 
+Vue.component('search-field',{
+  data: function() {
+    return {
+      search_term: ''
+    };
+  },
+  methods: {
+    updateSearch: function() {
+      this.$parent.search_term = this.search_term;
+      this.$emit('search-term-change');
+    },
+    clearSearch: function() {
+      this.search_term = '';
+      this.$parent.search_term = this.search_term;
+      this.$emit('search-term-change');
+    }
+  },
+  template: ''
+    + '    <div class="btn-group col-md-4">'
+    + '      <input type="text" v-model="search_term" @blur="updateSearch" @keyup.enter="updateSearch" class="form-control" placeholder="Filter Jobs by regex">'
+    + '      <span @click="clearSearch()" style="margin-left:-20px;margin-top:10px;">'
+    + '          <i class="far fa-times-circle"></i>'
+    + '       </span>'
+    + '    </div>'
+
+});
 
 const jobPage = {
   props: ['user_id', 'is_admin'],
   data: function() {
     return {
       jobs: [],
-      original_jobs: []
+      original_jobs: [],
+      search_term: '',
     };
   },
   methods: {
     updatePage: function() {
       var url    = uri_base + "/rest/gui_config/job.json";
       var self   = this;
-      var params = new URLSearchParams();
-console.log("updatePage");
+      var params = { filter: this.search_term};
+
       axios.get(url, { params: params }).then(function(response) {
 	self.jobs = response.data.config;
-        self.original_jobs = Object.assign(self.jobs, self.original_jobs);
+        if (!self.original_jobs) {
+          self.original_jobs = Object.assign(self.jobs, self.original_jobs);
+        }
         var cookie = restore_settings();
         var errors = Object();
         self.jobs.forEach(function(job) {
@@ -185,6 +214,11 @@ console.log("updatePage");
   template: '<div>'
     + ' <div v-if="user_id">'
     + '  <head-line text="Job"></head-line>'
+    + '  <div class="row top_pager">'
+    + '   <search-field :search_term="search_term" @search-term-change="updatePage"></search-field>'
+    + '   <div class="btn-group col-md-8">'
+    + '   </div>'
+    + '  </div>'
     + '  <spinner></spinner>'
     + '  <job-card v-for="job in jobs" v-bind:key="job.job_name" v-bind:job="job" :is_admin="is_admin"></job-card>'
     + ' </div>'
