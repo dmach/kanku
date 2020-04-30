@@ -51,9 +51,14 @@ Vue.component('guest-card', {
     },
     triggerRemoveDomain: function() {
       var url  = uri_base + "/rest/job/trigger/remove-domain.json";
-      var data = [ {domain_name : this.data.domain_name}];
+      var data = {
+        data     : [ {domain_name : this.data.domain_name}],
+        is_admin : this.is_admin,
+      };
       axios.post(url, data).then(function(xhr) {
           show_messagebox(xhr.data.state, xhr.data.msg );
+      }).catch(function(error) {
+          show_messagebox("danger", error);
       });
     }
   },
@@ -77,7 +82,7 @@ Vue.component('guest-card', {
     + '   </div>'
     + '   <div class="col-md-2">'
     + '    <a class="float-right" :href="href_vm"><i class="fas fa-link"/></a>'
-    + '    <a v-if="allowDelete" class="float-right" href="#" v-on:click="triggerRemoveDomain()"><i class="far fa-trash-alt"/></a>'
+    + '    <a v-if="allowDelete" class="float-right" href="#" @click="triggerRemoveDomain()"><i class="far fa-trash-alt"/></a>'
     + '   </div>'
     + '  </div>'
     + ' </div>'
