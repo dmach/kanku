@@ -7,7 +7,9 @@ var alert_map = {
 
 function show_messagebox(state, msg, timeout=10000) {
   var elem = $("#messagebox");
-  var div = $('<div class="alert-' + state +' container alert" role=alert></div>').append(msg);
+  var div = $('<div class="alert-' + state +' kanku_alert alert-dismissible fade show" role=alert></div>').append(msg);
+  div.append('<button type="button" class="close" data-dismiss="alert">&times;</button>');
+
 
   elem.append(div);
   if(timeout) {
