@@ -93,7 +93,7 @@ Vue.component('job-card',{
           gc.default = gc.original_default;
         });
       });
-      ave_settings(this.job.job_name);
+      save_settings(this.job.job_name);
     },
     triggerJob: function() {
       var url    = uri_base + "/rest/job/trigger/"+this.job.job_name+".json";
