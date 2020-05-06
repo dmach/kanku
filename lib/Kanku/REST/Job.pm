@@ -41,8 +41,9 @@ sub list {
 
   if ($self->params->{job_name}) {
 	my $jn = $self->params->{job_name};
-	$jn =~ s{^\s*(.*[^\s])\s*$}{$1}smx;
-	$search->{name}= { like => $jn };
+	$jn =~ s{^\s*((id:)?([^\s]*))\s*$}{$3}smx;
+        my $field = ($2 eq 'id:') ? 'id' : 'name';
+	$search->{$field}= { like => $jn };
   }
 
   my $rs = $self->rset('JobHistory')->search($search, $opts);
