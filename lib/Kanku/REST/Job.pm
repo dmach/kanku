@@ -17,7 +17,6 @@ sub list {
     my $cfg = Kanku::Config->instance();
     $opts = {
       order_by =>{-asc =>'name'},
-      distinct => 1,
       group_by => ['name'],
       rows => $limit,
       page => $self->params->{page} || 1,
@@ -46,7 +45,8 @@ sub list {
 	$search->{name}= { like => $jn };
   }
 
-  my $rs = $self->rset('JobHistory')->search($search, $opts);
+  my $rs;
+  $rs = $self->rset('JobHistory')->search($search, $opts);
 
   my $rv = [];
 
