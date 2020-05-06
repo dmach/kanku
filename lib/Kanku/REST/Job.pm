@@ -45,9 +45,7 @@ sub list {
 	$search->{name}= { like => $jn };
   }
 
-  my $rs;
-  $rs = $self->rset('JobHistory')->search($search, $opts);
-
+  my $rs = $self->rset('JobHistory')->search($search, $opts);
   my $rv = [];
 
   my $allow_comments = ($self->has_role('User') || $self->has_role('Admin'));
@@ -73,8 +71,9 @@ sub list {
   }
 
   return {
-    limit => $limit,
-    jobs  => $rv,
+    total_entries => $rs->pager->total_entries,
+    limit         => $limit,
+    jobs          => $rv,
   };
 }
 

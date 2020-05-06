@@ -35,10 +35,10 @@ Vue.component('limit-select',{
     }
   },
   template: ''
-    + '<div v-on:change="setNewLimit()" class="col-md-2">'
+    + '<div @change="setNewLimit()" class="col-md-2">'
     + '  Show rows:'
     + '  <select v-model="limit">'
-    + '    <option v-for="option in [5,10,20,50,100]" v-bind:value="option">{{ option }}</option>'
+    + '    <option v-for="option in [5,10,20,50,100]" :value="option">{{ option }}</option>'
     + '  </select>'
     + '</div>'
 });
@@ -132,6 +132,7 @@ Vue.component('paginator', {
   },
   computed: {
     pb_classes: function() { return (this.page > 1) ? ['page-item'] : ['page-item', 'disabled'] },
+    nb_classes: function() { return (this.total_pages > this.page) ? ['page-item'] : ['page-item', 'disabled'] },
   },
 /*  
  template: '<div class="col-md-1"><button v-on:click="nextpage()" class="btn btn-default">&gt;&gt;&gt;</button></div>'
@@ -146,11 +147,11 @@ Vue.component('paginator', {
     + '    </li>'
     + '    <li class="page-item active">'
     + '      <span class="page-link">'
-    + '        {{ page }}'
+    + '        {{ page }}/{{ total_pages }}'
     + '        <span class="sr-only">(current)</span>'
     + '      </span>'
     + '    </li>'
-    + '    <li class="page-item">'
+    + '    <li :class="nb_classes">'
     + '      <span class="page-link" @click="nextpage()">Next</span>'
     + '    </li>'
     + '    <li class="page-item">'
@@ -171,6 +172,7 @@ const jobHistoryPage = {
       job_states: {'succeed':1, 'failed':1,'dispatching':1,'running':1,'scheduled':0,'triggered':0,'skipped':0},
       show_only_latest_results : false,
       this: this,
+      total_pages: 1,
     };
   },
   created() {
@@ -205,6 +207,9 @@ const jobHistoryPage = {
 	    calc_additional_job_parameters(job);
 	  });
 	  self.jobs = response.data.jobs;
+          var tp_float = response.data.total_entries / response.data.limit;
+          var tp_int   = Math.floor(tp_float);
+          self.total_pages = (tp_float > tp_int) ? tp_int + 1 : tp_int;
         })
         .catch(function (error) {
           show_messagebox('danger', error);
@@ -234,9 +239,9 @@ const jobHistoryPage = {
     + '    </div>'
     + '  </div>'
     + '  <div class="row top_pager">'
-    + '   <job-search></job-search>'
+    + '   <job-search @updateJobHistoryPage="refreshPage"></job-search>'
     + '   <show-only-latest-results  @updateJobHistoryPage="refreshPage"></show-only-latest-results>'
-    + '   <limit-select selected_limit="limit"></limit-select>'
+    + '   <limit-select @updateJobHistoryPage="refreshPage" selected_limit="limit"></limit-select>'
     + '   <div class="col-md-2">'
     + '    <refresh-button @refreshPage="refreshPage"></refresh-button>'
     + '   </div>'
@@ -249,7 +254,7 @@ const jobHistoryPage = {
     + '  <div id=bottom_pager class=row>'
     + '  <div class="col-md-4"></div>'
     + '  <div class="col-md-4">'
-    + '   <paginator :page="page"@updateJobHistoryPage="refreshPage"></paginator>'
+    + '   <paginator :page="page" :total_pages="total_pages" @updateJobHistoryPage="refreshPage"></paginator>'
     + '  </div>'
     + '  <div class="col-md-4"></div>'
     + '</div>'
