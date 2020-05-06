@@ -110,6 +110,56 @@ Vue.component('job-history-list',{
     + '</div>'
 });
 
+Vue.component('paginator', {
+  props: ['page', 'is_admin', 'total_pages'],
+  methods: {
+    nextpage: function() {
+      this.$parent.page++;
+      this.$emit('updateJobHistoryPage');
+    },
+    prevpage: function() {
+      this.$parent.page--;
+      this.$emit('updateJobHistoryPage');
+    },
+    firstpage: function() {
+      this.$parent.page = 1;
+      this.$emit('updateJobHistoryPage');
+    },
+    lastpage: function() {
+      this.$parent.page = this.total_pages;
+      this.$emit('updateJobHistoryPage');
+    }
+  },
+  computed: {
+    pb_classes: function() { return (this.page > 1) ? ['page-item'] : ['page-item', 'disabled'] },
+  },
+/*  
+ template: '<div class="col-md-1"><button v-on:click="nextpage()" class="btn btn-default">&gt;&gt;&gt;</button></div>'
+*/
+  template: '<nav aria-label="Pagination">'
+    + '  <ul class="pagination">'
+    + '    <li class="page-item">'
+    + '      <span class="page-link" @click="firstpage()">First</span>'
+    + '    </li>'
+    + '    <li :class="pb_classes">'
+    + '      <span class="page-link" @click="prevpage()">Previous</span>'
+    + '    </li>'
+    + '    <li class="page-item active">'
+    + '      <span class="page-link">'
+    + '        {{ page }}'
+    + '        <span class="sr-only">(current)</span>'
+    + '      </span>'
+    + '    </li>'
+    + '    <li class="page-item">'
+    + '      <span class="page-link" @click="nextpage()">Next</span>'
+    + '    </li>'
+    + '    <li class="page-item">'
+    + '      <span class="page-link" @click="lastpage()">Last</span>'
+    + '    </li>'
+    + '  </ul>'
+    + '</nav>'
+});
+
 const jobHistoryPage = {
   props:['is_admin'],
   data: function() {
@@ -136,6 +186,7 @@ const jobHistoryPage = {
       $('#spinner').show();
       var url    = uri_base + "/rest/jobs/list.json";
       var self   = this;
+      this.jobs  = {};
       var params = {};
       var params = new URLSearchParams();
       params.append("page",  self.page);
@@ -197,10 +248,10 @@ const jobHistoryPage = {
     + '  </div>'
     + '  <div id=bottom_pager class=row>'
     + '  <div class="col-md-4"></div>'
-    + '   <prev-button @updateJobHistoryPage="refreshPage"></prev-button>'
-    + '   <page-counter v-bind:page="page"></page-counter>'
-    + '   <next-button @updateJobHistoryPage="refreshPage"></next-button>'
-    + ' <div class="col-md-4"></div>'
+    + '  <div class="col-md-4">'
+    + '   <paginator :page="page"@updateJobHistoryPage="refreshPage"></paginator>'
+    + '  </div>'
+    + '  <div class="col-md-4"></div>'
     + '</div>'
     + '</div>'
 };
