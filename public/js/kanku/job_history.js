@@ -1,29 +1,3 @@
-Vue.component('page-counter',{
-  props: ['page'],
-  template: '<div class="col-md-2">Page: <span class="badge badge-secondary">{{ page }}</span></div>'
-});
-
-Vue.component('prev-button',{
-  methods: {
-    prevpage: function() {
-      if (this.$parent.page <= 1) {return}
-      this.$parent.page--;
-      this.$emit('updateJobHistoryPage');
-    }
-  },
-  template: '<div class="col-md-1"><button v-on:click="prevpage()" class="btn btn-default">&lt;&lt;&lt;</button></div>'
-});
-
-Vue.component('next-button',{
-  methods: {
-    nextpage: function() {
-      this.$parent.page++;
-      this.$emit('updateJobHistoryPage');
-    }
-  },
-  template: '<div class="col-md-1"><button v-on:click="nextpage()" class="btn btn-default">&gt;&gt;&gt;</button></div>'
-});
-
 Vue.component('limit-select',{
   data: function() {
     return {limit:10}
@@ -45,23 +19,23 @@ Vue.component('limit-select',{
 
 Vue.component('job-search',{
   data: function() {
-    return {job_name:''}
+    return {filter:''}
   },
   methods: {
     updateJobSearch: function() {
-      this.$parent.job_name = this.job_name;
+      this.$parent.filter = this.filter;
       this.$emit('updateJobHistoryPage');
     },
     clearJobSearch: function() {
-      this.job_name = '';
-      this.$parent.job_name = this.job_name;
+      this.filter = '';
+      this.$parent.filter = this.filter;
       this.$emit('updateJobHistoryPage');
     }
   },
   template: ''
-    + '    <div class="btn-group col-md-4">'
-    + '       <input type="text" v-model="job_name" v-on:blur="updateJobSearch" v-on:keyup.enter="updateJobSearch" class="form-control" placeholder="Enter job name - Use \'%\' as wildcard">'
-    + '      <span v-on:click="clearJobSearch()" style="margin-left:-20px;margin-top:10px;">'
+    + '    <div class="btn-group col-md-5">'
+    + '       <input type="text" v-model="filter" @blur="updateJobSearch" @keyup.enter="updateJobSearch" class="form-control" placeholder="Enter job name - Use \'%\' as wildcard - or use field id:<job_id>">'
+    + '      <span @click="clearJobSearch()" style="margin-left:-20px;margin-top:10px;">'
     + '          <i class="far fa-times-circle"></i>'
     + '       </span>'
     + '    </div>'
@@ -97,7 +71,7 @@ Vue.component('show-only-latest-results',{
     },
   },
   template: ''
-    + '    <div class="col col-md-4">'
+    + '    <div class="col col-md-3">'
     + '        Show only latest results'
     + '        <input type="checkbox" name="show_only_latest_results" v-on:change="updateJobSearch" style="margin:7px" >'
     + '    </div>'
@@ -168,7 +142,7 @@ const jobHistoryPage = {
       jobs: {},
       page: this.$route.params.page,
       limit: 10,
-      job_name: '',
+      filter: '',
       job_states: {'succeed':1, 'failed':1,'dispatching':1,'running':1,'scheduled':0,'triggered':0,'skipped':0},
       show_only_latest_results : false,
       this: this,
@@ -196,7 +170,7 @@ const jobHistoryPage = {
 
       if (this.show_only_latest_results) { params.append("show_only_latest_results",  1); }
 
-      if (self.job_name) { params.append('job_name', self.job_name); }
+      if (self.filter) { params.append('filter', self.filter); }
 
       for (key in self.job_states) {
         if (self.job_states[key]) { params.append("state", key); }

@@ -39,11 +39,18 @@ sub list {
   }
 
 
-  if ($self->params->{job_name}) {
-	my $jn = $self->params->{job_name};
-	$jn =~ s{^\s*((id:)?([^\s]*))\s*$}{$3}smx;
-        my $field = ($2 eq 'id:') ? 'id' : 'name';
-	$search->{$field}= { like => $jn };
+  if ($self->params->{filter}) {
+	my $jn = $self->params->{filter};
+	$jn =~ s{^\s*((?:(id|state|name):)?([^\s]*))\s*$}{$3}smx;
+        my $field = 'name';
+        my $stmt  = 'like';
+        my $val   = $jn;
+        if ($2) {
+          $field = $2;
+          $stmt  = "in";
+          $val   = [split ',', $jn];
+        }
+	$search->{$field}= { $stmt => $val };
   }
 
   my $rs = $self->rset('JobHistory')->search($search, $opts);
