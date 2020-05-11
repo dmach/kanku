@@ -34,9 +34,18 @@ Vue.component('job-search',{
   },
   template: ''
     + '    <div class="btn-group col-md-5">'
-    + '       <input type="text" v-model="filter" @blur="updateJobSearch" @keyup.enter="updateJobSearch" class="form-control" placeholder="Enter job name - Use \'%\' as wildcard - or use field id:<job_id>">'
+    + '      <input type="text" v-model="filter" @blur="updateJobSearch" @keyup.enter="updateJobSearch"'
+    + '       class="form-control" placeholder="Enter search term - SEE Tooltips for details"'
+    + '      >'
     + '      <span @click="clearJobSearch()" style="margin-left:-20px;margin-top:10px;">'
     + '          <i class="far fa-times-circle"></i>'
+    + '       </span>'
+    + '       <span class="badge badge-primary" style="margin-left: 1rem;"data-toggle="tooltip" data-placement="bottom" '
+    + '         title="<strong>Search by job_name:</strong><br>Use \'%\' as wildcard<br>'
+    + '                <strong>Supported fields:</strong><br>id, state, name<br>'
+    + '                <strong>Supported Values:</strong><br>comma separated lists><br>'
+    + '                <strong>Examples:</strong>&apos;id:1,2&apos; &apos;state:running&apos; &apos;name=obs-server,kanku-devel&apos; &apos;obs-server%&apos;"><br>'
+    + '         <i class="fas fa-question-circle fa-2x" ></i>'
     + '       </span>'
     + '    </div>'
 
@@ -195,7 +204,10 @@ const jobHistoryPage = {
     }
   },
   mounted: function() {
-      this.refreshPage();
+    this.refreshPage();
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip({html:true})
+    });
   },
   template: '<div>'
     + '  <head-line text="Job History"></head-line>'

@@ -14,7 +14,7 @@
 
 <script src="[% request.uri_base %]/js/jquery.min.js"></script>
 <script src="[% request.uri_base %]/js/js.cookie.js"></script>
-<script src="[% request.uri_base %]/js/bootstrap.min.js"></script>
+<script src="[% request.uri_base %]/js/bootstrap.bundle.min.js"></script>
 <script src="[% request.uri_base %]/js/axios.min.js"></script>
 <script src="[% request.uri_base %]/js/polyfill.min.js"></script>
 <script defer src="[% request.uri_base %]/fontawesome/js/all.min.js"></script>
