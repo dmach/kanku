@@ -168,6 +168,12 @@ has '_unit' => (
   },
 );
 
+has '_controllers' => (
+  is 	=> 'rw',
+  isa 	=> 'ArrayRef',
+  default => sub { [] },
+);
+
 has skip_memory_checks => ( is => 'rw', isa => 'Bool' );
 
 has 'root_disk_bus'  => (is => 'rw', isa => 'Str');
@@ -235,6 +241,7 @@ sub process_template {
       network_bridge  => $self->network_bridge  ,
       hostshare       => "",
       disk_xml        => $disk_xml,
+      disk_controllers_xml  => join('', @{$self->_controllers}),
     },
     host_feature      => $host_feature,
     qemu_kvm          => $qemu_kvm,
@@ -301,11 +308,11 @@ sub _generate_disk_xml {
     $self->logger->debug("generate_disk_xml: $file, $format");
 
     # ASCII 97 = a + 0
-    my $disk_list   = { 
-      virtio => ['vd', 'disk'], 
-      ide    => ['hd', 'disk'], 
-      sata   => ['sd', 'disk'],
-      scsi   => ['sd', 'disk'],
+    my $disk_list   = {
+      virtio => ['vd', 'disk', '<controller type="virtio-serial" index="0"/>' ],
+      ide    => ['hd', 'disk', '<controller type="ide" index="0"/>'           ],
+      sata   => ['sd', 'disk', '<controller type="sata" index="0"/>'          ],
+      scsi   => ['sd', 'disk', '<controller type="scsi" index="0"/>'          ],
     };
     my $bus         = $self->root_disk_bus;
     die "Unknown bus type: '$bus'\n" unless $disk_list->{$bus};
@@ -321,6 +328,7 @@ sub _generate_disk_xml {
        $readonly    = '<readonly/>';
     }
 
+    push @{$self->_controllers}, $disk_list->{$bus}->[2];
     my $drive = $disk_prefix . chr(97+$self->_unit()->{$disk_prefix});
     $self->_unit()->{$disk_prefix}++;
     my $tboot = ($boot) ? "<boot order='1'/>" : '';
@@ -724,10 +732,7 @@ __DATA__
     <controller type='pci' index='0' model='pci-root'>
       <alias name='pci.0'/>
     </controller>
-    <controller type='sata' index='0'>
-      <alias name='sata0'/>
-      <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
-    </controller>
+    [% domain.disk_controllers_xml %]
     <interface type='network'>
       <source network='[% domain.network_name %]' bridge='[% domain.network_bridge %]'/>
       <model type='virtio'/>
