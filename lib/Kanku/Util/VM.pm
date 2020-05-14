@@ -170,8 +170,8 @@ has '_unit' => (
 
 has '_controllers' => (
   is 	=> 'rw',
-  isa 	=> 'ArrayRef',
-  default => sub { [] },
+  isa 	=> 'HashRef',
+  default => sub { {} },
 );
 
 has skip_memory_checks => ( is => 'rw', isa => 'Bool' );
@@ -241,7 +241,7 @@ sub process_template {
       network_bridge  => $self->network_bridge  ,
       hostshare       => "",
       disk_xml        => $disk_xml,
-      disk_controllers_xml  => join('', @{$self->_controllers}),
+      disk_controllers_xml  => join('', keys %{$self->_controllers}),
     },
     host_feature      => $host_feature,
     qemu_kvm          => $qemu_kvm,
@@ -328,7 +328,7 @@ sub _generate_disk_xml {
        $readonly    = '<readonly/>';
     }
 
-    push @{$self->_controllers}, $disk_list->{$bus}->[2];
+    $self->_controllers->{$disk_list->{$bus}->[2]} = 1;
     my $drive = $disk_prefix . chr(97+$self->_unit()->{$disk_prefix});
     $self->_unit()->{$disk_prefix}++;
     my $tboot = ($boot) ? "<boot order='1'/>" : '';
