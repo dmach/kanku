@@ -89,6 +89,11 @@ has gui_config => (
           type  => 'text',
           label => 'Repository',
         },
+        {
+          param => 'preferred_extension',
+          type  => 'text',
+          label => 'Extension (qcow2, raw, etc.)',
+        },
       ];
   },
 );
