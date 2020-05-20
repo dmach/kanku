@@ -49,7 +49,7 @@ has host_ipaddress => (
     die "No host_interface given. Can not determine host_ipaddress" if (! $host_interface );
 
     $_[0]->logger->debug("Using host_interface: $host_interface");
-    my $cmd = "ip addr show " . $host_interface;
+    my $cmd = "LANG=C ip --color=never addr show " . $host_interface;
     $_[0]->logger->debug("Executing command: '$cmd'");
     my @out = `$cmd`;
 
