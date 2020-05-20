@@ -324,7 +324,8 @@ sub get_ipaddress {
   my $ipaddress  = undef;
 
   while ( $wait > 0) {
-    my $result = $self->cmd("LANG=C ip --color=never addr show $opts{interface} 2>&1");
+    # use cat for disable colors
+    my $result = $self->cmd("LANG=C ip addr show $opts{interface} 2>&1|cat");
 
     $logger->debug("  -- Output:\n".Dumper($result));
 
