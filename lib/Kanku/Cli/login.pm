@@ -73,7 +73,7 @@ sub run {
     $self->save_settings();
 
     $logger->info('Already logged in.');
-    $logger->info(' Please use logut if you want to change user');
+    $logger->info(' Please use logout if you want to change user');
 
 
     return { success => 1 }

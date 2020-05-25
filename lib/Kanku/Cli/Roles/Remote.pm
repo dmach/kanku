@@ -194,7 +194,7 @@ sub logout {
     return 1;
   }
 
-  my $request = HTTP::Request->new(GET => $self->logout_url);
+  my $request = HTTP::Request->new(POST => $self->logout_url);
   $self->cookie_jar->add_cookie_header( $request );
 
   my $response = $self->ua->request($request);
