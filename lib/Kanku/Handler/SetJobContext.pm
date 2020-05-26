@@ -141,7 +141,7 @@ Here is an example how to configure the module in your jobs file or KankuFile
   -
     use_module: Kanku::Handler::SetJobContext
     options:
-      api_url: https://api.opensuse.org
+      api_url: https://api.opensuse.org/public
       ....
 
 =head1 DESCRIPTION
