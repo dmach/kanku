@@ -95,21 +95,33 @@ Vue.component('job-history-list',{
 
 Vue.component('paginator', {
   props: ['page', 'is_admin', 'total_pages'],
+/*
+  props: ['is_admin', 'total_pages'],
+  data: function() {
+    return {
+      page: this.$parent.page,
+    }
+  },
+*/
   methods: {
     nextpage: function() {
       this.$parent.page++;
+      router.push({name: 'job_history', params: { page: this.$parent.page}});
       this.$emit('updateJobHistoryPage');
     },
     prevpage: function() {
       this.$parent.page--;
+      router.push({name: 'job_history', params: { page: this.$parent.page}});
       this.$emit('updateJobHistoryPage');
     },
     firstpage: function() {
       this.$parent.page = 1;
+      router.push({name: 'job_history', params: { page: this.$parent.page}});
       this.$emit('updateJobHistoryPage');
     },
     lastpage: function() {
       this.$parent.page = this.total_pages;
+      router.push({name: 'job_history', params: { page: this.$parent.page}});
       this.$emit('updateJobHistoryPage');
     }
   },
@@ -160,10 +172,10 @@ const jobHistoryPage = {
   },
   created() {
     this.$root.$on('toggle_state', state => {
-       this.job_states[state] = ! this.job_states[state];
+      this.job_states[state] = ! this.job_states[state];
     });
     this.$root.$on('toggle_show_only_latest_results', value => {
-       this.show_only_latest_results = !this.show_only_latest_results
+      this.show_only_latest_results = !this.show_only_latest_results;
     });
   },
   methods: {

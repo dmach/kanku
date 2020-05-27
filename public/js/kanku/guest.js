@@ -45,7 +45,7 @@ Vue.component('guest-card', {
     }
   },
   computed: {
-      showDetails: () { return this.show_details },
+      showDetails: function() { return this.show_details },
   },
   methods: {
     toggleDetails: function() {

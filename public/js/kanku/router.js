@@ -7,7 +7,7 @@ const routes = [
   { path: '/worker'              , component: workerPage     },
   { path: '/notify'              , component: notifyPage     },
   { path: '/settings'            , component: settingsPage   },
-  { path: '/job_history/:page'   , component: jobHistoryPage },
+  { name: 'job_history', path: '/job_history/:page'   , component: jobHistoryPage },
   { path: '/job_result/:job_id'  , component: jobResultPage  },
   { path: '/pwreset'             , component: pwResetPage    },
   { path: '/signup'              , component: signUpPage     },
