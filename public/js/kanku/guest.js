@@ -34,16 +34,18 @@ Vue.component('ipaddr-card', {
 });
 
 Vue.component('guest-card', {
-  props: ['guest', 'data', 'is_admin'],
+  props: ['guest', 'data', 'is_admin', 'show_details'],
   data: function() {
     var alert_class = ( this.data.state == 1 ) ? "success" : "warning";
     return {
-      showDetails: 0,
       user : {'roles': active_roles},
       header_classes : ['card-header', 'alert', 'alert-' + alert_class],
       badge_classes: ['badge', 'badge-' + alert_class],
-      href_vm : uri_base + "/guest#" + this.data.domain_name
+      href_vm : uri_base + "#/guest/" + this.$vnode.key,
     }
+  },
+  computed: {
+      showDetails: () { return this.show_details },
   },
   methods: {
     toggleDetails: function() {
@@ -95,10 +97,11 @@ Vue.component('guest-card', {
 });
 
 const guestPage = {
-  props: ['is_admin'],
+  props: ['is_admin', 'domain_name'],
   data: function(){
     return {
       guest_list: {},
+      show_details: false,
     };
   },
   methods: {
@@ -113,6 +116,12 @@ const guestPage = {
       });
     },
     sortedGuests: function() {
+      var domain_name = this.$route.params.domain_name;
+      var obj;
+      if (domain_name && this.guest_list[domain_name]) {
+        this.show_details = true;
+        return [domain_name];
+      }
       return Object.keys(this.guest_list).sort();
     }
   },
@@ -127,6 +136,6 @@ const guestPage = {
    + '   </div>'
    + '  </div>'
    + '  <spinner></spinner>'
-   + '  <guest-card v-for="guest in sortedGuests()" :key="guest" :data="guest_list[guest]" :is_admin="is_admin"></guest-card>'
+   + '  <guest-card v-for="guest in sortedGuests()" :show_details="show_details" :key="guest" :data="guest_list[guest]" :is_admin="is_admin"></guest-card>'
    + '</div>'
 };

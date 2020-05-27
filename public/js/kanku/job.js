@@ -1,22 +1,24 @@
 function save_settings(job_name) {
-  var test = $("#"+job_name+" input");
-  var count  = -1;
-  var data   = [];
-  $.each(test, function(iter, elem) {
-    if (elem.name === "use_module") {
-      count++;
-      data[count]={};
-    } else {
-      if (elem.type === 'text') {
-	data[count][elem.name] = elem.value;
-      }
-      if (elem.type === 'checkbox') {
-	data[count][elem.name] = elem.checked;
-      }
-    }
-  });
   var cookie = restore_settings();
-  cookie[job_name] = data;
+  var test = $("#"+job_name+" input");
+  if (test) {
+    var count  = -1;
+    var data   = [];
+    $.each(test, function(iter, elem) {
+      if (elem.name === "use_module") {
+	count++;
+	data[count]={};
+      } else {
+	if (elem.type === 'text') {
+	  data[count][elem.name] = elem.value;
+	}
+	if (elem.type === 'checkbox') {
+	  data[count][elem.name] = elem.checked;
+	}
+      }
+    });
+    cookie[job_name] = data;
+  }
   Cookies.set("kanku_job", JSON.stringify(cookie));
   return data;
 }
@@ -31,13 +33,17 @@ function restore_settings() {
 Vue.component('text-input',{
   props: ['gui_config', 'is_admin'],
   data: function() {
-    return { user_name : user_name }
+    return {
+      user_name : user_name,
+      value:      this.gui_config.default,
+    }
   },
   computed: {
     needsPrefix: function() {
       if (this.gui_config.param == 'domain_name' && active_roles.User && ! this.is_admin) {
-        return true
+        return true;
       }
+      return false;
     }
   },
   template: '<div class="form-group">'
@@ -45,7 +51,7 @@ Vue.component('text-input',{
     + ' <input  class="form-control"'
     + '        type=text'
     + '        :name="gui_config.param"'
-    + '        :value="gui_config.default"'
+    + '        :value="value"'
     + ' >'
     + '</div>'
 });
