@@ -42,10 +42,8 @@ Vue.component('guest-card', {
       header_classes : ['card-header', 'alert', 'alert-' + alert_class],
       badge_classes: ['badge', 'badge-' + alert_class],
       href_vm : uri_base + "#/guest/" + this.$vnode.key,
+      showDetails: this.show_details,
     }
-  },
-  computed: {
-      showDetails: function() { return this.show_details },
   },
   methods: {
     toggleDetails: function() {
