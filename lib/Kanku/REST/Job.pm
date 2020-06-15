@@ -41,11 +41,14 @@ sub list {
 
   if ($self->params->{filter}) {
 	my $jn = $self->params->{filter};
-	$jn =~ s{^\s*((?:(id|state|name):)?([^\s]*))\s*$}{$3}smx;
+	$jn =~ s{^\s*((?:(id|state|name|worker):)?([^\s]*))\s*$}{$3}smx;
         my $field = 'name';
         my $stmt  = 'like';
         my $val   = $jn;
-        if ($2) {
+        if ($2 eq 'worker') {
+          $field = 'workerinfo';
+          $stmt  = "like";
+        } elsif ($2) {
           $field = $2;
           $stmt  = "in";
           $val   = [split ',', $jn];

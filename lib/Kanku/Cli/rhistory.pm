@@ -72,6 +72,12 @@ option 'job_name' => (
   documentation => 'filter list by job_name (wildcard %)',
 );
 
+option 'worker' => (
+  isa           => 'Str',
+  is            => 'rw',
+  documentation => 'filter list by workerinfo (wildcard %)',
+);
+
 
 sub run {
   my ($self)  = @_;
@@ -103,7 +109,7 @@ sub _list {
     state    => $self->state || [],
     job_name => $self->job_name || q{},
   };
-
+  $params->{filter} = "worker:" . $self->worker if ($self->worker);
   $params->{show_only_latest_results} = 1 if $self->latest;
 
   my $data = $kr->get_json( path => 'jobs/list' , params => $params );
