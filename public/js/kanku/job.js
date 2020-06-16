@@ -29,7 +29,6 @@ function restore_settings() {
   return JSON.parse(obj);
 }
 
-
 Vue.component('text-input',{
   props: ['gui_config', 'is_admin'],
   data: function() {
@@ -63,7 +62,6 @@ Vue.component('checkbox-input',{
     + ' <input type=checkbox :name="gui_config.param" value="1" :checked="gui_config.default">'
     + '</div>'
 });
-
 
 Vue.component('task-card',{
   props: ['task', 'is_admin'],

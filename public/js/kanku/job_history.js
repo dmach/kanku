@@ -72,14 +72,6 @@ Vue.component('job-history-list',{
 
 Vue.component('paginator', {
   props: ['page', 'is_admin', 'total_pages'],
-/*
-  props: ['is_admin', 'total_pages'],
-  data: function() {
-    return {
-      page: this.$parent.page,
-    }
-  },
-*/
   methods: {
     nextpage: function() {
       this.$parent.page++;
@@ -106,9 +98,6 @@ Vue.component('paginator', {
     pb_classes: function() { return (this.page > 1) ? ['page-item'] : ['page-item', 'disabled'] },
     nb_classes: function() { return (this.total_pages > this.page) ? ['page-item'] : ['page-item', 'disabled'] },
   },
-/*  
- template: '<div class="col-md-1"><button v-on:click="nextpage()" class="btn btn-default">&gt;&gt;&gt;</button></div>'
-*/
   template: '<nav aria-label="Pagination">'
     + '  <ul class="pagination">'
     + '    <li class="page-item">'
