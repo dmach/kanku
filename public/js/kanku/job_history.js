@@ -17,29 +17,8 @@ Vue.component('limit-select',{
     + '</div>'
 });
 
-Vue.component('job-search',{
-  data: function() {
-    return {filter:''}
-  },
-  methods: {
-    updateJobSearch: function() {
-      this.$parent.filter = this.filter;
-      this.$emit('updateJobHistoryPage');
-    },
-    clearJobSearch: function() {
-      this.filter = '';
-      this.$parent.filter = this.filter;
-      this.$emit('updateJobHistoryPage');
-    }
-  },
+Vue.component('search-tooltip',{
   template: ''
-    + '    <div class="btn-group col-md-5">'
-    + '      <input type="text" v-model="filter" @blur="updateJobSearch" @keyup.enter="updateJobSearch"'
-    + '       class="form-control" placeholder="Enter search term - SEE Tooltips for details"'
-    + '      >'
-    + '      <span @click="clearJobSearch()" style="margin-left:-20px;margin-top:10px;">'
-    + '          <i class="far fa-times-circle"></i>'
-    + '       </span>'
     + '       <span class="badge badge-primary" style="margin-left: 1rem;"data-toggle="tooltip" data-placement="bottom" '
     + '         title="<strong>Search by job_name:</strong><br>Use \'%\' as wildcard<br>'
     + '                <strong>Supported fields:</strong><br>id, state, name, worker<br>'
@@ -47,8 +26,6 @@ Vue.component('job-search',{
     + '                <strong>Examples:</strong>&apos;id:1,2&apos; &apos;state:running&apos; &apos;name=obs-server,kanku-devel&apos; &apos;obs-server%&apos;"><br>'
     + '         <i class="fas fa-question-circle fa-2x" ></i>'
     + '       </span>'
-    + '    </div>'
-
 });
 
 Vue.component('job-state-checkbox',{
@@ -237,7 +214,8 @@ const jobHistoryPage = {
     + '    </div>'
     + '  </div>'
     + '  <div class="row top_pager">'
-    + '   <job-search @updateJobHistoryPage="refreshPage"></job-search>'
+    + '   <search-field :filter="filter" @search-term-change="refreshPage" comment="Enter search term - SEE Tooltips for details"></search-field>'
+    + '   <search-tooltip></search-tooltip>'
     + '   <show-only-latest-results  @updateJobHistoryPage="refreshPage"></show-only-latest-results>'
     + '   <limit-select @updateJobHistoryPage="refreshPage" selected_limit="limit"></limit-select>'
     + '   <div class="col-md-2">'

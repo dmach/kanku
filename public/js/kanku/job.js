@@ -137,25 +137,26 @@ Vue.component('job-card',{
 });
 
 Vue.component('search-field',{
+  props: ['comment'],
   data: function() {
     return {
-      search_term: ''
+      filter: ''
     };
   },
   methods: {
     updateSearch: function() {
-      this.$parent.search_term = this.search_term;
+      this.$parent.filter = this.filter;
       this.$emit('search-term-change');
     },
     clearSearch: function() {
-      this.search_term = '';
-      this.$parent.search_term = this.search_term;
+      this.filter = '';
+      this.$parent.filter = this.filter;
       this.$emit('search-term-change');
     }
   },
   template: ''
     + '    <div class="btn-group col-md-4">'
-    + '      <input type="text" v-model="search_term" @blur="updateSearch" @keyup.enter="updateSearch" class="form-control" placeholder="Filter Jobs by regex">'
+    + '      <input type="text" v-model="filter" @blur="updateSearch" @keyup.enter="updateSearch" class="form-control" :placeholder="comment">'
     + '      <span @click="clearSearch()" style="margin-left:-20px;margin-top:10px;">'
     + '          <i class="far fa-times-circle"></i>'
     + '       </span>'
@@ -169,14 +170,14 @@ const jobPage = {
     return {
       jobs: [],
       original_jobs: [],
-      search_term: '',
+      filter: '',
     };
   },
   methods: {
     updatePage: function() {
       var url    = uri_base + "/rest/gui_config/job.json";
       var self   = this;
-      var params = { filter: this.search_term};
+      var params = { filter: this.filter};
 
       axios.get(url, { params: params }).then(function(response) {
 	self.jobs = response.data.config;
@@ -221,7 +222,7 @@ const jobPage = {
     + ' <div v-if="user_id">'
     + '  <head-line text="Job"></head-line>'
     + '  <div class="row top_pager">'
-    + '   <search-field :search_term="search_term" @search-term-change="updatePage"></search-field>'
+    + '   <search-field :filter="filter" @search-term-change="updatePage" comment="Filter Jobs by regex"></search-field>'
     + '   <div class="btn-group col-md-8">'
     + '   </div>'
     + '  </div>'
