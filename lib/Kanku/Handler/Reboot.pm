@@ -28,6 +28,7 @@ has [qw/
       domain_name
       login_user
       login_pass
+      management_interface
 /] => (is => 'rw',isa=>'Str');
 # TODO: implement wait_for_*
 has [qw/wait_for_network wait_for_console/] => (is => 'rw',isa=>'Bool',lazy=>1,default=>1);
@@ -65,6 +66,7 @@ sub prepare {
   my $ctx  = $self->job()->context();
 
   $self->domain_name($ctx->{domain_name}) if ( ! $self->domain_name && $ctx->{domain_name});
+  $self->management_interface($ctx->{management_interface}) if ( ! $self->management_interface && $ctx->{management_interface});
   $self->evaluate_console_credentials;
 
   return {
