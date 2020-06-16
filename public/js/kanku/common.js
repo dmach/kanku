@@ -567,6 +567,34 @@ Vue.component('navigation', {
     + '    </nav>'
 });
 
+Vue.component('search-field',{
+  props: ['comment'],
+  data: function() {
+    return {
+      filter: ''
+    };
+  },
+  methods: {
+    updateSearch: function() {
+      this.$parent.filter = this.filter;
+      this.$emit('search-term-change');
+    },
+    clearSearch: function() {
+      this.filter = '';
+      this.$parent.filter = this.filter;
+      this.$emit('search-term-change');
+    }
+  },
+  template: ''
+    + '    <div class="btn-group col-md-4">'
+    + '      <input type="text" v-model="filter" @blur="updateSearch" @keyup.enter="updateSearch" class="form-control" :placeholder="comment">'
+    + '      <span @click="clearSearch()" style="margin-left:-20px;margin-top:10px;">'
+    + '          <i class="far fa-times-circle"></i>'
+    + '       </span>'
+    + '    </div>'
+
+});
+
 const pageNotFound = {
   template: '<head-line text="404 - Page not found"></head-line>'
 };
