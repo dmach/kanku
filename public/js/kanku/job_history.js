@@ -17,13 +17,13 @@ Vue.component('limit-select',{
     + '</div>'
 });
 
-Vue.component('search-tooltip',{
+Vue.component('search-tooltip-job_history',{
   template: ''
-    + '       <span class="badge badge-primary" style="margin-left: 1rem;"data-toggle="tooltip" data-placement="bottom" '
-    + '         title="<strong>Search by job_name:</strong><br>Use \'%\' as wildcard<br>'
+    + '       <span class="badge badge-primary" style="padding: 0.6rem;" data-toggle="tooltip" data-placement="bottom" '
+    + '         title="<strong>Search by job_name:</strong><br>Use &apos;%&apos; as wildcard<br>'
     + '                <strong>Supported fields:</strong><br>id, state, name, worker<br>'
     + '                <strong>Supported Values:</strong><br>comma separated lists (except worker)<br>'
-    + '                <strong>Examples:</strong>&apos;id:1,2&apos; &apos;state:running&apos; &apos;name=obs-server,kanku-devel&apos; &apos;obs-server%&apos;"><br>'
+    + '                <strong>Examples:<br></strong>&apos;id:1,2&apos;, &apos;state:running&apos;, &apos;name=obs-server,kanku-devel&apos;, &apos;obs-server%&apos;">'
     + '         <i class="fas fa-question-circle fa-2x" ></i>'
     + '       </span>'
 });
@@ -215,7 +215,7 @@ const jobHistoryPage = {
     + '  </div>'
     + '  <div class="row top_pager">'
     + '   <search-field :filter="filter" @search-term-change="refreshPage" comment="Enter search term - SEE Tooltips for details"></search-field>'
-    + '   <search-tooltip></search-tooltip>'
+    + '   <search-tooltip-job_history></search-tooltip-job_history>'
     + '   <show-only-latest-results  @updateJobHistoryPage="refreshPage"></show-only-latest-results>'
     + '   <limit-select @updateJobHistoryPage="refreshPage" selected_limit="limit"></limit-select>'
     + '   <div class="col-md-2">'
