@@ -35,6 +35,19 @@ command_long_description
 
 " . $_[0]->description_footer;
 
+option 'host' => (
+  isa           => 'Str',
+  is            => 'rw',
+  documentation => 'filter list by host (wildcard .)',
+);
+
+option 'domain' => (
+  isa           => 'Str',
+  is            => 'rw',
+  documentation => 'filter list by domain (wildcard .)',
+);
+
+
 sub run {
   my $self  = shift;
   Kanku::Config->initialize;
@@ -57,7 +70,12 @@ sub _list {
 	exit 1;
   };
 
-  my $data = $kr->get_json( path => "guest/list" );
+  my $params = {};
+  my @filters;
+  push @filters, "host:".$self->host if $self->host;
+  push @filters, "domain:".$self->domain if $self->domain;
+  $params->{filter} = \@filters if @filters;
+  my $data = $kr->get_json(path => "guest/list", params => $params);
   $self->view('guests.tt', $data);
 }
 

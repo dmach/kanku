@@ -54,7 +54,7 @@ Vue.component('refresh-button',{
     }
   },
   template: ''
-    + '<button type="button" class="btn btn-primary float-right" @click="refreshPage">'
+    + '<button type="button" class="btn btn-primary float-right pull-right" @click="refreshPage">'
     + '  <i class="fas fa-sync"></i> Refresh'
     + ' </button>'
 });
