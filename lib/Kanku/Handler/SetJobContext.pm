@@ -25,7 +25,7 @@ with 'Kanku::Roles::Logger';
 has [qw/
         api_url         project         package
         vm_image_file   vm_image_url    vm_template_file
-        domain_name     host_interface
+        domain_name     host_interface  management_interface
         cache_dir       images_dir
 	os_instance_name os_image_id
 	login_user	login_pass
@@ -110,7 +110,7 @@ sub execute {
     os_instance_name os_image_id login_user login_pass 
     privatekey_path publickey_path
     host_dir_9p accessmode_9p
-    vm_image_file
+    vm_image_file management_interface
   /) {
     if ($self->$var()){
       $self->logger->debug("Setting variable $var in context to ".$self->$var());
