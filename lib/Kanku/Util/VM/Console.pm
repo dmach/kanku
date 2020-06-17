@@ -220,9 +220,7 @@ sub logout {
         sub {
           my $exp = shift;
           $self->logger->debug("Found '".$exp->match."'");
-          $exp->send(chr(29));
           sleep(1);
-          #$exp->soft_close();
         }
       ],
   );
@@ -325,7 +323,7 @@ sub get_ipaddress {
 
   while ( $wait > 0) {
     # use cat for disable colors
-    my $result = $self->cmd("LANG=C ip addr show $opts{interface} 2>&1|cat");
+    my $result = $self->cmd("LANG=C \\ip addr show $opts{interface} 2>&1");
 
     $logger->debug("  -- Output:\n".Dumper($result));
 
