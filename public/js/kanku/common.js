@@ -577,13 +577,17 @@ Vue.component('search-field',{
   methods: {
     updateSearch: function() {
       this.$parent.filter = this.filter;
-      this.$router.push({ path: this.$router.currentPath, query: {filter:this.filter}});
+      var currQ = this.$route.query
+      var newQ  = {...currQ, filter: this.filter};
+      this.$router.push({ path: this.$router.currentPath, query: newQ});
       this.$emit('search-term-change');
     },
     clearSearch: function() {
       this.filter = '';
       this.$parent.filter = this.filter;
-      this.$router.push({ path: this.$router.currentPath, query: {filter:this.filter}});
+      var currQ = this.$route.query
+      var newQ  = { filter: this.filter, ...currQ };
+      this.$router.push({ path: this.$router.currentPath, query: newQ});
       this.$emit('search-term-change');
     }
   },

@@ -31,11 +31,14 @@ Vue.component('search-tooltip-job_history',{
 Vue.component('job-state-checkbox',{
   props: ['name','state_class'],
   data: function() {
-    return {job_states:['succeed','failed','dispatching','running']}
+    return {job_states: this.$route.query.job_states || ['succeed','failed','dispatching','running']}
   },
   methods: {
     updateJobSearch: function() {
       this.$root.$emit('toggle_state', this.name);
+      var q2 = this.$route.query || {};
+      var q  = {...q2, job_states:this.job_states};
+      this.$router.push({ path: this.$router.currentPath, query: q});
       this.$emit('updateJobHistoryPage');
     },
   },
@@ -125,12 +128,20 @@ Vue.component('paginator', {
 const jobHistoryPage = {
   props:['is_admin'],
   data: function() {
+    var js = {'succeed':1, 'failed':1,'dispatching':1,'running':1,'scheduled':0,'triggered':0,'skipped':0};
+    if (this.$route.query.job_states) {
+      var tmp = {};
+      this.$route.query.job_states.forEach(function (item, index) { tmp[item] = 1; });
+      for (let key in js) {
+        js[key] = tmp[key] || 0;
+      }
+    }
     return {
       jobs: {},
       page: this.$route.params.page,
       limit: 10,
-      filter: '',
-      job_states: {'succeed':1, 'failed':1,'dispatching':1,'running':1,'scheduled':0,'triggered':0,'skipped':0},
+      filter: this.$route.query.filter,
+      job_states: js,
       show_only_latest_results : false,
       this: this,
       total_pages: 1,
