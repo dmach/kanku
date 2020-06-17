@@ -571,17 +571,19 @@ Vue.component('search-field',{
   props: ['comment'],
   data: function() {
     return {
-      filter: ''
+      filter: this.$route.query.filter
     };
   },
   methods: {
     updateSearch: function() {
       this.$parent.filter = this.filter;
+      this.$router.push({ path: this.$router.currentPath, query: {filter:this.filter}});
       this.$emit('search-term-change');
     },
     clearSearch: function() {
       this.filter = '';
       this.$parent.filter = this.filter;
+      this.$router.push({ path: this.$router.currentPath, query: {filter:this.filter}});
       this.$emit('search-term-change');
     }
   },

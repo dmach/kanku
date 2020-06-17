@@ -112,7 +112,7 @@ const guestPage = {
     return {
       guest_list: {},
       show_details: false,
-      filter: '',
+      filter: this.$route.query.filter,
     };
   },
   methods: {
