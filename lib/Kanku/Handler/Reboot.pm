@@ -113,7 +113,7 @@ sub execute {
 
   return {
     code    => 0,
-    message => 'Rebooted domain '. $self->domain_name ." successfully.$new_ip",
+    message => 'Rebooted domain '. $self->domain_name ." successfully. $new_ip",
   };
 }
 
