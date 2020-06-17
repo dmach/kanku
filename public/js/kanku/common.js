@@ -54,7 +54,7 @@ Vue.component('refresh-button',{
     }
   },
   template: ''
-    + '<button type="button" class="btn btn-primary float-right" @click="refreshPage">'
+    + '<button type="button" class="btn btn-primary float-right pull-right" @click="refreshPage">'
     + '  <i class="fas fa-sync"></i> Refresh'
     + ' </button>'
 });
@@ -565,6 +565,40 @@ Vue.component('navigation', {
     + '        </div>'
     + '     </div>'
     + '    </nav>'
+});
+
+Vue.component('search-field',{
+  props: ['comment'],
+  data: function() {
+    return {
+      filter: this.$route.query.filter
+    };
+  },
+  methods: {
+    updateSearch: function() {
+      this.$parent.filter = this.filter;
+      var currQ = this.$route.query
+      var newQ  = {...currQ, filter: this.filter};
+      this.$router.push({ path: this.$router.currentPath, query: newQ});
+      this.$emit('search-term-change');
+    },
+    clearSearch: function() {
+      this.filter = '';
+      this.$parent.filter = this.filter;
+      var currQ = this.$route.query
+      var newQ  = { filter: this.filter, ...currQ };
+      this.$router.push({ path: this.$router.currentPath, query: newQ});
+      this.$emit('search-term-change');
+    }
+  },
+  template: ''
+    + '    <div class="btn-group col-md-4">'
+    + '      <input type="text" v-model="filter" @blur="updateSearch" @keyup.enter="updateSearch" class="form-control" :placeholder="comment">'
+    + '      <span @click="clearSearch()" style="margin-left:-20px;margin-top:10px;">'
+    + '          <i class="far fa-times-circle"></i>'
+    + '       </span>'
+    + '    </div>'
+
 });
 
 const pageNotFound = {

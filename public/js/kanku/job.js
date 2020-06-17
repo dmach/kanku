@@ -1,22 +1,24 @@
 function save_settings(job_name) {
-  var test = $("#"+job_name+" input");
-  var count  = -1;
-  var data   = [];
-  $.each(test, function(iter, elem) {
-    if (elem.name === "use_module") {
-      count++;
-      data[count]={};
-    } else {
-      if (elem.type === 'text') {
-	data[count][elem.name] = elem.value;
-      }
-      if (elem.type === 'checkbox') {
-	data[count][elem.name] = elem.checked;
-      }
-    }
-  });
   var cookie = restore_settings();
-  cookie[job_name] = data;
+  var test = $("#"+job_name+" input");
+  if (test) {
+    var count  = -1;
+    var data   = [];
+    $.each(test, function(iter, elem) {
+      if (elem.name === "use_module") {
+	count++;
+	data[count]={};
+      } else {
+	if (elem.type === 'text') {
+	  data[count][elem.name] = elem.value;
+	}
+	if (elem.type === 'checkbox') {
+	  data[count][elem.name] = elem.checked;
+	}
+      }
+    });
+    cookie[job_name] = data;
+  }
   Cookies.set("kanku_job", JSON.stringify(cookie));
   return data;
 }
@@ -27,17 +29,20 @@ function restore_settings() {
   return JSON.parse(obj);
 }
 
-
 Vue.component('text-input',{
   props: ['gui_config', 'is_admin'],
   data: function() {
-    return { user_name : user_name }
+    return {
+      user_name : user_name,
+      value:      this.gui_config.default,
+    }
   },
   computed: {
     needsPrefix: function() {
       if (this.gui_config.param == 'domain_name' && active_roles.User && ! this.is_admin) {
-        return true
+        return true;
       }
+      return false;
     }
   },
   template: '<div class="form-group">'
@@ -45,7 +50,7 @@ Vue.component('text-input',{
     + ' <input  class="form-control"'
     + '        type=text'
     + '        :name="gui_config.param"'
-    + '        :value="gui_config.default"'
+    + '        :value="value"'
     + ' >'
     + '</div>'
 });
@@ -57,7 +62,6 @@ Vue.component('checkbox-input',{
     + ' <input type=checkbox :name="gui_config.param" value="1" :checked="gui_config.default">'
     + '</div>'
 });
-
 
 Vue.component('task-card',{
   props: ['task', 'is_admin'],
@@ -130,47 +134,20 @@ Vue.component('job-card',{
     + '</div>'
 });
 
-Vue.component('search-field',{
-  data: function() {
-    return {
-      search_term: ''
-    };
-  },
-  methods: {
-    updateSearch: function() {
-      this.$parent.search_term = this.search_term;
-      this.$emit('search-term-change');
-    },
-    clearSearch: function() {
-      this.search_term = '';
-      this.$parent.search_term = this.search_term;
-      this.$emit('search-term-change');
-    }
-  },
-  template: ''
-    + '    <div class="btn-group col-md-4">'
-    + '      <input type="text" v-model="search_term" @blur="updateSearch" @keyup.enter="updateSearch" class="form-control" placeholder="Filter Jobs by regex">'
-    + '      <span @click="clearSearch()" style="margin-left:-20px;margin-top:10px;">'
-    + '          <i class="far fa-times-circle"></i>'
-    + '       </span>'
-    + '    </div>'
-
-});
-
 const jobPage = {
   props: ['user_id', 'is_admin'],
   data: function() {
     return {
       jobs: [],
       original_jobs: [],
-      search_term: '',
+      filter: '',
     };
   },
   methods: {
     updatePage: function() {
       var url    = uri_base + "/rest/gui_config/job.json";
       var self   = this;
-      var params = { filter: this.search_term};
+      var params = { filter: this.filter};
 
       axios.get(url, { params: params }).then(function(response) {
 	self.jobs = response.data.config;
@@ -215,7 +192,7 @@ const jobPage = {
     + ' <div v-if="user_id">'
     + '  <head-line text="Job"></head-line>'
     + '  <div class="row top_pager">'
-    + '   <search-field :search_term="search_term" @search-term-change="updatePage"></search-field>'
+    + '   <search-field :filter="filter" @search-term-change="updatePage" comment="Filter Jobs by regex"></search-field>'
     + '   <div class="btn-group col-md-8">'
     + '   </div>'
     + '  </div>'

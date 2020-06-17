@@ -13,9 +13,19 @@ use Kanku::LibVirt::HostList;
 use Data::Dumper;
 
 sub list {
-  my ($self) = @_;
-  my $result = {errors=>[]};
-  my $guests = {};
+  my ($self)   = @_;
+  my $result   = {errors=>[]};
+  my $guests   = {};
+  my $filter_p = (ref $self->params->{filter}) ? $self->params->{filter} : [$self->params->{filter}];
+  my $filters  = {};
+
+  foreach my $filter (@$filter_p) {
+    if ($filter =~ /^(domain|host|worker):(.*)$/) {
+      $filters->{$1} = $2;
+    } else {
+      $filters->{domain} = $filter;
+    }
+  }
 
   my $hl = Kanku::LibVirt::HostList->new();
   $hl->calc_remote_urls();
@@ -31,10 +41,13 @@ sub list {
       push @{$result->{errors}}, $error;
     };
     next if (!$vmm);
+    next if ($filters->{host} && $host->{hostname} !~ /^$filters->{host}$/);
+    next if ($filters->{worker} && $host->{hostname} !~ /^$filters->{worker}$/);
     my @domains = $vmm->list_all_domains();
 
     foreach my $dom (@domains) {
 	my $dom_name          = $dom->get_name;
+        next if ($filters->{domain} && $dom_name !~ /^$filters->{domain}$/);
 	my ($state, $reason)  = $dom->get_state();
 	my $ipt = Kanku::Util::IPTables->new(domain_name => $dom_name);
 	my $dom_id = "$dom_name:$host->{hostname}";

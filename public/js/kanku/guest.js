@@ -34,15 +34,15 @@ Vue.component('ipaddr-card', {
 });
 
 Vue.component('guest-card', {
-  props: ['guest', 'data', 'is_admin'],
+  props: ['guest', 'data', 'is_admin', 'show_details'],
   data: function() {
     var alert_class = ( this.data.state == 1 ) ? "success" : "warning";
     return {
-      showDetails: 0,
       user : {'roles': active_roles},
       header_classes : ['card-header', 'alert', 'alert-' + alert_class],
       badge_classes: ['badge', 'badge-' + alert_class],
-      href_vm : uri_base + "/guest#" + this.data.domain_name
+      href_vm : uri_base + "#/guest/" + this.$vnode.key,
+      showDetails: this.show_details,
     }
   },
   methods: {
@@ -94,11 +94,25 @@ Vue.component('guest-card', {
     + '</div>'
 });
 
+Vue.component('search-tooltip-guest',{
+  template: ''
+    + '       <div class="badge badge-primary" style="padding:0.6em" data-toggle="tooltip" data-placement="bottom" '
+    + '         title="<strong>Search by domain or host:</strong><br>use &apos;.*&apos; wildcard<br>'
+    + '                <strong>Supported fields:</strong><br>domain, host, worker (alias for host)<br>'
+    + '                <strong>Supported Values:</strong><br>perl regex<br>'
+    + '                <strong>Examples:</strong><br>&apos;doamin:obs-server&apos;, &apos;host:kanku-worker1&apos;, &apos;worker=.*1&apos;">'
+    + '         <i class="fas fa-question-circle fa-2x" ></i>'
+    + '       </div>'
+});
+
+
 const guestPage = {
-  props: ['is_admin'],
+  props: ['is_admin', 'domain_name'],
   data: function(){
     return {
       guest_list: {},
+      show_details: false,
+      filter: this.$route.query.filter,
     };
   },
   methods: {
@@ -106,27 +120,38 @@ const guestPage = {
       $('#spinner').show();
       var self   = this;
       var url = uri_base + '/rest/guest/list.json';
-      var params = new URLSearchParams();
+      var params = { filter: this.filter};
       axios.get(url, { params: params }).then(function(response) {
         self.guest_list = response.data.guest_list;
         $('#spinner').hide();
       });
     },
     sortedGuests: function() {
+      var domain_name = this.$route.params.domain_name;
+      var obj;
+      if (domain_name && this.guest_list[domain_name]) {
+        this.show_details = true;
+        return [domain_name];
+      }
       return Object.keys(this.guest_list).sort();
     }
   },
   mounted: function() {
-      this.refreshPage();
+    this.refreshPage();
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip({html:true})
+    });
   },
   template: '<div>'
    + ' <head-line text="Guest"></head-line>'
-   + '  <div class="row" style="margin-bottom:10px;">'
-   + '   <div class="col-md-12">'
-   + '     <refresh-button @refreshPage="refreshPage"></refresh-button>'
-   + '   </div>'
+   + '  <div class="row top_pager">'
+   + '    <search-field @search-term-change="refreshPage" :filter="filter" comment="Enter search term - SEE Tooltips for details"></search-field>'
+   + '    <div class="col-md-8">'
+   + '    <search-tooltip-guest></search-tooltip-guest>'
+   + '      <refresh-button @refreshPage="refreshPage"></refresh-button>'
+   + '    </div>'
    + '  </div>'
    + '  <spinner></spinner>'
-   + '  <guest-card v-for="guest in sortedGuests()" :key="guest" :data="guest_list[guest]" :is_admin="is_admin"></guest-card>'
+   + '  <guest-card v-for="guest in sortedGuests()" :show_details="show_details" :key="guest" :data="guest_list[guest]" :is_admin="is_admin"></guest-card>'
    + '</div>'
 };

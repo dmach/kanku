@@ -17,48 +17,28 @@ Vue.component('limit-select',{
     + '</div>'
 });
 
-Vue.component('job-search',{
-  data: function() {
-    return {filter:''}
-  },
-  methods: {
-    updateJobSearch: function() {
-      this.$parent.filter = this.filter;
-      this.$emit('updateJobHistoryPage');
-    },
-    clearJobSearch: function() {
-      this.filter = '';
-      this.$parent.filter = this.filter;
-      this.$emit('updateJobHistoryPage');
-    }
-  },
+Vue.component('search-tooltip-job_history',{
   template: ''
-    + '    <div class="btn-group col-md-5">'
-    + '      <input type="text" v-model="filter" @blur="updateJobSearch" @keyup.enter="updateJobSearch"'
-    + '       class="form-control" placeholder="Enter search term - SEE Tooltips for details"'
-    + '      >'
-    + '      <span @click="clearJobSearch()" style="margin-left:-20px;margin-top:10px;">'
-    + '          <i class="far fa-times-circle"></i>'
-    + '       </span>'
-    + '       <span class="badge badge-primary" style="margin-left: 1rem;"data-toggle="tooltip" data-placement="bottom" '
-    + '         title="<strong>Search by job_name:</strong><br>Use \'%\' as wildcard<br>'
-    + '                <strong>Supported fields:</strong><br>id, state, name<br>'
-    + '                <strong>Supported Values:</strong><br>comma separated lists><br>'
-    + '                <strong>Examples:</strong>&apos;id:1,2&apos; &apos;state:running&apos; &apos;name=obs-server,kanku-devel&apos; &apos;obs-server%&apos;"><br>'
+    + '       <span class="badge badge-primary" style="padding: 0.6rem;" data-toggle="tooltip" data-placement="bottom" '
+    + '         title="<strong>Search by job_name:</strong><br>Use &apos;%&apos; as wildcard<br>'
+    + '                <strong>Supported fields:</strong><br>id, state, name, worker<br>'
+    + '                <strong>Supported Values:</strong><br>comma separated lists (except worker)<br>'
+    + '                <strong>Examples:<br></strong>&apos;id:1,2&apos;, &apos;state:running&apos;, &apos;name=obs-server,kanku-devel&apos;, &apos;obs-server%&apos;">'
     + '         <i class="fas fa-question-circle fa-2x" ></i>'
     + '       </span>'
-    + '    </div>'
-
 });
 
 Vue.component('job-state-checkbox',{
   props: ['name','state_class'],
   data: function() {
-    return {job_states:['succeed','failed','dispatching','running']}
+    return {job_states: this.$route.query.job_states || ['succeed','failed','dispatching','running']}
   },
   methods: {
     updateJobSearch: function() {
       this.$root.$emit('toggle_state', this.name);
+      var q2 = this.$route.query || {};
+      var q  = {...q2, job_states:this.job_states};
+      this.$router.push({ path: this.$router.currentPath, query: q});
       this.$emit('updateJobHistoryPage');
     },
   },
@@ -98,18 +78,22 @@ Vue.component('paginator', {
   methods: {
     nextpage: function() {
       this.$parent.page++;
+      router.push({name: 'job_history', params: { page: this.$parent.page}});
       this.$emit('updateJobHistoryPage');
     },
     prevpage: function() {
       this.$parent.page--;
+      router.push({name: 'job_history', params: { page: this.$parent.page}});
       this.$emit('updateJobHistoryPage');
     },
     firstpage: function() {
       this.$parent.page = 1;
+      router.push({name: 'job_history', params: { page: this.$parent.page}});
       this.$emit('updateJobHistoryPage');
     },
     lastpage: function() {
       this.$parent.page = this.total_pages;
+      router.push({name: 'job_history', params: { page: this.$parent.page}});
       this.$emit('updateJobHistoryPage');
     }
   },
@@ -117,9 +101,6 @@ Vue.component('paginator', {
     pb_classes: function() { return (this.page > 1) ? ['page-item'] : ['page-item', 'disabled'] },
     nb_classes: function() { return (this.total_pages > this.page) ? ['page-item'] : ['page-item', 'disabled'] },
   },
-/*  
- template: '<div class="col-md-1"><button v-on:click="nextpage()" class="btn btn-default">&gt;&gt;&gt;</button></div>'
-*/
   template: '<nav aria-label="Pagination">'
     + '  <ul class="pagination">'
     + '    <li class="page-item">'
@@ -147,12 +128,20 @@ Vue.component('paginator', {
 const jobHistoryPage = {
   props:['is_admin'],
   data: function() {
+    var js = {'succeed':1, 'failed':1,'dispatching':1,'running':1,'scheduled':0,'triggered':0,'skipped':0};
+    if (this.$route.query.job_states) {
+      var tmp = {};
+      this.$route.query.job_states.forEach(function (item, index) { tmp[item] = 1; });
+      for (let key in js) {
+        js[key] = tmp[key] || 0;
+      }
+    }
     return {
       jobs: {},
       page: this.$route.params.page,
       limit: 10,
-      filter: '',
-      job_states: {'succeed':1, 'failed':1,'dispatching':1,'running':1,'scheduled':0,'triggered':0,'skipped':0},
+      filter: this.$route.query.filter,
+      job_states: js,
       show_only_latest_results : false,
       this: this,
       total_pages: 1,
@@ -160,10 +149,10 @@ const jobHistoryPage = {
   },
   created() {
     this.$root.$on('toggle_state', state => {
-       this.job_states[state] = ! this.job_states[state];
+      this.job_states[state] = ! this.job_states[state];
     });
     this.$root.$on('toggle_show_only_latest_results', value => {
-       this.show_only_latest_results = !this.show_only_latest_results
+      this.show_only_latest_results = !this.show_only_latest_results;
     });
   },
   methods: {
@@ -225,7 +214,8 @@ const jobHistoryPage = {
     + '    </div>'
     + '  </div>'
     + '  <div class="row top_pager">'
-    + '   <job-search @updateJobHistoryPage="refreshPage"></job-search>'
+    + '   <search-field :filter="filter" @search-term-change="refreshPage" comment="Enter search term - SEE Tooltips for details"></search-field>'
+    + '   <search-tooltip-job_history></search-tooltip-job_history>'
     + '   <show-only-latest-results  @updateJobHistoryPage="refreshPage"></show-only-latest-results>'
     + '   <limit-select @updateJobHistoryPage="refreshPage" selected_limit="limit"></limit-select>'
     + '   <div class="col-md-2">'
