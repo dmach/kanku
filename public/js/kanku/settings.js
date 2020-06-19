@@ -1,13 +1,14 @@
 Vue.component('role-checkbox', {
   props: ['name', 'checked', 'value'],
-  template: '<div class="form-group row">'
-            + '<label class="col-sm-2 control-label">'
-            + '{{ name }} '
-            + '</label>'
-            + '<div class="col-sm-10">'
-            + '<input class="role_checkbox" type="checkbox" :value="value" v-model="checked">'
-            + '</div>'
-            + '</div>'
+  template: ''
+    + '<div class="form-group row">'
+    + ' <label class="col-sm-2 control-label">'
+    + '  {{ name }} '
+    + '  </label>'
+    + ' <div class="col-sm-10">'
+    + '  <input class="role_checkbox" type="checkbox" :value="value" v-model="checked">'
+    + ' </div>'
+    + '</div>'
 });
 
 Vue.component('user-settings', {
@@ -144,7 +145,8 @@ const settingsPage = {
   mounted: function() {
    this.getUserDetails();
   },
-  template: '<div>'
+  template: ''
+    + '<div>'
     + ' <message-box :message_bar="message_bar"></message-box>'
     + ' <head-line text="Settings"></head-line>'
     + ' <div v-if="user_id">'

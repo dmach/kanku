@@ -22,9 +22,10 @@ const jobResultPage = {
   mounted: function() {
       this.updatePage();
   },
-  template: '<div>'
+  template: ''
+    + '<div>'
     + ' <head-line text="Job Result"></head-line>'
-    + '   <job-history-header></job-history-header>'
-    + '   <job-history-card :job="job" :is_admin="is_admin"></job-history-card>'
+    + ' <job-history-header></job-history-header>'
+    + ' <job-history-card :job="job" :is_admin="is_admin"></job-history-card>'
     + '</div>'
 };

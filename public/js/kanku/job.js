@@ -45,7 +45,8 @@ Vue.component('text-input',{
       return false;
     }
   },
-  template: '<div class="form-group">'
+  template: ''
+    + '<div class="form-group">'
     + ' <label>{{ gui_config.label }} :<strong v-if="needsPrefix"> (Will be prefixed by \'{{ user_name }}-\')</strong></label>'
     + ' <input  class="form-control"'
     + '        type=text'
@@ -57,7 +58,8 @@ Vue.component('text-input',{
 
 Vue.component('checkbox-input',{
   props: ['gui_config'],
-  template: '<div class="form-group">'
+  template: ''
+    + '<div class="form-group">'
     + ' <label>{{ gui_config.label }} :</label>'
     + ' <input type=checkbox :name="gui_config.param" value="1" :checked="gui_config.default">'
     + '</div>'
@@ -70,13 +72,14 @@ Vue.component('task-card',{
       showTaskList: 0
     }
   },
-  template: '<div class=task-card>'
-    + '   <h4><span class="badge badge-secondary" style="display:block;" v-on:click="showValues()">{{ task.use_module }}</span></h4>'
-    + '     <input type=hidden name="use_module" :value="task.use_module">'
-    + '   <div v-for="c in task.gui_config">'
-    + '    <text-input v-if="c.type == \'text\'" v-bind:gui_config=c :is_admin="is_admin"></text-input>'
-    + '    <checkbox-input v-if="c.type == \'checkbox\'" v-bind:gui_config=c></checkbox-input>'
-    + '   </div>'
+  template: ''
+    + '<div class=task-card>'
+    + ' <h4><span class="badge badge-secondary" style="display:block;" v-on:click="showValues()">{{ task.use_module }}</span></h4>'
+    + '  <input type=hidden name="use_module" :value="task.use_module">'
+    + ' <div v-for="c in task.gui_config">'
+    + '  <text-input v-if="c.type == \'text\'" v-bind:gui_config=c :is_admin="is_admin"></text-input>'
+    + '  <checkbox-input v-if="c.type == \'checkbox\'" v-bind:gui_config=c></checkbox-input>'
+    + ' </div>'
     + '</div>'
 });
 
@@ -107,7 +110,8 @@ Vue.component('job-card',{
       });
     }
   },
-  template: '<div class="card" style="margin-bottom:5px;">'
+  template: ''
+    + '<div class="card" style="margin-bottom:5px;">'
     + ' <div class="card-header" v-on:click="toggleTaskList()">'
     + '  <span class="badge badge-secondary">{{ job.job_name }}</span>'
     + ' </div>'
@@ -188,7 +192,8 @@ const jobPage = {
   updated: function() {
     $('#spinner').hide();
   },
-  template: '<div>'
+  template: ''
+    + '<div>'
     + ' <div v-if="user_id">'
     + '  <head-line text="Job"></head-line>'
     + '  <div class="row top_pager">'

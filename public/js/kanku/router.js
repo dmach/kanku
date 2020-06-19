@@ -18,10 +18,24 @@ const router = new VueRouter({
   routes // short for `routes: routes`
 });
 
+const store = new Vuex.Store({
+  state: {
+    job_page: {
+      search_term: ''
+    }
+  },
+  mutations: {
+    set_search_term (job_page, value) {
+      job_page.search_term = value;
+    }
+  }
+});
+
 var app = new Vue({
-  props: ['sock'],
-  router,
   el: '#vue_app',
+  router,
+  store,
+  props: ['sock'],
   data: {
     logged_in_user: logged_in_user,
     request_path:   request_path,
@@ -78,7 +92,8 @@ var app = new Vue({
        this.is_admin = !this.is_admin;
     },
   },
-  template: '<div>'
+  template: ''
+    + '<div>'
     + ' <navigation :user_id="user_id" :user_label="user_label" :roles="roles" :active_roles="active_roles" :request_path="request_path" :is_admin="is_admin" @user-state-changed="refreshUserInfo" @changed-is-admin="toogleIsAdmin"></navigation>'
     + ' <message-box-placeholder></message-box-placeholder>'
     + ' <div id="content" class="container">'

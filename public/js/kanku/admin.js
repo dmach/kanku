@@ -113,7 +113,8 @@ Vue.component('request-list', {
       this.req = getRequestsList();
     }
   },
-  template: '<div>'
+  template: ''
+  + '<div>'
   + ' <h2>Requests</h2>'
   + ' <div v-if="req.length > 0">'
   + '  <request-element @update-requests="updateList" v-for="r in req" v-bind:key="r.req_id" :request="r"></request-element>'
@@ -148,7 +149,8 @@ Vue.component('user-element', {
        });
      },
    },
-   template: '<tr>'
+   template: ''
+    + '<tr>'
     + ' <td>{{ user.id }}</td>'
     + ' <td>{{ user.username }}</td>'
     + ' <td>{{ user.name }}</td>'
@@ -178,9 +180,10 @@ Vue.component('user-list', {
       this.users = getUsersList();
     }
   },
-  template: '<div>'
-    + '<h2>Users</h2>'
-    + '<table class="table table-striped">'
+  template: ''
+    + '<div>'
+    + ' <h2>Users</h2>'
+    + ' <table class="table table-striped">'
     + '  <thead>'
     + '    <tr>'
     + '      <th scope="col">#</th>'
@@ -195,13 +198,14 @@ Vue.component('user-list', {
     + '  <tbody>'
     + '   <user-element @update-users="updateList" v-for="user in users" v-bind:user="user" v-bind:key="user.id"></user-element>'
     + '  </tbody>'
-    + '</table>'
+    + ' </table>'
     + '</div>'
 });
 
 Vue.component('role-element', {
    props: ['role'],
-   template: '<tr>'
+   template: ''
+    + '<tr>'
     + ' <td>{{ role.id }}</td>'
     + ' <td>{{ role.role }}</td>'
     + '</tr>'
@@ -211,9 +215,10 @@ Vue.component('role-list', {
   data: function() {
     return { roles: getRolesList()};
   },
-  template: '<div>'
-    + '<h2>Roles</h2>'
-    + '<table class="table table-striped">'
+  template: ''
+    + '<div>'
+    + ' <h2>Roles</h2>'
+    + ' <table class="table table-striped">'
     + '  <thead>'
     + '    <tr>'
     + '      <th scope="col">#</th>'
@@ -223,12 +228,13 @@ Vue.component('role-list', {
     + '  <tbody>'
     + '   <role-element v-for="role in roles" :role="role" v-bind:key="role.id"></role-element>'
     + '  </tbody>'
-    + '</table>'
+    + ' </table>'
     + '</div>'
 });
 
 const adminPage = {
-  template: '<div>'
+  template: ''
+    + '<div>'
     + ' <head-line text="Administration"></head-line>'
     + ' <hr/>'
     + ' <request-list></request-list>'

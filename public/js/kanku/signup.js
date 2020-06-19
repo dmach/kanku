@@ -13,7 +13,8 @@ const signUpPage = {
 
     },
   },
-  template: '<div class="form-signin">'
+  template: ''
+    + '<div class="form-signin">'
     + '  <h2 class="form-signin-heading">Please sign up</h2>'
     + '  <label for="fullname" class="sr-only">Your Name</label>'
     + '  <input id="c_fullname" name=fullname class="form-control" placeholder="Your Name" required autofocus>'

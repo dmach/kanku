@@ -96,7 +96,8 @@ Vue.component('head-line', {
 
 Vue.component('worker-info',{
   props: ['worker'],
-  template: '<div class="worker_info">'
+  template: ''
+    + '<div class="worker_info">'
     + '  <div class="row">'
     + '    <div class="col-md-2">'
     + '      Worker Name'
@@ -158,25 +159,26 @@ Vue.component('job-history-task-card',{
 
 Vue.component('task-result',{
   props: ['result'],
-  template: '<div class=container>'
-    + '<template v-if="result.error_message">'
+  template: ''
+    + '<div class=container>'
+    + ' <template v-if="result.error_message">'
     + '  <pre>{{ result.error_message}}</pre>'
-    + '</template>'
-    + '<template v-if="result.prepare">'
+    + ' </template>'
+    + ' <template v-if="result.prepare">'
     + '  <div class="row">'
     + '    <div class="col-md-2">prepare:</div><div class="col-md-10">{{ result.prepare.message }}</div>'
     + '  </div>'
-    + '</template>'
-    + '<template v-if="result.execute">'
+    + ' </template>'
+    + ' <template v-if="result.execute">'
     + '  <div class="row">'
     + '    <div class="col-md-2">execute:</div><div class="col-md-10">{{ result.execute.message }}</div>'
     + '  </div>'
-    + '</template>'
-    + '<template v-if="result.finalize">'
+    + ' </template>'
+    + ' <template v-if="result.finalize">'
     + '  <div class="row">'
     + '    <div class="col-md-2">finalize:</div><div class="col-md-10">{{ result.finalize.message }}</div>'
     + '  </div>'
-    + '</template>'
+    + ' </template>'
     + '</div>'
 });
 
@@ -201,9 +203,10 @@ Vue.component('task-list',{
     this.$parent.job.duration             = this.jobData.duration;
     this.$parent.workerInfo.host          = this.jobData.workerhost
   },
-  template: '<div class="card-body">'
-    + '  <worker-info v-bind:worker="workerinfo"></worker-info>'
-    + '  <job-history-task-card v-bind:key="task.id" v-bind:task="task" v-for="task in jobData.subtasks"></job-history-task-card>'
+  template: ''
+    + '<div class="card-body">'
+    + ' <worker-info v-bind:worker="workerinfo"></worker-info>'
+    + ' <job-history-task-card v-bind:key="task.id" v-bind:task="task" v-for="task in jobData.subtasks"></job-history-task-card>'
     +'</div>'
 });
 
@@ -282,8 +285,9 @@ Vue.component('job-history-card',{
       });
     },
   },
-  template: '<div class="card job_card">'
-    + '<div class="card-header alert" v-bind:class="job.state_class">'
+  template: ''
+    + '<div class="card job_card">'
+    + ' <div class="card-header alert" v-bind:class="job.state_class">'
     + '  <div class="row">'
     + '    <div class="col-md-6" v-on:click="toggleJobDetails()">'
     + '      <span class="badge badge-secondary">{{ job.id }}</span> {{ job.name }} ({{ workerInfo.host }})</a>'
@@ -302,23 +306,23 @@ Vue.component('job-history-card',{
     + '      <comments-link v-bind:job="job" ref="commentsLink"></comments-link>'
     + '    </div>'
     + '  </div>'
-    + '</div>'
-    + '<task-list v-show="showTaskList" ref="tasklist" v-bind:workerinfo="workerInfo" v-bind:subtasks="subtasks"></task-list>'
-    + '  <b-modal ref="modalComment" hide-footer title="Comments for Job">'
-    + '    <div>'
-    + '      <single-job-comment v-for="cmt in job.comments" v-bind:key="cmt.id" v-bind:comment="cmt">'
-    + '      </single-job-comment>'
-    + '    </div>'
-    + '    <div>'
-    + '      New Comment:'
-    + '      <textarea v-model="comment" rows="2" style="width: 100%"></textarea>'
-    + '    </div>'
-    + '    <div class="modal-footer">'
-    + '      <button type="button" class="btn btn-success" v-on:click="createJobComment(job.id)">Add Comment</button>'
-    + '      <button type="button" class="btn btn-secondary" v-on:click="closeModal()" aria-label="Close">Close</button>'
-    + '    </div>'
-    + '  </b-modal>'
-    + '<pwrand-modal v-bind:job="job" ref="modalPwRand"></pwrand-modal>'
+    + ' </div>'
+    + ' <task-list v-show="showTaskList" ref="tasklist" v-bind:workerinfo="workerInfo" v-bind:subtasks="subtasks"></task-list>'
+    + ' <b-modal ref="modalComment" hide-footer title="Comments for Job">'
+    + '  <div>'
+    + '   <single-job-comment v-for="cmt in job.comments" v-bind:key="cmt.id" v-bind:comment="cmt">'
+    + '   </single-job-comment>'
+    + '  </div>'
+    + '  <div>'
+    + '   New Comment:'
+    + '   <textarea v-model="comment" rows="2" style="width: 100%"></textarea>'
+    + '  </div>'
+    + '  <div class="modal-footer">'
+    + '   <button type="button" class="btn btn-success" v-on:click="createJobComment(job.id)">Add Comment</button>'
+    + '   <button type="button" class="btn btn-secondary" v-on:click="closeModal()" aria-label="Close">Close</button>'
+    + '  </div>'
+    + ' </b-modal>'
+    + ' <pwrand-modal v-bind:job="job" ref="modalPwRand"></pwrand-modal>'
     + '</div>'
 });
 

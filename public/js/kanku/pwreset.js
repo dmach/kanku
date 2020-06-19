@@ -12,13 +12,14 @@ const pwResetPage = {
       }
     }
   },
-  template:'<form>'
-    + '  <h1>Request a password reset code</h1>'
-    + '  <h2 class="form-signin-heading">Please enter your username:</h2>'
-    + '  <label for="pwuser" class="sr-only">Username</label>'
-    + '  <input id="pwuser" class="form-control" placeholder="Username" required autofocus>'
-    + '  <strong>Please check your emails and reset your password</strong>'
-    + '  <button class="btn btn-lg btn-success btn-block" @click="sendPWResetRequest">Submit</button>'
+  template:''
+    + '<form>'
+    + ' <h1>Request a password reset code</h1>'
+    + ' <h2 class="form-signin-heading">Please enter your username:</h2>'
+    + ' <label for="pwuser" class="sr-only">Username</label>'
+    + ' <input id="pwuser" class="form-control" placeholder="Username" required autofocus>'
+    + ' <strong>Please check your emails and reset your password</strong>'
+    + ' <button class="btn btn-lg btn-success btn-block" @click="sendPWResetRequest">Submit</button>'
     + '</form>'
 };
 
@@ -48,12 +49,13 @@ const pwSetPage = {
       }
     }
   },
-  template:'<div class="form-signin">'
-    + '  <input id="code" type="hidden" :value="code">'
-    + '  <label for="password" class="sr-only">Password</label>'
-    + '  <input type=password :value="password" id="set_password" class="form-control" placeholder="Enter your password" required autofocus>'
-    + '  <label for="repeat_password" class="sr-only">Repeat Password</label>'
-    + '  <input type=password :value="repeat_password" id="set_repeat_password" class="form-control" placeholder="Enter your password again" required>'
-    + '  <button class="btn btn-lg btn-success btn-block" @click="sendPWResetRequest">Submit</button>'
+  template: ''
+    + '<div class="form-signin">'
+    + ' <input id="code" type="hidden" :value="code">'
+    + ' <label for="password" class="sr-only">Password</label>'
+    + ' <input type=password :value="password" id="set_password" class="form-control" placeholder="Enter your password" required autofocus>'
+    + ' <label for="repeat_password" class="sr-only">Repeat Password</label>'
+    + ' <input type=password :value="repeat_password" id="set_repeat_password" class="form-control" placeholder="Enter your password again" required>'
+    + ' <button class="btn btn-lg btn-success btn-block" @click="sendPWResetRequest">Submit</button>'
     + '</div>'
 };

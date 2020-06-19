@@ -195,10 +195,11 @@ Vue.component('filter-checkbox', {
       this.$root.$emit('updated-filters', this.checked);
     }
   }, 
-  template: ' <div class="col-lg-1">'
-    + '  <span class="input-group-addon">'
-    + '   <input type=checkbox class="filter_checkbox" :value="value" v-model="checked" v-on:click="updateValues" :aria-label="label" :id="elem_id">'
-    + '  </span>'
+  template: ''
+    + '<div class="col-lg-1">'
+    + ' <span class="input-group-addon">'
+    + '  <input type=checkbox class="filter_checkbox" :value="value" v-model="checked" v-on:click="updateValues" :aria-label="label" :id="elem_id">'
+    + ' </span>'
     + ' </div>'
 });
 
@@ -214,16 +215,18 @@ Vue.component('header-checkbox', {
       this.$root.$emit('updated-filters');
     }
   }, 
-  template: ' <div class="col-lg-1 text-center">'
-    + '   <input type=checkbox class="filter_checkbox" :value="value" v-model="checked" v-on:click="updateValues" :id="elem_id">'
-    + ' </div>'
+  template: ''
+    + '<div class="col-lg-1 text-center">'
+    + ' <input type=checkbox class="filter_checkbox" :value="value" v-model="checked" v-on:click="updateValues" :id="elem_id">'
+    + '</div>'
 });
 
 Vue.component('group-description', {
   props: ['name'],
-  template: '<div class="col-lg-5">'
-    + '  <span class="form-control"><strong>{{ name }}</strong></span>'
-    + ' </div>'
+  template: ''
+    + '<div class="col-lg-5">'
+    + ' <span class="form-control"><strong>{{ name }}</strong></span>'
+    + '</div>'
 });
 
 Vue.component('filter-header', {
@@ -252,7 +255,8 @@ Vue.component('admin-filters',{
   data: function(){
     return { fd: this.form_data };
   },
-  template:   '<div class="card event-card">'
+  template: ''
+    + '<div class="card event-card">'
     + ' <filter-header name="User Events" v-bind:value="fd.enable" :elem_id="prefix+\'-enable\'"></filter-header>'
     + ' <div class="card-body">'
     + '     <h6>Event Types:</h6>'
@@ -269,7 +273,8 @@ Vue.component('admin-filters',{
 
 Vue.component('daemon-filters',{
   props: ['form_data', 'prefix'],
-  template:   '<div class="card event-card">'
+  template: ''
+    + '<div class="card event-card">'
     + ' <filter-header name="Daemon Events" v-bind:value="form_data.enable" :elem_id="prefix+\'-enable\'"></filter-header>'
     + ' <div class="card-body">'
     + '     <h6>Event Types:</h6>'
@@ -379,7 +384,8 @@ const notifyPage = {
       });
     }
   },
-  template: '<div>'
+  template: ''
+    + '<div>'
     + ' <header-jumbotron></header-jumbotron>'
     + ' <form> '
     + ' <div v-if="user_id">'

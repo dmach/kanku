@@ -19,13 +19,13 @@ Vue.component('limit-select',{
 
 Vue.component('search-tooltip-job_history',{
   template: ''
-    + '       <span class="badge badge-primary" style="padding: 0.6rem;" data-toggle="tooltip" data-placement="bottom" '
-    + '         title="<strong>Search by job_name:</strong><br>Use &apos;%&apos; as wildcard<br>'
-    + '                <strong>Supported fields:</strong><br>id, state, name, worker<br>'
-    + '                <strong>Supported Values:</strong><br>comma separated lists (except worker)<br>'
-    + '                <strong>Examples:<br></strong>&apos;id:1,2&apos;, &apos;state:running&apos;, &apos;name=obs-server,kanku-devel&apos;, &apos;obs-server%&apos;">'
-    + '         <i class="fas fa-question-circle fa-2x" ></i>'
-    + '       </span>'
+    + '<span class="badge badge-primary" style="padding: 0.6rem;" data-toggle="tooltip" data-placement="bottom" '
+    + ' title="<strong>Search by job_name:</strong><br>Use &apos;%&apos; as wildcard<br>'
+    + '        <strong>Supported fields:</strong><br>id, state, name, worker<br>'
+    + '        <strong>Supported Values:</strong><br>comma separated lists (except worker)<br>'
+    + '        <strong>Examples:<br></strong>&apos;id:1,2&apos;, &apos;state:running&apos;, &apos;name=obs-server,kanku-devel&apos;, &apos;obs-server%&apos;">'
+    + ' <i class="fas fa-question-circle fa-2x" ></i>'
+    + '</span>'
 });
 
 Vue.component('job-state-checkbox',{
@@ -43,12 +43,12 @@ Vue.component('job-state-checkbox',{
     },
   },
   template: ''
-    + '    <div class="col col-md-3">'
-    + '      <h5>'
-    + '        <input type="checkbox" name="state" v-model="job_states" v-bind:value="name" class="cb_state" v-on:change="updateJobSearch" >'
-    + '        <span v-bind:class="state_class">{{ name }}</span>'
-    + '      </h5>'
-    + '    </div>'
+    + '<div class="col col-md-3">'
+    + ' <h5>'
+    + '  <input type="checkbox" name="state" v-model="job_states" v-bind:value="name" class="cb_state" v-on:change="updateJobSearch" >'
+    + '  <span v-bind:class="state_class">{{ name }}</span>'
+    + ' </h5>'
+    + '</div>'
 });
 
 Vue.component('show-only-latest-results',{
@@ -60,15 +60,16 @@ Vue.component('show-only-latest-results',{
     },
   },
   template: ''
-    + '    <div class="col col-md-3">'
-    + '        Show only latest results'
-    + '        <input type="checkbox" name="show_only_latest_results" v-on:change="updateJobSearch" style="margin:7px" >'
-    + '    </div>'
+    + '<div class="col col-md-3">'
+    + ' Show only latest results'
+    + ' <input type="checkbox" name="show_only_latest_results" v-on:change="updateJobSearch" style="margin:7px" >'
+    + '</div>'
 });
 
 Vue.component('job-history-list',{
   props: ['jobs', 'is_admin'],
-  template: '<div>'
+  template: ''
+    + '<div>'
     + ' <job-history-card v-for="job in jobs" :key="job.id" :job="job" :is_admin="is_admin"></job-history-card>'
     + '</div>'
 });
@@ -101,7 +102,8 @@ Vue.component('paginator', {
     pb_classes: function() { return (this.page > 1) ? ['page-item'] : ['page-item', 'disabled'] },
     nb_classes: function() { return (this.total_pages > this.page) ? ['page-item'] : ['page-item', 'disabled'] },
   },
-  template: '<nav aria-label="Pagination">'
+  template: ''
+    + '<nav aria-label="Pagination">'
     + '  <ul class="pagination">'
     + '    <li class="page-item">'
     + '      <span class="page-link" @click="firstpage()">First</span>'
@@ -198,7 +200,8 @@ const jobHistoryPage = {
       $('[data-toggle="tooltip"]').tooltip({html:true})
     });
   },
-  template: '<div>'
+  template: ''
+    + '<div>'
     + '  <head-line text="Job History"></head-line>'
     + '  <div class="row top_pager">'
     + '    <job-state-checkbox name="succeed"     state_class="badge badge-success" @updateJobHistoryPage="refreshPage"></job-state-checkbox>'
@@ -232,7 +235,7 @@ const jobHistoryPage = {
     + '  <div class="col-md-4">'
     + '   <paginator :page="page" :total_pages="total_pages" @updateJobHistoryPage="refreshPage"></paginator>'
     + '  </div>'
-    + '  <div class="col-md-4"></div>'
-    + '</div>'
+    + '  <div class="col-md-4">'
+    + '  </div>'
     + '</div>'
 };

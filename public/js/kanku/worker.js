@@ -1,6 +1,7 @@
 Vue.component('worker-card',{
   props: ['worker'],
-  template: '<div class="card worker_card">'
+  template:  ''
+    + '<div class="card worker_card">'
     + '  <div :class="worker.header_class">'
     + '    <div class="row">'
     + '      <div class="col-md-12">'

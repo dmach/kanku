@@ -1,6 +1,7 @@
 Vue.component('iface-line', {
   props: ['data'],
-  template: '<div>'
+  template: ''
+    + '<div>'
     + ' <div class="badge badge-primary">{{ data.name }}</div>'
     + ' <div class="badge badge-primary">{{ data.hwaddr }}</div>'
     + ' <div class="badge badge-primary"><!-- placeholder for next line --></div>'
@@ -17,7 +18,8 @@ Vue.component('port-card',{
         }
     }
   },
-  template: '<div>'
+  template: ''
+    + '<div>'
     + '  <div v-if="data[1] === \'ssh\'">'
     + '   <pre>ssh -l root -p {{ port }} -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null {{ ipaddr }}</pre>'
     + '  </div>'
@@ -30,7 +32,10 @@ Vue.component('port-card',{
 
 Vue.component('ipaddr-card', {
   props: ['ipaddr', 'ports'],
-  template: '<div><port-card v-for="(data,port) in ports" v-bind:key="port" v-bind:data="data" v-bind:port="port" v-bind:ipaddr="ipaddr"></port-card></div>'
+  template: ''
+    + '<div>'
+    + ' <port-card v-for="(data,port) in ports" v-bind:key="port" v-bind:data="data" v-bind:port="port" v-bind:ipaddr="ipaddr"></port-card>'
+    + '</div>'
 });
 
 Vue.component('guest-card', {
@@ -74,7 +79,8 @@ Vue.component('guest-card', {
       return false;
     }
   },
-  template: '<div class="card guest-card">'
+  template: ''
+    + '<div class="card guest-card">'
     + ' <div :class="header_classes" v-on:click="toggleDetails()">'
     + '  <div class="row">'
     + '   <div class="col-md-10">'
@@ -142,16 +148,17 @@ const guestPage = {
       $('[data-toggle="tooltip"]').tooltip({html:true})
     });
   },
-  template: '<div>'
-   + ' <head-line text="Guest"></head-line>'
-   + '  <div class="row top_pager">'
-   + '    <search-field @search-term-change="refreshPage" :filter="filter" comment="Enter search term - SEE Tooltips for details"></search-field>'
-   + '    <div class="col-md-8">'
-   + '    <search-tooltip-guest></search-tooltip-guest>'
-   + '      <refresh-button @refreshPage="refreshPage"></refresh-button>'
-   + '    </div>'
-   + '  </div>'
-   + '  <spinner></spinner>'
-   + '  <guest-card v-for="guest in sortedGuests()" :show_details="show_details" :key="guest" :data="guest_list[guest]" :is_admin="is_admin"></guest-card>'
-   + '</div>'
+  template: ''
+    + '<div>'
+    + ' <head-line text="Guest"></head-line>'
+    + '  <div class="row top_pager">'
+    + '    <search-field @search-term-change="refreshPage" :filter="filter" comment="Enter search term - SEE Tooltips for details"></search-field>'
+    + '    <div class="col-md-8">'
+    + '    <search-tooltip-guest></search-tooltip-guest>'
+    + '      <refresh-button @refreshPage="refreshPage"></refresh-button>'
+    + '    </div>'
+    + '  </div>'
+    + '  <spinner></spinner>'
+    + '  <guest-card v-for="guest in sortedGuests()" :show_details="show_details" :key="guest" :data="guest_list[guest]" :is_admin="is_admin"></guest-card>'
+    + '</div>'
 };
