@@ -70,10 +70,10 @@ Vue.component('show-only-latest-results',{
 });
 
 Vue.component('job-history-list',{
-  props: ['jobs', 'is_admin'],
+  props: ['jobs', 'is_admin', 'show_comments'],
   template: ''
     + '<div>'
-    + ' <job-history-card v-for="job in jobs" :key="job.id" :job="job" :is_admin="is_admin"></job-history-card>'
+    + ' <job-history-card v-for="job in jobs" :key="job.id" :job="job" :is_admin="is_admin" :show_comments="show_comments"></job-history-card>'
     + '</div>'
 });
 
@@ -151,6 +151,9 @@ const jobHistoryPage = {
       this: this,
       total_pages: 1,
     };
+  },
+  computed: {
+    show_comments: function() {return this.$parent.show_comments },
   },
   created() {
     this.$root.$on('toggle_state', state => {
@@ -231,14 +234,14 @@ const jobHistoryPage = {
     + '  <div>'
     + '   <job-history-header></job-history-header>'
     + '   <spinner></spinner>'
-    + '   <job-history-list :jobs="jobs" :is_admin="is_admin"></job-history-list>'
+    + '   <job-history-list :jobs="jobs" :is_admin="is_admin" :show_comments="show_comments"></job-history-list>'
     + '  </div>'
     + '  <div id=bottom_pager class=row>'
-    + '  <div class="col-md-4"></div>'
-    + '  <div class="col-md-4">'
-    + '   <paginator :page="page" :total_pages="total_pages" @updateJobHistoryPage="refreshPage"></paginator>'
-    + '  </div>'
-    + '  <div class="col-md-4">'
+    + '   <div class="col-md-4"></div>'
+    + '   <div class="col-md-4">'
+    + '    <paginator :page="page" :total_pages="total_pages" @updateJobHistoryPage="refreshPage"></paginator>'
+    + '   </div>'
+    + '   <div class="col-md-4"></div>'
     + '  </div>'
     + '</div>'
 };

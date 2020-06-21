@@ -76,6 +76,21 @@ var app = new Vue({
       if (this.logged_in_user) { return this.logged_in_user.id };
       return 0;
     },
+    show_comments: function() {
+      var liu = this.logged_in_user;
+      var  sc = false;
+      if (liu == undefined) {
+        return false;
+      }
+      if (liu.role_id == undefined) {
+        return false;
+      }
+      $.each(Object.keys(liu.role_id), function(idx, key){
+        if (key == 'Admin' && liu.role_id[key] == '1') { sc = true }
+        if (key == 'User' && liu.role_id[key] == '1')  {  sc = true }
+      });
+      return sc;
+    },
   },
   methods: {
     refreshUserInfo: function() {
@@ -97,7 +112,7 @@ var app = new Vue({
     + ' <navigation :user_id="user_id" :user_label="user_label" :roles="roles" :active_roles="active_roles" :request_path="request_path" :is_admin="is_admin" @user-state-changed="refreshUserInfo" @changed-is-admin="toogleIsAdmin"></navigation>'
     + ' <message-box-placeholder></message-box-placeholder>'
     + ' <div id="content" class="container">'
-    + ' <router-view :user_id="user_id" :is_admin="is_admin" @user-state-changed="refreshUserInfo"></router-view>'
+    + ' <router-view :user_id="user_id" :is_admin="is_admin" :show_comments="show_comments" @user-state-changed="refreshUserInfo"></router-view>'
     + ' <!-- content goes here -->'
     + ' </div>'
     + '</div>'

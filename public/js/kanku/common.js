@@ -211,18 +211,13 @@ Vue.component('task-list',{
 });
 
 Vue.component('job-history-card',{
-  props: ['job', 'is_admin'],
+  props: ['job', 'is_admin', 'show_comments'],
   data: function () {
-    var show_comments     = false;
-    if (active_roles['Admin'] || active_roles['User']) {
-      show_comments = true
-    }
     return {
       showTaskList:        0,
       uri_base:            uri_base,
       comment: '',
       subtasks: [],
-      show_comments: show_comments,
     }
   },
   computed: {
@@ -242,6 +237,9 @@ Vue.component('job-history-card',{
       if (this.is_admin && this.job.pwrand && this.job.pwrand !='{}') { return true }
       return false;
     },
+/*
+    show_comments: function() { return (active_roles['Admin'] || active_roles['User']) },
+*/
   },
   methods: {
     toggleJobDetails: function() {
@@ -303,7 +301,7 @@ Vue.component('job-history-card',{
     + '      <console-log-link v-bind:loglink="workerInfo.loglink"></console-log-link>'
     + '      <job-details-link v-bind:id="job.id"></job-details-link>'
     + '      <pwrand-link v-show="show_pwrand" :job_id="job.id"></pwrand-link>'
-    + '      <comments-link v-bind:job="job" ref="commentsLink"></comments-link>'
+    + '      <comments-link v-show="show_comments" :job="job" ref="commentsLink"></comments-link>'
     + '    </div>'
     + '  </div>'
     + ' </div>'
