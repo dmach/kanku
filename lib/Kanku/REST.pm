@@ -194,9 +194,8 @@ post '/login.:format' => sub {
       schema  => schema,
     );
     debug "Session auth_token: ".$ws_session->auth_token;
- 
 
-    return { 
+    return {
      authenticated  => 1,
      kanku_notify_session => $ws_session->auth_token,
      logged_in_user => userinfo(),
@@ -211,7 +210,7 @@ post '/logout.:format' => require_login sub {
     my $uid    = userinfo()->{id},
     my $token  = params->{kanku_notify_session};
     my $result = app->destroy_session;
-    if ($token) { 
+    if ($token) {
       my $ws_session = Kanku::WebSocket::Session->new(
 	user_id => $uid,
 	schema  => schema,
@@ -301,13 +300,27 @@ post '/signup.:format' => sub {
   my $username = params->{username};
   my $email    = params->{email};
 
+  if (get_user_details($username)) {
+    return {state => 'danger', msg => 'Signup failed! User already exists.'};
+  }
+
+  # Taken from https://perlmaven.com/email-validation-using-regular-expression-in-perl
+  my $user     = qr/[a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?/;
+  my $domain   = qr/[a-z0-9.-]+/;
+  my $regex = $email =~ /^$user\@$domain$/;
+
+  if (!$regex) {
+    return {state => 'danger', msg => 'Signup failed! Email address invalid.'};
+  }
+
+
   # email_welcome_send
   my $res = create_user username => $username, email => $email, email_welcome => 1, name => $fullname;
 
   if (defined $res) {
     return {state => 'success', msg => 'Signup succeed. Please check your emails and set your password!'};
   } else {
-    return {state => 'danger', msg => 'Signup failed'};
+    return {state => 'danger', msg => 'Signup failed! Reason unknown.'};
   }
 };
 
