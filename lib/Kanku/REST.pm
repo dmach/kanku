@@ -334,6 +334,26 @@ post '/setpass.:format' => sub {
   }
 };
 
+sub reset_text_handler {
+    my ($dsl, %params) = @_;
+    my $site       = $dsl->app->request->base;
+    my $reset_link = $site . "/#/login?code=$params{code}";
+    $reset_link =~ s#([^:])//+#$1/#;
+    $reset_link =~ s#rest/##;
+
+    return (
+        from    => $dsl->config->{mail_from},
+        subject => "Password reset request",
+        plain   => "
+A request has been received to reset your password for Kanku. If
+you would like to do so, please follow the link below:
+
+$reset_link
+
+",
+    );
+}
+
 __PACKAGE__->meta->make_immutable();
 
 1;

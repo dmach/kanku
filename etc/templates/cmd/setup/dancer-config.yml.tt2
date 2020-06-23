@@ -70,3 +70,4 @@ plugins:
       options:
         via: sendmail
     mail_from: Kanku Dai <fschreiner@suse.de>
+    password_reset_text: Kanku::REST::reset_text_handler
