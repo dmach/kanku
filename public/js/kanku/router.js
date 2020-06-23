@@ -18,23 +18,9 @@ const router = new VueRouter({
   routes // short for `routes: routes`
 });
 
-const store = new Vuex.Store({
-  state: {
-    job_page: {
-      search_term: ''
-    }
-  },
-  mutations: {
-    set_search_term (job_page, value) {
-      job_page.search_term = value;
-    }
-  }
-});
-
 var app = new Vue({
   el: '#vue_app',
   router,
-  store,
   props: ['sock'],
   data: {
     logged_in_user: logged_in_user,
