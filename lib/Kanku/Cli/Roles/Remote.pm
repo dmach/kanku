@@ -64,6 +64,13 @@ option 'keyring' => (
   documentation => 'Name of keyring backend (KDEWallet/Gnome/Memory)',
 );
 
+option 'as_admin' => (
+  isa           => 'Bool',
+  is            => 'rw',
+  cmd_aliases   => 'aa',
+  documentation => 'execute remote command as admin',
+);
+
 has settings => (
   isa           => 'HashRef',
   is            => 'rw',

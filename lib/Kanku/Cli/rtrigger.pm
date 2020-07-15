@@ -63,14 +63,18 @@ sub run {
     } catch {
       exit 1;
     };
-
-    my $data = $kr->post_json(
+    my $json = JSON::XS->new();
+    my $data = {
+      data     => $self->config || [],
+      is_admin => $self->as_admin,
+    };
+    my $rdata = $kr->post_json(
       # path is only subpath, rest is added by post_json
       path => 'job/trigger/'.$self->job,
-      data => $self->config || '[]'
+      data => $json->encode($data),
     );
 
-    $self->view('rtrigger.tt', $data);
+    $self->view('rtrigger.tt', $rdata);
   } else {
 	$logger->error('You must at least specify a job name to trigger');
   }
