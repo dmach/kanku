@@ -99,6 +99,7 @@ var app = new Vue({
 	    $('#back-to-top').show();
 	} else {
 	    $('#back-to-top').hide();
+	    $('#back-to-top').tooltip('hide');
 	}
     });
   },
@@ -109,7 +110,7 @@ var app = new Vue({
     + ' <div id="content" class="container">'
     + ' <router-view :user_id="user_id" :is_admin="is_admin" :show_comments="show_comments" @user-state-changed="refreshUserInfo"></router-view>'
     + ' <!-- content goes here -->'
-    + ' <to-top-button><to-top-button/>'
+    + ' <to-top-button></to-top-button>'
     + ' </div>'
     + '</div>'
 });
