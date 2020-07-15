@@ -52,13 +52,17 @@ Vue.component('job-state-checkbox',{
 });
 
 Vue.component('show-only-latest-results',{
-  props: ['show_only_latest_results'],
+  //props: ['show_only_latest_results'],
+  data: function() {
+    return { show_only_latest_results : this.$route.query.show_only_latest_results };
+  },
   methods: {
     updateJobSearch: function() {
       this.$root.$emit('toggle_show_only_latest_results');
       var q2 = this.$route.query || {};
       var q  = {...q2, show_only_latest_results: this.show_only_latest_results};
-      this.$router.push({ path: this.$router.currentPath, query: q});
+//      console.log(this.$router.currentPath);
+      this.$router.push({ name: 'job_history', params: {page: 1}, query: q});
       this.$emit('updateJobHistoryPage');
     },
   },
@@ -82,22 +86,22 @@ Vue.component('paginator', {
   methods: {
     nextpage: function() {
       this.$parent.page++;
-      router.push({name: 'job_history', params: { page: this.$parent.page}});
+      router.push({name: 'job_history', params: { page: this.$parent.page}, query: this.$route.query});
       this.$emit('updateJobHistoryPage');
     },
     prevpage: function() {
       this.$parent.page--;
-      router.push({name: 'job_history', params: { page: this.$parent.page}});
+      router.push({name: 'job_history', params: { page: this.$parent.page}, query: this.$route.query});
       this.$emit('updateJobHistoryPage');
     },
     firstpage: function() {
       this.$parent.page = 1;
-      router.push({name: 'job_history', params: { page: this.$parent.page}});
+      router.push({name: 'job_history', params: { page: this.$parent.page}, query: this.$route.query});
       this.$emit('updateJobHistoryPage');
     },
     lastpage: function() {
       this.$parent.page = this.total_pages;
-      router.push({name: 'job_history', params: { page: this.$parent.page}});
+      router.push({name: 'job_history', params: { page: this.$parent.page}, query: this.$route.query});
       this.$emit('updateJobHistoryPage');
     }
   },
@@ -168,6 +172,7 @@ const jobHistoryPage = {
       $('#spinner').show();
       var url    = uri_base + "/rest/jobs/list.json";
       var self   = this;
+      self.page  = this.$route.params.page;
       this.jobs  = {};
       var params = {};
       var params = new URLSearchParams();
