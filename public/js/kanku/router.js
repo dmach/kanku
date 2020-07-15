@@ -93,6 +93,15 @@ var app = new Vue({
        this.is_admin = !this.is_admin;
     },
   },
+  created: function() {
+     $(window).scroll(function () {
+	if ($(this).scrollTop() > 50) {
+	    $('#back-to-top').show();
+	} else {
+	    $('#back-to-top').hide();
+	}
+    });
+  },
   template: ''
     + '<div>'
     + ' <navigation :user_id="user_id" :user_label="user_label" :roles="roles" :active_roles="active_roles" :request_path="request_path" :is_admin="is_admin" @user-state-changed="refreshUserInfo" @changed-is-admin="toogleIsAdmin"></navigation>'
@@ -100,6 +109,7 @@ var app = new Vue({
     + ' <div id="content" class="container">'
     + ' <router-view :user_id="user_id" :is_admin="is_admin" :show_comments="show_comments" @user-state-changed="refreshUserInfo"></router-view>'
     + ' <!-- content goes here -->'
+    + ' <to-top-button><to-top-button/>'
     + ' </div>'
     + '</div>'
 });

@@ -122,3 +122,10 @@ pre {
 .task_card {
   margin-bottom: 5px;
 }
+
+.back-to-top {
+    cursor: pointer;
+    position: sticky;
+    bottom: 20px;
+    display:none;
+}

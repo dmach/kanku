@@ -77,6 +77,21 @@ Vue.component('spinner',{
     + '    </div>'
 });
 
+Vue.component('to-top-button',{
+  methods: {
+    toTop: function() {
+      $('body,html').scrollTop(0);
+      this.$emit('refreshPage');
+    }
+  },
+  template: ''
+    + '<transition name="fade">'
+    + ' <a id="back-to-top" href="#" class="back-to-top float-right" role="button" title="Click to return on the top page" data-toggle="tooltip" data-placement="left" @click="toTop">'
+    + '  <span class="fa fa-arrow-circle-up fa-3x"></span>'
+    + ' </a>'
+    + '</transition>'
+});
+
 Vue.component('message-box',{
   props: ['message_bar'],
   template: ''
