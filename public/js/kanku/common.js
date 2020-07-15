@@ -81,7 +81,6 @@ Vue.component('to-top-button',{
   methods: {
     toTop: function() {
       $('body,html').scrollTop(0);
-      this.$emit('refreshPage');
     }
   },
   template: ''
