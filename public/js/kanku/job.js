@@ -148,10 +148,11 @@ const jobPage = {
     };
   },
   methods: {
-    updatePage: function() {
+    refreshPage: function() {
       var url    = uri_base + "/rest/gui_config/job.json";
       var self   = this;
       var params = { filter: this.filter};
+      self.jobs  = [];
       $('#spinner').show();
       axios.get(url, { params: params }).then(function(response) {
 	self.jobs = response.data.config;
@@ -186,15 +187,18 @@ const jobPage = {
     }
   },
   mounted: function() {
-      this.updatePage();
+      this.refreshPage();
   },
   template: ''
     + '<div>'
     + ' <div v-if="user_id">'
     + '  <head-line text="Job"></head-line>'
     + '  <div class="row top_pager">'
-    + '   <search-field :filter="filter" @search-term-change="updatePage" comment="Filter Jobs by regex"></search-field>'
-    + '   <div class="btn-group col-md-8">'
+    + '   <search-field :filter="filter" @search-term-change="refreshPage" comment="Filter Jobs by regex"></search-field>'
+    + '   <div class="col-md-6">'
+    + '   </div>'
+    + '   <div class="col-md-2">'
+    + '     <refresh-button @refreshPage="refreshPage"></refresh-button>'
     + '   </div>'
     + '  </div>'
     + '  <div>'
