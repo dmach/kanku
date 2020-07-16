@@ -592,24 +592,29 @@ Vue.component('search-field',{
   },
   methods: {
     updateSearch: function() {
+      if (this.$parent.filter == this.filter) {
+        return;
+      }
       this.$parent.filter = this.filter;
-      var currQ = this.$route.query
+      var currQ = this.$route.query;
       var newQ  = {...currQ, filter: this.filter};
-      this.$router.push({ path: this.$router.currentPath, query: newQ});
+      this.$router.push({ path: this.$router.currentPath, params: this.$route.params, query: newQ});
       this.$emit('search-term-change');
     },
     clearSearch: function() {
-      this.filter = '';
-      this.$parent.filter = this.filter;
-      var currQ = this.$route.query
-      var newQ  = { filter: this.filter, ...currQ };
-      this.$router.push({ path: this.$router.currentPath, query: newQ});
+      if (this.filter == undefined) {
+        return;
+      }
+      this.$parent.filter = this.filter = undefined;
+      var currQ = {...this.$route.query};
+      delete currQ['filter'];
+      this.$router.push({ query: currQ});
       this.$emit('search-term-change');
     }
   },
   template: ''
     + '    <div class="btn-group col-md-4">'
-    + '      <input type="text" v-model="filter" @blur="updateSearch" @keyup.enter="updateSearch" class="form-control" :placeholder="comment">'
+    + '      <input type="text" v-model="filter" @keyup.enter="updateSearch" class="form-control" :placeholder="comment">'
     + '      <span @click="clearSearch()" style="margin-left:-20px;margin-top:10px;">'
     + '          <i class="far fa-times-circle"></i>'
     + '       </span>'
