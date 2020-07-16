@@ -80,7 +80,7 @@ Vue.component('spinner',{
 Vue.component('to-top-button',{
   methods: {
     toTop: function() {
-      $('body,html').scrollTop(0);
+      this.$router.go();
     }
   },
   template: ''
