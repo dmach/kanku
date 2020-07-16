@@ -144,7 +144,7 @@ const jobPage = {
     return {
       jobs: [],
       original_jobs: [],
-      filter: '',
+      filter: this.$route.query.filter,
     };
   },
   methods: {
