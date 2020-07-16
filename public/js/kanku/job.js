@@ -152,7 +152,7 @@ const jobPage = {
       var url    = uri_base + "/rest/gui_config/job.json";
       var self   = this;
       var params = { filter: this.filter};
-
+      $('#spinner').show();
       axios.get(url, { params: params }).then(function(response) {
 	self.jobs = response.data.config;
         if (!self.original_jobs) {
@@ -177,20 +177,16 @@ const jobPage = {
           });
         });
         $.each(Object.keys(errors), function(iter, job) { show_messagebox('danger', errors[job]); });
-        $('#spinner').hide();
       }).catch(function (error) {
         // handle error
         show_messagebox('danger', "URL: " + url + "<br>" +error, timeout=0);
-      }).then(function() {
+      }).then(function () {
         $('#spinner').hide();
       });
     }
   },
   mounted: function() {
       this.updatePage();
-  },
-  updated: function() {
-    $('#spinner').hide();
   },
   template: ''
     + '<div>'
@@ -201,7 +197,9 @@ const jobPage = {
     + '   <div class="btn-group col-md-8">'
     + '   </div>'
     + '  </div>'
+    + '  <div>'
     + '  <spinner></spinner>'
+    + '  </div>'
     + '  <job-card v-for="job in jobs" v-bind:key="job.job_name" v-bind:job="job" :is_admin="is_admin"></job-card>'
     + ' </div>'
     + ' <div v-else>'
