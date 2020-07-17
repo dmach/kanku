@@ -40,7 +40,16 @@ has local_job_queue_name  => (is=>'rw', isa => 'Str');
 has hostname              => (is=>'rw',
                               isa => 'Str',
                               default => sub {
-                                return hostfqdn() || 'localhost';
+                                my $timeout = 300;
+                                while ($timeout > 0) {
+                                  my $hn = hostfqdn();
+                                  return $hn if $hn;
+                                  $timeout--;
+                                  sleep 1;
+                                }
+                                my $msg = "Could not get hostname within $timeout sec";
+                                $_[0]->logger->fatal($msg);
+                                croak("$msg\n");
                               },
 );
 
