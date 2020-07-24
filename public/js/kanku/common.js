@@ -355,7 +355,7 @@ Vue.component('comments-link',{
     }
   },
   template: ''
-    + '<a class="float-right" style="margin-left:5px;" v-on:click="showModal()">'
+    + '<a class="float-right" style="margin-left:5px;" v-on:click="showModal()" data-toggle="tooltip" data-placement="top" title="Comments">'
     + '  <span v-if="comments_length > 0" key="commented"><i class="fas fa-comments"></i></span>'
     + '  <span v-else><i class="far fa-comments" key="uncommented"></i></span>'
     + '</a>'
@@ -363,7 +363,10 @@ Vue.component('comments-link',{
 
 Vue.component('job-details-link',{
   props: ['id'],
-  template: '<router-link class="float-right" style="margin-left:5px;" :to="\'/job_result/\'+id"><i class="fas fa-link"></i></router-link>'
+  template: ''
+    + '<router-link class="float-right" style="margin-left:5px;" :to="\'/job_result/\'+id" data-toggle="tooltip" data-placement="top" title="Link to Result">'
+    + '  <i class="fas fa-link"></i>'
+    + '</router-link>'
 });
 
 Vue.component('pwrand-link',{
@@ -376,12 +379,18 @@ Vue.component('pwrand-link',{
       r1.show();
     },
   },
-  template: '<a class="float-right" style="margin-left:5px;" v-on:click="showModalPwRand()"><i class="fas fa-lock"></i></a>'
+  template: ''
+    + ' <a class="float-right" style="margin-left:5px;" v-on:click="showModalPwRand()" data-toggle="tooltip" data-placement="top" title="Password">'
+    + '  <i class="fas fa-lock"></i>'
+    + ' </a>'
 });
 
 Vue.component('console-log-link',{
   props: ['loglink'],
-  template: '<a class="float-right" style="margin-left:5px;" :href="loglink" target="_blank"><i class="fa fa-file-alt"></i></a>'
+  template: ''
+    + '<a class="float-right" style="margin-left:5px;" :href="loglink" target="_blank" data-toggle="tooltip" data-placement="top" title="Console Log">'
+    + ' <i class="fa fa-file-alt"></i>'
+    + '</a>'
 });
 
 Vue.component('pwrand-modal', {

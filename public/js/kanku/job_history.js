@@ -202,14 +202,15 @@ const jobHistoryPage = {
         })
         .then(function () {
           $('#spinner').hide();
-        });
+	  $(function () {
+	    $('[data-toggle="tooltip"]').tooltip({html:true})
+	  });
+        }
+      );
     }
   },
   mounted: function() {
     this.refreshPage();
-    $(function () {
-      $('[data-toggle="tooltip"]').tooltip({html:true})
-    });
   },
   template: ''
     + '<div>'
