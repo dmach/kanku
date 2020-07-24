@@ -177,6 +177,53 @@ sub trigger {
   return {state => 'success', msg => "Successfully triggered job '$name' with id ".$job->id};
 }
 
+sub retrigger {
+  my ($self) = @_;
+  my $id     = $self->params->{id};
+
+  my $json   = JSON::XS->new();
+  my $body   = $json->decode($self->app->request->body);
+
+  unless ($self->has_role('Admin') && $body->{is_admin}) {
+    return {
+      state => 'failed',
+      msg   => "User is not an Admin. Skipping.",
+    };
+  }
+
+  # search for given job by id
+  my @job = $self->rset('JobHistory')->search({id => $id});
+  if (!@job) {
+    return {
+      state => 'failed',
+      msg   => "Could not find job with id '$id'.",
+    };
+  }
+
+  my $j    = $job[0];
+  my $name = $j->name;
+
+  if ( $name eq 'remove-domain') {
+      return {
+        state => 'warning',
+        msg   => "Skipped re-triggering job remove-domain."
+      };
+  };
+
+  my $jd   = {
+    name          => $name,
+    args          => $j->args,
+    trigger_user  => $self->current_user->{username},
+    state         => 'triggered',
+    creation_time => time(),
+  };
+
+  $self->log('debug', " ----- ARGS: $jd->{args}");
+  my $job = $self->rset('JobHistory')->create($jd);
+
+  return {state => 'success', msg => "Successfully triggered job '$name' with id ".$job->id};
+}
+
 sub config {
   my ($self) = @_;
   my $cfg = Kanku::Config->instance();

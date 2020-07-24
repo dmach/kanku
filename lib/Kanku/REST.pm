@@ -68,6 +68,11 @@ post '/job/trigger/:name.:format' => require_any_role [qw/Admin User/] =>  sub {
   return $jo->trigger;
 };
 
+post '/job/retrigger/:id.:format' => require_any_role [qw/Admin User/] =>  sub {
+  my $jo = Kanku::REST::Job->new(app_opts());
+  return $jo->retrigger;
+};
+
 get '/job/config/:name.:format' => require_any_role [qw/Admin User/] =>  sub {
   my $jo = Kanku::REST::Job->new(app_opts());
   return $jo->config;
