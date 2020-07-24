@@ -43,16 +43,6 @@ with 'Kanku::Roles::ModLoader';
 with 'Kanku::Roles::Daemon';
 with 'Kanku::Roles::Helpers';
 
-has 'max_processes' => (
-  is      => 'rw',
-  isa     => 'Int',
-  lazy    => 1,
-  default => sub {
-    my ($self) = @_;
-    return $self->config->{max_processes} || 2
-  }
-);
-
 has kmq => (is=>'rw',isa=>'Object');
 
 has job => (is=>'rw',isa=>'Object');
@@ -96,6 +86,9 @@ sub run {
   } catch {
     $logger->warn($_);
   };
+
+  my $mp = scalar(@{Kanku::Config->instance->config->{'Kanku::LibVirt::HostList'}||[]}) || 1;
+  $logger->debug("max_processes: $mp\n");
 
   my $pid1 = fork();
   if (!$pid1) {
@@ -165,11 +158,11 @@ sub run {
         push (@child_pids,$pid);
 
         # wait for childs to exit
-        while ( @child_pids >= $self->max_processes ) {
+        while ( @child_pids >= $mp ) {
           @child_pids = grep { waitpid($_,WNOHANG) == 0 } @child_pids;
           last if ( $self->detect_shutdown );
           sleep(1);
-          $logger->trace("ChildPids: (@child_pids) max_processes: ".$self->max_processes."\n");
+          $logger->trace("ChildPids: (@child_pids)\n");
         }
       }
       last if ( $self->detect_shutdown );
