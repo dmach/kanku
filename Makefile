@@ -7,7 +7,7 @@ CONFIG_FILES = \
 	templates/cmd/setup/openssl.cnf.tt2\
 	templates/cmd/setup/dancer-config.yml.tt2\
 	templates/cmd/setup/kanku-config.yml.tt2\
-	templates/cmd/setup/net-default.xml.tt2\
+	templates/cmd/setup/net-kanku-devel.xml.tt2\
 	templates/cmd/setup/net-kanku-ovs.xml.tt2\
         templates/cmd/setup/pool-default.xml\
         templates/cmd/setup/rabbitmq.config.tt2\

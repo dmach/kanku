@@ -195,7 +195,7 @@ sub execute {
   $self->logger->debug("Using memory: '$mem'");
 
   if ( ! $self->network_name ) {
-    $self->network_name($cfg->{'Kanku::Handler::CreateDomain'}->{name} || 'default'),
+    $self->network_name($cfg->{'Kanku::Handler::CreateDomain'}->{name} || 'kanku-devel'),
   }
 
   if ($self->network_bridge) {
@@ -469,12 +469,19 @@ sub _setup_hostname {
     $hostname = $self->domain_name;
     $hostname =~ s/\./-DOT-/g;
   }
+  try {
+    $con->cmd("hostnamectl set-hostname \"$hostname\"");
+  }
+  catch {
+    $self->logger->warn("Setting hostname with hostnamectl failed: '$_'");
+    $self->logger->warn("Trying legacy method to set hostname");
 
-  # set hostname unique to avoid problems with duplicate in dhcp
-  $con->cmd(
-    "echo \"$hostname\" > /etc/hostname",
-    "hostname \"$hostname\"",
-  );
+    # set hostname unique to avoid problems with duplicate in dhcp
+    $con->cmd(
+      "echo \"$hostname\" > /etc/hostname",
+      "hostname \"$hostname\"",
+    );
+  };
 
 }
 

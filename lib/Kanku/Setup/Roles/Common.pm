@@ -85,6 +85,7 @@ has interactive => (
 has dns_domain_name => (
     isa           => 'Str',
     is            => 'rw',
+    default       => 'kanku-devel',
 );
 
 sub _configure_libvirtd_access { ## no critic (Subroutines::ProhibitUnusedPrivateSubroutines)
@@ -243,7 +244,7 @@ sub _create_default_network {    ## no critic (Subroutines::ProhibitUnusedPrivat
   my $logger   = $self->logger;
   my $vmm      = Sys::Virt->new(uri => 'qemu:///system');
   my @networks = $vmm->list_all_networks;
-  my $nn       = ($self->_distributed) ? 'kanku-ovs' : 'default';
+  my $nn       = ($self->_distributed) ? 'kanku-ovs' : 'kanku-devel';
 
   for my $net (@networks) {
     if ($net->get_name eq $nn) {
@@ -291,7 +292,7 @@ EOF
 
   my $rnd = rand $MAX_NETWORK_NUMBER;
   my $sn  = int $rnd;
-  my $xml = $self->_create_config_from_template($ttf, undef, {subnet=>$sn,dns_domain_name=>($dns_domain_name)});
+  my $xml = $self->_create_config_from_template($ttf, undef, {subnet=>$sn, dns_domain_name=>($dns_domain_name)});
   my $net = $vmm->define_network($xml);
   $net->set_autostart(1);
   $net->create();

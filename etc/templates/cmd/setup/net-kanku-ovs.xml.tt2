@@ -3,4 +3,5 @@
   <forward mode='bridge'/>
   <bridge name='kanku-br0'/>
   <virtualport type='openvswitch'/>
+  <domain name="kanku" onlyLocal="yes"/>
 </network>

@@ -1,11 +1,11 @@
 <network>
-  <name>default</name>
+  <name>kanku-devel</name>
+  <domain name="[% dns_domain_name %]" onlyLocal="yes"/>Q
   <forward mode='nat'>
     <nat>
       <port start='1024' end='65535'/>
     </nat>
   </forward>
-  <domain name='[% dns_domain_name %]' localOnly='no'/>
   <ip address='192.168.[% subnet %].1' netmask='255.255.255.0'>
     <dhcp>
       <range start='192.168.[% subnet %].18' end='192.168.[% subnet %].254'/>
