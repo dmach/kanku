@@ -314,6 +314,7 @@ Vue.component('job-history-card',{
     + '      <!-- ACTIONS -->'
     + '      <console-log-link v-bind:loglink="workerInfo.loglink"></console-log-link>'
     + '      <job-details-link v-bind:id="job.id"></job-details-link>'
+    + '      <job-retrigger-link v-show="is_admin" :id="job.id" :is_admin="is_admin"></job-retrigger-link>'
     + '      <pwrand-link v-show="show_pwrand" :job_id="job.id"></pwrand-link>'
     + '      <comments-link v-show="show_comments" :job="job" ref="commentsLink"></comments-link>'
     + '    </div>'
@@ -368,7 +369,22 @@ Vue.component('job-details-link',{
     + '  <i class="fas fa-link"></i>'
     + '</router-link>'
 });
-
+Vue.component('job-retrigger-link',{
+  props: ['id', 'is_admin'],
+  methods: {
+    retriggerJob: function() {
+      var url  = uri_base + "/rest/job/retrigger/" + this.id + ".json";
+      console.log("this url:"+url);
+      axios.post(url, {is_admin: this.is_admin}).then(function(response) {
+        show_messagebox(response.data.state, response.data.msg);
+      });
+    },
+  },
+  template: ''
+    + '<span class="float-right" style="margin-left:5px;" @click="retriggerJob()" data-toggle="tooltip" data-placement="top" title="Retrigger">'
+    + '  <i class="fas fa-sync-alt"></i>'
+    + '</span>'
+});
 Vue.component('pwrand-link',{
   props: ['job_id'],
   methods: {
