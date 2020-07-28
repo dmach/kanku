@@ -715,7 +715,7 @@ __DATA__
     <feature policy='require' name='[% host_feature %]'/>
   </cpu>
   <os>
-    <type arch='x86_64' machine='pc-i440fx-2.3'>hvm</type>
+    <type arch='x86_64' machine='pc'>hvm</type>
   </os>
   <features>
     <acpi/>
