@@ -262,7 +262,6 @@ sub process_template {
       <source dir='".$self->host_dir_9p."'/>
       <target dir='kankushare'/>
       <alias name='fs0'/>
-      <address type='pci' domain='0x0000' bus='0x00' slot='0x06' function='0x0'/>
     </filesystem>
 ";
 
@@ -737,10 +736,9 @@ __DATA__
       <source network='[% domain.network_name %]' bridge='[% domain.network_bridge %]'/>
       <model type='virtio'/>
       <alias name='net0'/>
-      <address type='pci' domain='0x0000' bus='0x00' slot='0x05' function='0x0'/>
     </interface>
     <serial type='pty'>
-      <source path='/dev/pts/8'/>
+      <!-- to be tested <source path='/dev/pts/8'/> -->
       <target port='0'/>
       <alias name='serial0'/>
     </serial>
@@ -748,12 +746,6 @@ __DATA__
       <target type='serial' port='0'/>
       <alias name='serial0'/>
     </console>
-    <memballoon model='virtio'>
-      <alias name='balloon0'/>
-      <address type='pci' domain='0x0000' bus='0x00' slot='0x04' function='0x0'/>
-    </memballoon>
-
 [% domain.hostshare %]
-
   </devices>
 </domain>
