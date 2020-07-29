@@ -251,9 +251,6 @@ Vue.component('job-history-card',{
       if (this.is_admin && this.job.pwrand && this.job.pwrand !='{}') { return true }
       return false;
     },
-/*
-    show_comments: function() { return (active_roles['Admin'] || active_roles['User']) },
-*/
   },
   methods: {
     toggleJobDetails: function() {
@@ -597,15 +594,25 @@ Vue.component('navigation', {
     + '            <li v-if="(active_roles.User || active_roles.Admin)" class="nav-item active"> <router-link class="nav-link" to="/job"         >Job</router-link></li>'
     + '            <li v-if="roles.length > 0" class="nav-item active">            <router-link class="nav-link" to="/notify"      >Notify</router-link></li>'
     + '          </ul>'
-    + '<!-- Default switch -->'
-    + '<div class="custom-control custom-switch float-left" v-if="active_roles.Admin">'
-    + '  <input @change="$emit(\'changed-is-admin\')" type="checkbox" class="custom-control-input" id="customSwitches">'
-    + '  <label class="custom-control-label" for="customSwitches">Admin</label>'
-    + '</div>'
+    + '          <admin-switch v-if="active_roles.Admin" @changed-is-admin="$emit(\'changed-is-admin\')"></admin-switch>'
     + '          <navigation-dropdown :user_id="user_id" :is_admin="is_admin" :user_label="user_label" @logout="logout" @login="login"></navigation-dropdown>'
     + '        </div>'
     + '     </div>'
     + '    </nav>'
+});
+
+Vue.component('admin-switch', {
+  props: ['active_roles'],
+  data: function () {
+    return {
+      is_admin: this.$route.query.is_admin || false,
+    };
+  },
+  template: ''
+    + '<div class="custom-control custom-switch float-left">'
+    + '  <input @change="$emit(\'changed-is-admin\')" v-model="is_admin" type="checkbox" class="custom-control-input" id="adminSwitch">'
+    + '  <label class="custom-control-label" for="adminSwitch">Admin</label>'
+    + '</div>'
 });
 
 Vue.component('search-field',{
