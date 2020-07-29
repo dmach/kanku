@@ -26,7 +26,7 @@ var app = new Vue({
     logged_in_user: logged_in_user,
     request_path:   request_path,
     uri_base:       uri_base,
-    is_admin:       0,
+    is_admin:       false,
   },
   computed: {
     user_label: function() { return (this.logged_in_user && this.logged_in_user.name) ? this.logged_in_user.name : 'Sign In' },
@@ -91,6 +91,14 @@ var app = new Vue({
     },
     toogleIsAdmin: function() {
        this.is_admin = !this.is_admin;
+       var q2 = this.$route.query || {};
+       var q  = {...q2};
+       if (this.is_admin) {
+         q['is_admin'] = true;
+       } else {
+         delete q['is_admin'];
+       }
+       this.$router.push({query: q});
     },
   },
   created: function() {
@@ -102,6 +110,9 @@ var app = new Vue({
 	    $('#back-to-top').tooltip('hide');
 	}
     });
+    if (this.$route.query) {
+      this.is_admin = this.$route.query.is_admin || false;
+    }
   },
   template: ''
     + '<div>'
