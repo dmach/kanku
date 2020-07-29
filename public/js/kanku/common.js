@@ -382,7 +382,7 @@ Vue.component('job-retrigger-link',{
   },
   template: ''
     + '<span class="float-right" style="margin-left:5px;" @click="retriggerJob()" data-toggle="tooltip" data-placement="top" title="Retrigger">'
-    + '  <i class="fas fa-sync-alt"></i>'
+    + '  <i class="fas fa-redo-alt"></i>'
     + '</span>'
 });
 Vue.component('pwrand-link',{
