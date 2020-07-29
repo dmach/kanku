@@ -85,7 +85,7 @@ sub init {
   $exp->expect(
       5,
       [
-        qr/(Press any key to continue.|ISOLINUX)/ => sub {
+        qr/(Press any key to continue.|ISOLINUX|Automatic boot in)/ => sub {
           $logger->debug("Seen bootloader");
           $self->bootloader_seen(1);
           if ($_[0]->match =~ /Press any key to continue./) {
