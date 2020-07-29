@@ -52,7 +52,6 @@ Vue.component('job-state-checkbox',{
 });
 
 Vue.component('show-only-latest-results',{
-  //props: ['show_only_latest_results'],
   data: function() {
     return { show_only_latest_results : this.$route.query.show_only_latest_results };
   },
@@ -60,8 +59,12 @@ Vue.component('show-only-latest-results',{
     updateJobSearch: function() {
       this.$root.$emit('toggle_show_only_latest_results');
       var q2 = this.$route.query || {};
-      var q  = {...q2, show_only_latest_results: this.show_only_latest_results};
-//      console.log(this.$router.currentPath);
+      var q  = {...q2};
+      if (this.show_only_latest_results) {
+        q['show_only_latest_results'] = true;
+      } else {
+        delete q['show_only_latest_results'];
+      }
       this.$router.push({ name: 'job_history', params: {page: 1}, query: q});
       this.$emit('updateJobHistoryPage');
     },
@@ -69,7 +72,7 @@ Vue.component('show-only-latest-results',{
   template: ''
     + '<div class="col col-md-3">'
     + ' Show only latest results'
-    + ' <input type="checkbox" name="show_only_latest_results" @change="updateJobSearch" style="margin:7px" v-model="show_only_latest_results">'
+    + ' <input type="checkbox" name="show_only_latest_results_cb" @change="updateJobSearch" style="margin:7px" v-model="show_only_latest_results">'
     + '</div>'
 });
 
