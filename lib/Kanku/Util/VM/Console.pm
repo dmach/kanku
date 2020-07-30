@@ -85,10 +85,10 @@ sub init {
   $exp->expect(
       5,
       [
-        qr/(Press any key to continue.|ISOLINUX|Automatic boot in)/ => sub {
+        qr/(Press any key to continue.|ISOLINUX|Automatic boot in|The highlighted entry will be executed automatically in)/ => sub {
           $logger->debug("Seen bootloader");
           $self->bootloader_seen(1);
-          if ($_[0]->match =~ /Press any key to continue./) {
+          if ($_[0]->match =~ /(Press any key to continue\.|The highlighted entry will be executed automatically in)/) {
             $self->grub_seen(1);
             $logger->debug("Seen bootloader grub");
           }
