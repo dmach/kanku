@@ -150,6 +150,16 @@ sub login {
         }
       ],
   );
+
+  $exp->expect(
+    10,
+      [ 'Login incorrect' =>
+        sub {
+          croak("Login failed");
+        }
+      ],
+  );
+
   my $hn = $self->short_hostname();
   my $prompt = $self->prompt_regex;
   $exp->expect(
