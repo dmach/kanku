@@ -23,6 +23,7 @@ use Kanku::Config;
 use Path::Class qw/file/;
 use Carp;
 use Time::HiRes qw/usleep/;
+use Sys::Virt;
 
 with 'Kanku::Roles::Logger';
 
@@ -35,6 +36,11 @@ has 'connect_uri' => (is=>'rw', isa=>'Str', default=>'qemu:///system');
 has ['job_id'] => (is=>'rw', isa=>'Int|Undef');
 
 has ['cmd_timeout'] => (is=>'rw', isa=>'Int', default => 600);
+has ['_fh'] => (is=>'rw', isa=>'FileHandle');
+
+sub DESTROY {
+  close($_[0]->_fh) || croak("Error while closing: $!");
+}
 
 sub init {
   my $self = shift;
@@ -44,13 +50,29 @@ sub init {
   my $logger    = $self->logger();
 
 
-  $ENV{"LANG"} = "C";
-  my $command = "virsh";
-  my @parameters = ("-c",$self->connect_uri,"console",$self->domain_name);
+  my $conn = Sys::Virt->new(uri => $self->connect_uri);
+  my @domains = $conn->list_domains();
+  my $xml;
 
-  my $exp = Expect->new;
+  foreach my $dom (@domains) {
+    if ($dom->get_name eq $self->domain_name) {
+      $xml = $dom->get_xml_description();
+      last;
+    }
+  }
+  croak("Could not find domain description for domain '".$self->domain_name."'") unless $xml;
+  my $xxp = XML::XPath->new(xml=>$xml);
+  my @nodes = $xxp->find("/domain/devices/serial/source")->get_nodelist;
+  my $path  = $nodes[0]->getAttribute('path');
+
+
+  open(FH, "+<", $path) || croak("Could not open $path: $!");
+  $self->_fh(\*FH);
+  $logger->debug("Starting expect on $path");
+  my $exp = Expect->exp_init(\*FH);
   $exp->restart_timeout_upon_receive(1);
   $exp->debug($cfg->{$pkg}->{debug} || 0);
+  $exp->log_stdout(1);
 
   if ($cfg->{$pkg}->{log_to_file} && $self->job_id) {
     $logger->debug("Config -> $pkg (log_to_file): $cfg->{$pkg}->{log_to_file}");
@@ -65,8 +87,6 @@ sub init {
   }
 
   $self->_expect_object($exp);
-  $exp->spawn($command, @parameters)
-    or die "Cannot spawn $command: $!\n";
 
   # wait 1 min to get virsh console
   my $timeout = 60;
@@ -74,7 +94,7 @@ sub init {
   $exp->expect(
     $timeout,
       [
-        'Escape character is \^\]' => sub {
+        '.*' => sub {
           $_[0]->clear_accum();
           $self->console_connected(1);
           $logger->debug("Found Console");
