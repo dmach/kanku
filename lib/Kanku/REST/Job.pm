@@ -208,6 +208,20 @@ sub retrigger {
         state => 'warning',
         msg   => "Skipped re-triggering job remove-domain."
       };
+  } else {
+    # search for active jobs
+    my @active = $self->rset('JobHistory')->search({
+      name  => $name,
+      state => {'not in' => [qw/skipped succeed failed/]},
+    });
+
+    if (@active) {
+      return {
+        state => 'warning',
+        msg   => "Skipped triggering job '$name'."
+                 . ' Another job is already running',
+      };
+    }
   };
 
   my $jd   = {
