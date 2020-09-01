@@ -23,11 +23,17 @@ use Data::Dumper;
 use Kanku::YAML;
 use YAML::PP;
 use Try::Tiny;
+use File::HomeDir;
 
 with 'Kanku::Roles::Config::Base';
 
 sub file {
-    return Path::Class::File->new('/etc/kanku/kanku-config.yml');
+  my $home  = File::HomeDir->my_home;
+  my @files = ("$home/.kanku/kanku-config.yml", '/etc/kanku/kanku-config.yml');
+  for my $f (@files) {
+    return Path::Class::File->new($f) if -f $f;
+  }
+  die "No configuration file found (@files)\n";
 }
 
 has config => (
