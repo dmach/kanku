@@ -1,19 +1,14 @@
 ---
-#dispatcher: Kanku::Dispatch::RabbitMQ
-
 views_dir: /usr/share/kanku/views
 log_dir: /var/log/kanku
-cache_dir: /var/cache/kanku
+cache_dir: [% cache_dir %]
 
 Kanku::Util::DoD:
   use_oscrc: 0
 
-[% IF use_publickey %]
-Kanku::Roles::SSH:
-  auth_type: publickey
-  privatekey_path: /etc/kanku/ssh/id_rsa
-  publickey_path: /etc/kanku/ssh/id_rsa.pub
-[% END %]
+Kanku::Cli::init:
+  package: openSUSE-Leap-15.3-JeOS
+  repository: images_leap_15.3
 
 plugins:
   DBIC:
@@ -21,9 +16,35 @@ plugins:
       dsn: dbi:SQLite:dbname=[% db_file %]
       schema_class: Kanku::Schema
 
+Kanku::Util::IPTables:
+  start_port: 49001
+  iptables_chain:       KANKU_HOSTS
+
+Kanku::Util::VM::Console:
+  debug: 0
+#  log_dir: /srv/www/htdocs/kanku-console-logs/
+#  log_to_file: 1
+
 #qemu:
 #  user: qemu
 #  images_dir: /var/lib/libvirt/images
+[% IF distributed %]
+Kanku::Handler::CreateDomain:
+  name:   kanku-ovs
+  bridge: kanku-br0
+  iptables_chain:      KANKU_HOSTS
+[% ELSE %]
+# Kanku::Handler::CreateDomain:
+#   pool: mypool
+[% END %]
+[% IF use_publickey %]
+Kanku::Roles::SSH:
+  auth_type: publickey
+  privatekey_path: /etc/kanku/ssh/id_rsa
+  publickey_path: /etc/kanku/ssh/id_rsa.pub
+[% END %]
+[% IF distributed %]
+dispatcher: Kanku::Dispatch::RabbitMQ
 
 Kanku::LibVirt::HostList:
   -
@@ -56,15 +77,6 @@ Kanku::LibVirt::Network::OpenVSwitch:
   is_gateway:           1
   iptables_chain:       KANKU_HOSTS
 
-Kanku::Util::IPTables:
-  start_port: 49001
-  iptables_chain:       KANKU_HOSTS
-
-Kanku::Util::VM::Console:
-  debug: 0
-#  log_dir: /srv/www/htdocs/kanku-console-logs/
-#  log_to_file: 1
-
 Kanku::Daemon::Scheduler:
   -
     job_name: obs-server
@@ -72,13 +84,6 @@ Kanku::Daemon::Scheduler:
 #  -
 #    job_name: kanku-vm
 #    delay: 86400
-
-[% IF distributed %]
-
-Kanku::Handler::CreateDomain:
-  name:   kanku-ovs
-  bridge: kanku-br0
-  iptables_chain:      KANKU_HOSTS
 
 Kanku::RabbitMQ:
   vhost: [% rabbitmq_vhost %]
@@ -93,7 +98,6 @@ dispatcher: Kanku::Dispatch::RabbitMQ
 Kanku::Dispatch::RabbitMQ:
   max_processes: 2
 
-[% END %]
 
 Kanku::Daemon::TriggerD:
   listener:
@@ -117,3 +121,4 @@ Kanku::Daemon::TriggerD:
 #          arch: x86_64
 #          jobs:
 #            - obs-server
+[% END %]
