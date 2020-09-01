@@ -29,7 +29,9 @@ jobs:
       memory: [% domain_memory %]
       vcpu: [% domain_cpus %]
       use_9p: 1
-      #forward_port_list: tcp:22,tcp:443
+[% IF pool %]
+      pool: [% pool %]
+[% END %]
   -
     use_module: Kanku::Handler::PrepareSSH
 #  -
