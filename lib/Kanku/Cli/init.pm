@@ -123,6 +123,18 @@ option 'output' => (
     default       => 'KankuFile',
 );
 
+option 'pool' => (
+    isa           => 'Str',
+    is            => 'rw',
+    documentation => 'libvirt storage pool',
+    lazy          => 1,
+    default       => sub {
+      Kanku::Config->initialize();
+      my $cfg = Kanku::Config->instance();
+      return $cfg->config->{'Kanku::Handler::CreateDomain'}->{pool} || '';
+   },
+);
+
 sub run {
   my ($self)  = @_;
   my $logger  = Log::Log4perl->get_logger;
@@ -160,6 +172,7 @@ sub run {
         project       => $self->project,
         package       => $self->package,
         repository    => $self->repository,
+        pool          => $self->pool,
   };
 
   my $output = q{};
@@ -170,7 +183,7 @@ sub run {
   $logger->info("$out written");
 
   for my $i (qw{domain_name domain_memory domain_cpus default_job
-                project package repository}) {
+                project package repository pool}) {
     $logger->debug($i.': '.$vars->{$i});
   }
   $logger->info('Now you can make your modifications');
