@@ -26,6 +26,7 @@ with 'Kanku::Cli::Roles::Schema';
 
 use Template;
 use Carp;
+use Kanku::Config;
 
 command_short_description  'create KankuFile in your current working directory';
 
@@ -82,7 +83,12 @@ option 'package' => (
     documentation => 'Package name to search for images in OBSCheck',
     cmd_aliases   => ['pkg'],
     lazy          => 1,
-    default       => 'openSUSE-Leap-15.1-JeOS',
+    default       => sub {
+      Kanku::Config->initialize();
+      my $cfg = Kanku::Config->instance();
+      my $pkg = __PACKAGE__;
+      return $cfg->config->{$pkg}->{package} || 'openSUSE-Leap-15.2-JeOS';
+    },
 );
 
 option 'repository' => (
@@ -91,7 +97,12 @@ option 'repository' => (
     documentation => 'Repository name to search for images in OBSCheck',
     cmd_aliases   => ['repo'],
     lazy          => 1,
-    default       => 'images_leap_15_1',
+    default       => sub {
+      Kanku::Config->initialize();
+      my $cfg = Kanku::Config->instance();
+      my $pkg = __PACKAGE__;
+      return $cfg->config->{$pkg}->{package} || 'images_leap_15_2';
+   },
 );
 
 option 'force' => (
