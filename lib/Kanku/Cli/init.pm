@@ -49,15 +49,6 @@ option 'domain_name' => (
     default       => 'kanku-vm',
 );
 
-option 'qemu_user' => (
-    isa           => 'Str',
-    is            => 'rw',
-    documentation => 'user to run qemu',
-    cmd_aliases   => ['u'],
-    lazy          => 1,
-    default       => $ENV{USER},
-);
-
 option 'memory' => (
     isa           => 'Str',
     is            => 'rw',
@@ -155,7 +146,6 @@ sub run {
         domain_memory => $self->memory,
 	domain_cpus   => $self->vcpu,
 	default_job   => $self->default_job,
-	qemu_user     => $self->qemu_user,
         project       => $self->project,
         package       => $self->package,
         repository    => $self->repository,
@@ -168,7 +158,7 @@ sub run {
 
   $logger->info("$out written");
 
-  for my $i (qw{domain_name domain_memory domain_cpus default_job qemu_user
+  for my $i (qw{domain_name domain_memory domain_cpus default_job
                 project package repository}) {
     $logger->debug($i.': '.$vars->{$i});
   }
