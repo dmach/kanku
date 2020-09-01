@@ -4,7 +4,7 @@ use Moose;
 use Carp;
 use Path::Class qw/dir file/;
 use English qw/-no_match_vars/;
-
+use File::HomeDir;
 with 'Kanku::Setup::Roles::Common';
 with 'Kanku::Roles::Logger';
 
@@ -68,6 +68,21 @@ sub setup {
   $self->_create_default_network;
 
   $self->_setup_nested_kvm;
+  my $home  = File::HomeDir->users_home($self->user);
+  my $gconf = "$home/.kanku/kanku-config.yml";
+
+  $self->_backup_config_file($gconf);
+
+  $self->_create_config_from_template(
+    "kanku-config.yml.tt2",
+    $gconf,
+    {
+       use_publickey  => 0,
+       distributed    => 0,
+       cache_dir      => "$home/.cache/kanku",
+    }
+  );
+
 
   $logger->info('Developer mode setup successfully finished!');
   $logger->info('Please reboot to make sure, libvirtd is coming up properly');

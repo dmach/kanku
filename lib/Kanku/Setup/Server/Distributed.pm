@@ -118,6 +118,7 @@ sub setup {
        rabbitmq_host  => $self->mq_host || 'localhost',
        cacertfile     => $self->cacertfile,
        ovs_ip_prefix  => $self->ovs_ip_prefix,
+       cache_dir      => '/var/cache/kanku',
     }
   );
 
