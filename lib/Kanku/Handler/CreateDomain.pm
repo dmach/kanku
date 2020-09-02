@@ -25,12 +25,12 @@ use Data::Dumper;
 use Session::Token;
 use File::Basename qw/basename/;
 use Carp;
+use File::HomeDir;
 
 use Kanku::Config;
 use Kanku::Util::VM;
 use Kanku::Util::VM::Image;
 use Kanku::Util::IPTables;
-
 
 with 'Kanku::Roles::Handler';
 
@@ -42,8 +42,18 @@ has [qw/
       forward_port_list     images_dir
       short_hostname	    memory
       network_name          network_bridge
-      pool_name
 /] => (is => 'rw',isa=>'Str');
+
+has 'pool_name' => (
+  is     => 'rw',
+  isa    =>'Str',
+  lazy   => 1,
+  default => sub {
+    my $cfg = Kanku::Config->instance->cf;
+    my $pkg = __PACKAGE__;
+    return $cfg->{$pkg}->{pool_name} || 'default';
+  },
+);
 
 has '+memory'         => ( default => 1024*1024 );
 
@@ -248,9 +258,8 @@ sub execute {
       root_disk             => $image,
       root_disk_bus         => $self->root_disk_bus,
       skip_memory_checks    => $self->skip_memory_checks,
+      pool_name             => $self->pool_name,
   );
-
-  $vm->pool_name($self->pool_name) if $self->pool_name;
 
   $vm->host_dir_9p($self->host_dir_9p) if ($self->host_dir_9p);
   $vm->accessmode_9p($self->accessmode_9p) if ($self->accessmode_9p);
@@ -522,9 +531,8 @@ sub _create_image_file_from_cache {
 	vol_name 	=> $vol_name,
 	source_file 	=> $in->stringify,
         final_size      => $size,
+        pool_name       => $self->pool_name,
       );
-
-    $image->pool_name($self->pool_name) if ($self->pool_name);
 
     if ($file_data->{reuse}) {
       $self->logger->info("Uploading '$vol_name' skipped because of reuse flag");
@@ -532,15 +540,16 @@ sub _create_image_file_from_cache {
       $vol = $vm->search_volume(name=>$vol_name);
       die "No volume with name '$vol_name' found" if ! $vol;
     } else {
-      $self->logger->info("Uploading $in via libvirt to $vol_name");
+      $self->logger->info("Uploading $in via libvirt to pool ".$self->pool_name." as $vol_name");
       try {
         $vol = $image->create_volume();
       } catch {
         my $e = $_;
         $self->logger->error("Error while uploading $in to $vol_name");
-        if ($e) {
-          $self->logger->error($e->stringify);
+        if (ref($e)) {
           die $e->stringify;
+        } else {
+          die $e;
         }
       };
     }

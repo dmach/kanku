@@ -55,13 +55,14 @@ has pool => (
   lazy => 1,
   default => sub {
     my $self = shift;
+    my $pn   = $self->pool_name;
     my $vmm = $self->vmm();
     for my $pool ( $vmm->list_all_storage_pools() ) {
-      if ( $self->pool_name eq $pool->get_name ) {
+      if ( $pn eq $pool->get_name ) {
         return $pool
       }
     }
-    return;
+    croak("libvirt storage pool '$pn' not found\n");
   },
 );
 

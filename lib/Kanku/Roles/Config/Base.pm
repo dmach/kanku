@@ -32,6 +32,21 @@ has config => (
   isa     => 'HashRef',
 );
 
+has cf => (
+  is      => 'rw',
+  isa     => 'HashRef',
+  lazy    => 1,
+  default => sub {
+    my ($self) = @_;
+    my $home  = File::HomeDir->my_home;
+    my @files = ("$home/.kanku/kanku-config.yml", '/etc/kanku/kanku-config.yml');
+    for my $f (@files) {
+      return Kanku::YAML::LoadFile($f) if -f $f;
+    }
+    die "No configuration file found (@files)\n";
+  }
+);
+
 has last_modified => (
   is        => 'rw',
   isa       => "Int",

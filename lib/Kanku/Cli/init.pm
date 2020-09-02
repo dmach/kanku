@@ -87,7 +87,7 @@ option 'package' => (
       Kanku::Config->initialize();
       my $cfg = Kanku::Config->instance();
       my $pkg = __PACKAGE__;
-      return $cfg->config->{$pkg}->{package} || 'openSUSE-Leap-15.2-JeOS';
+      return $cfg->cf->{$pkg}->{package} || 'openSUSE-Leap-15.2-JeOS';
     },
 );
 
@@ -101,7 +101,7 @@ option 'repository' => (
       Kanku::Config->initialize();
       my $cfg = Kanku::Config->instance();
       my $pkg = __PACKAGE__;
-      return $cfg->config->{$pkg}->{package} || 'images_leap_15_2';
+      return $cfg->cf->{$pkg}->{package} || 'images_leap_15_2';
    },
 );
 
@@ -131,7 +131,7 @@ option 'pool' => (
     default       => sub {
       Kanku::Config->initialize();
       my $cfg = Kanku::Config->instance();
-      return $cfg->config->{'Kanku::Handler::CreateDomain'}->{pool} || '';
+      return $cfg->cf->{'Kanku::Handler::CreateDomain'}->{pool_name} || '';
    },
 );
 

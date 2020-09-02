@@ -360,7 +360,7 @@ sub create_empty_disks  {
                 vol_name  => $self->domain_name ."-".$disk->{name}.".$fmt",
                 size      => $disk->{size},
                 vmm       => $self->vmm,
-                pool_name => $disk->{pool} || $self->pool_name || 'default',
+                pool_name => $disk->{pool} || $self->pool_name,
                 format    => $fmt,
               );
     my $vol = $img->create_volume();
