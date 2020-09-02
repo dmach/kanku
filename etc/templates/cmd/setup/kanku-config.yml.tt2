@@ -35,7 +35,7 @@ Kanku::Handler::CreateDomain:
   iptables_chain:      KANKU_HOSTS
 [% ELSE %]
 # Kanku::Handler::CreateDomain:
-#   pool: mypool
+#   pool_name: mypool
 [% END %]
 [% IF use_publickey %]
 Kanku::Roles::SSH:

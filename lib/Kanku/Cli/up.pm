@@ -51,6 +51,13 @@ option 'job_name' => (
     documentation => 'job to run',
 );
 
+option 'pool' => (
+    isa           => 'Str',
+    is            => 'rw',
+    cmd_aliases   => 'p',
+    documentation => 'libvirt storage pool to use for images',
+);
+
 option 'skip_all_checks' => (
     isa           => 'Bool',
     is            => 'rw',
@@ -125,6 +132,10 @@ sub run {
         },
   );
   @ARGV=(); ## no critic (Variables::RequireLocalizedPunctuationVars)
+  if ($self->pool) {
+    Kanku::Config->initialize();
+    Kanku::Config->instance->cf->{'Kanku::Handler::CreateDomain'}->{pool_name} = $self->pool;
+  }
   my $dispatch = Kanku::Dispatch::Local->new(schema=>$schema);
   my $result   = $dispatch->run_job($job);
   my $ctx      = $job->context;

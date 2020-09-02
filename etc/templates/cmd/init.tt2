@@ -30,7 +30,11 @@ jobs:
       vcpu: [% domain_cpus %]
       use_9p: 1
 [% IF pool %]
-      pool: [% pool %]
+      # Please be aware that enabling a pool my bind a KankuFile to specific
+      # libvirtd configuration.
+      # KankuFiles containing the pool parameter are not supposed to be commited
+      # into projects SCM's
+      # pool_name: [% pool %]
 [% END %]
   -
     use_module: Kanku::Handler::PrepareSSH
