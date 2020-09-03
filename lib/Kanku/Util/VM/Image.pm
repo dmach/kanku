@@ -247,9 +247,6 @@ sub _copy_volume {
 
   $vol->upload($st, 0, 0);
 
-  my $nbytes = 1024;
-
-
   if ( $f =~ /[.](gz|bz2|xz)$/ ) {
     $self->_extract_and_upload($f, $st);
   } else {
