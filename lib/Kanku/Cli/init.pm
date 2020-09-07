@@ -101,7 +101,7 @@ option 'repository' => (
       Kanku::Config->initialize();
       my $cfg = Kanku::Config->instance();
       my $pkg = __PACKAGE__;
-      return $cfg->cf->{$pkg}->{package} || 'images_leap_15_2';
+      return $cfg->cf->{$pkg}->{repository} || 'images_leap_15_2';
    },
 );
 
