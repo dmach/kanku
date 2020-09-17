@@ -8,7 +8,7 @@ const indexPage = {
     + '<div>'
     + ' <head-line text="Welcome to Kanku"></head-line>'
     + ' <p>'
-    + '  Please visit our <router-link to="/job_history">Job History</router-link> to see the results of the last test runs'
+    + '  Please visit our <router-link to="/job_history/1">Job History</router-link> to see the results of the last test runs'
     + ' </p>'
     + ' <p>'
     + '  In our <router-link to="/guest">Guest Overview</router-link> you can see the currently configured VM`s on this host, '
