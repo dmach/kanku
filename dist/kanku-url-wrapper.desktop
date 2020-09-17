@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Kanku CLI Tool Handler
+GenericName=Kanku CLI Tool
+Comment=Handle URL Scheme kanku://
+Exec=/usr/lib/kanku/kanku-url-wrapper %u
+Terminal=true
+Type=Application
+MimeType=x-scheme-handler/kanku;
+Icon=kanku
+Categories=Development;Building;
+Name[en_US]=Kanku CLI Tool Handler

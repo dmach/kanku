@@ -88,6 +88,8 @@ BuildRequires: perl(Dancer2::Plugin::Auth::Extensible)
 BuildRequires: perl(Net::AMQP::RabbitMQ)
 BuildRequires: perl(UUID)
 BuildRequires: libvirt-daemon
+BuildRequires: desktop-file-utils
+BuildRequires: shared-mime-info
 
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -527,5 +529,35 @@ This package contains the documentation files for kanku
 
 %files doc
 %{_defaultdocdir}/kanku/
+
+%package url-wrapper
+Summary: Url wrapper for kanku:// urls
+Requires: kanku-cli
+Requires: desktop-file-utils
+Requires: shared-mime-info
+
+%description url-wrapper
+A URL wrapper to start kanku from kanku:// urls in the browser
+
+%post url-wrapper
+update-mime-database /usr/share/mime
+update-desktop-database
+
+%preun url-wrapper
+update-mime-database /usr/share/mime
+update-desktop-database
+
+%postun url-wrapper
+update-mime-database /usr/share/mime
+update-desktop-database
+
+%files url-wrapper
+%attr(755,root,root) /usr/lib/kanku/kanku-url-wrapper
+%attr(644,root,root) /usr/share/applications/kanku-url-wrapper.desktop
+%attr(644,root,root) /usr/share/mime/packages/kanku.xml
+/usr/share/icons/hicolor/32x32/apps/kanku.png
+/usr/share/icons/hicolor/48x48/apps/kanku.png
+/usr/share/icons/hicolor/64x64/apps/kanku.png
+
 
 %changelog

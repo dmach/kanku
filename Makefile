@@ -42,7 +42,7 @@ PERL_CRITIC_READY := bin/*
 
 all:
 
-install: install_dirs install_full_dirs install_services install_docs configs public views bashcomp
+install: install_dirs install_full_dirs install_services install_docs configs public views bashcomp urlwrapper
 	install -m 644 ./dist/kanku.logrotate $(DESTDIR)/etc/logrotate.d/kanku-common
 	install -m 644 dist/profile.d-kanku.sh $(DESTDIR)/etc/profile.d/kanku.sh
 	install -m 644 dist/tmpfiles.d-kanku $(DESTDIR)/usr/lib/tmpfiles.d/kanku.conf
@@ -138,5 +138,19 @@ cover:
 	PERL5LIB=lib:t/lib cover -test -ignore '(^\/usr|t\/)'
 
 check: cover critic
+
+urlwrapper:
+	[ -d $(DESTDIR)/usr/share/applications/ ] || mkdir -p $(DESTDIR)/usr/share/applications/
+	[ -d $(DESTDIR)/usr/share/mime/packages ] || mkdir -p $(DESTDIR)/usr/share/mime/packages
+	install -m 755 dist/kanku-url-wrapper $(DESTDIR)/usr/lib/kanku/kanku-url-wrapper
+	install -m 644 dist/kanku-url-wrapper.desktop $(DESTDIR)/usr/share/applications/kanku-url-wrapper.desktop
+	install -m 644 dist/x-scheme-handler_kanku.xml $(DESTDIR)/usr/share/mime/packages/kanku.xml
+	[ -d $(DESTDIR)/usr/share/icons/hicolor/32x32/apps ] || mkdir -p $(DESTDIR)/usr/share/icons/hicolor/32x32/apps
+	[ -d $(DESTDIR)/usr/share/icons/hicolor/48x48/apps ] || mkdir -p $(DESTDIR)/usr/share/icons/hicolor/48x48/apps
+	[ -d $(DESTDIR)/usr/share/icons/hicolor/64x64/apps ] || mkdir -p $(DESTDIR)/usr/share/icons/hicolor/64x64/apps
+	install -m 644 public/images/32/kanku.png $(DESTDIR)/usr/share/icons/hicolor/32x32/apps/kanku.png
+	install -m 644 public/images/48/kanku.png $(DESTDIR)/usr/share/icons/hicolor/48x48/apps/kanku.png
+	install -m 644 public/images/64/kanku.png $(DESTDIR)/usr/share/icons/hicolor/64x64/apps/kanku.png
+
 
 .PHONY: dist install lib cover check test public views bin sbin
