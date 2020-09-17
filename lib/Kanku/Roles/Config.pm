@@ -22,6 +22,7 @@ use Path::Class::Dir;
 use Data::Dumper;
 use Kanku::YAML;
 use YAML::PP;
+use YAML::PP::Schema::Include;
 use Try::Tiny;
 use File::HomeDir;
 
@@ -88,10 +89,10 @@ around 'config' => sub {
 };
 
 sub job_config {
-  my ($self,$job_name) = @_;
-  my ($cfg,$yml);
-    $yml = $self->job_config_plain($job_name);
-    $cfg = $self->load_job_config($yml,$job_name);
+  my ($self, $job_name) = @_;
+  my ($cfg, $yml);
+  $yml = $self->job_config_plain($job_name);
+  $cfg = $self->load_job_config($job_name);
 
   if (ref($cfg) eq 'ARRAY') {
     return $cfg;
@@ -103,9 +104,12 @@ sub job_config {
 }
 
 sub load_job_config {
-  my ($self,$yml,$job_name) = @_;
+  my ($self, $job_name) = @_;
   try {
-    return YAML::PP::Load($yml);
+    my $include = YAML::PP::Schema::Include->new;
+    my $yp = YAML::PP->new( schema => [$include] );
+    $include->yp($yp);
+    return $yp->load_file("/etc/kanku/jobs/$job_name.yml");
   } catch {
       die "Error while parsing job config yaml file for job '$job_name':\n$_";
   }
