@@ -34,7 +34,6 @@ sub file {
   for my $f (@files) {
     return Path::Class::File->new($f) if -f $f;
   }
-  die "No configuration file found (@files)\n";
 }
 
 has config => (

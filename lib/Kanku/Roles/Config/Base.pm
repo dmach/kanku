@@ -43,7 +43,7 @@ has cf => (
     for my $f (@files) {
       return Kanku::YAML::LoadFile($f) if -f $f;
     }
-    die "No configuration file found (@files)\n";
+    return {};
   }
 );
 
