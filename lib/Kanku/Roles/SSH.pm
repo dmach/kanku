@@ -21,6 +21,7 @@ use Moose::Role;
 use Data::Dumper;
 use Net::SSH2;
 use namespace::autoclean;
+use Carp;
 use Kanku::Config;
 
 with 'Kanku::Roles::Logger';
@@ -72,6 +73,13 @@ has 'password' => (
   isa	  => 'Str',
   lazy    => 1,
   default => 'kankudai'
+);
+
+has 'port' => (
+  is	  => 'rw',
+  isa	  => 'Int',
+  lazy    => 1,
+  default => 22,
 );
 
 has 'connect_timeout' => (
@@ -150,8 +158,8 @@ sub connect {
 
   my $connect_count=0;
 
-  while (! $ssh2->connect($ip)) {
-    die "Could not connect to $ip: $!" if ($connect_count > $self->connect_timeout);
+  while (! $ssh2->connect($ip, $self->port)) {
+    croak("Could not connect to $ip: $!") if ($connect_count > $self->connect_timeout);
     $connect_count++;
     $logger->trace("Trying to reconnect: connect_count: ".$connect_count." timeout: ".$self->connect_timeout);
     sleep 1;
@@ -182,16 +190,16 @@ sub connect {
   } elsif ( $self->auth_type eq 'password' ) {
     $ssh2->auth_password($self->username, $self->password);
   } else {
-    die "ssh auth_type not known!\n"
+    croak("ssh auth_type not known!\n");
   }
 
   if ( ! $ssh2->auth_ok()  ) {
 
     my @err = $ssh2->error;
-    die "Could not authenticate! '@err'\n";
+    croak("Could not authenticate! @err\n");
   }
 
-  return $ssh2
+  return $ssh2;
 }
 
 sub exec_command {
@@ -215,7 +223,7 @@ sub exec_command {
     $out .= $buf;
   }
 
-  die "Command '$cmd' failed:\n\n".($out || q{})."\n" if $chan->exit_status;
+  croak("Command '$cmd' failed:\n\n".($out || q{})."\n") if $chan->exit_status;
 
   return $out;
 }
