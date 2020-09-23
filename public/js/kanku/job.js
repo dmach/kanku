@@ -19,12 +19,12 @@ function save_settings(job_name) {
     });
     cookie[job_name] = data;
   }
-  Cookies.set("kanku_job", JSON.stringify(cookie));
+  localStorage.setItem("kanku_job", JSON.stringify(cookie));
   return data;
 }
 
 function restore_settings() {
-  var obj = Cookies.get("kanku_job");
+  var obj = localStorage.getItem("kanku_job");
   if (!obj) { obj = "{}" }
   return JSON.parse(obj);
 }
@@ -51,7 +51,7 @@ Vue.component('text-input',{
     + ' <input  class="form-control"'
     + '        type=text'
     + '        :name="gui_config.param"'
-    + '        :value="value"'
+    + '        :value="gui_config.default"'
     + ' >'
     + '</div>'
 });
