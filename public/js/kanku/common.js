@@ -148,24 +148,32 @@ Vue.component('job-history-task-card',{
   props: ['task'],
   data: function() {
     return {
-      showTaskResult: 0
+      showDetails: 0
     }
   },
   methods: {
-    toggleTaskDetails: function() {
-      this.showTaskResult = !this.showTaskResult;
+    toggleDetails: function() {
+      this.showDetails = !this.showDetails;
     }
   },
   template: ''
     + '<div class="card task_card">'
-    + '  <div class="card-header alert" v-bind:class="task.state_class" v-on:click="toggleTaskDetails()">'
+    + '  <div class="card-header alert" v-bind:class="task.state_class">'
     + '    <div class="row">'
     + '      <div class="col-md-12">'
+    + '    <span v-on:click="toggleDetails()">'
+    + '      <a href="#" v-show="!showDetails">'
+    + '        <i class="fas fa-plus-square"></i>'
+    + '      </a>'
+    + '      <a href="#" v-show="showDetails">'
+    + '        <i class="far fa-minus-square"></i>'
+    + '      </a>'
+    + '    </span>'
     + '        <span class="badge badge-secondary">{{ task.id }}</span> {{ task.name }}'
     + '      </div>'
     + '    </div>'
     + '  </div>'
-    + '  <div class="card-body" v-show="showTaskResult">'
+    + '  <div class="card-body" v-show="showDetails">'
     + '    <task-result v-bind:result="task.result"></task-result>'
     + '  </div>'
     + '</div>'
@@ -228,7 +236,7 @@ Vue.component('job-history-card',{
   props: ['job', 'is_admin', 'show_comments'],
   data: function () {
     return {
-      showTaskList:        0,
+      showDetails:        0,
       uri_base:            uri_base,
       comment: '',
       subtasks: [],
@@ -253,8 +261,8 @@ Vue.component('job-history-card',{
     },
   },
   methods: {
-    toggleJobDetails: function() {
-      this.showTaskList = !this.showTaskList
+    toggleDetails: function() {
+      this.showDetails = !this.showDetails
       this.$refs.tasklist.isShown = ! this.$refs.tasklist.isShown;
       this.$refs.tasklist.count++;
       this.getJobDetails();
@@ -298,7 +306,15 @@ Vue.component('job-history-card',{
     + '<div class="card job_card">'
     + ' <div class="card-header alert" v-bind:class="job.state_class">'
     + '  <div class="row">'
-    + '    <div class="col-md-6" v-on:click="toggleJobDetails()">'
+    + '    <div class="col-md-6">'
+    + '    <span v-on:click="toggleDetails()">'
+    + '      <a href="#" v-show="!showDetails">'
+    + '        <i class="fas fa-plus-square"></i>'
+    + '      </a>'
+    + '      <a href="#" v-show="showDetails">'
+    + '        <i class="far fa-minus-square"></i>'
+    + '      </a>'
+    + '    </span>'
     + '      <span class="badge badge-secondary">{{ job.id }}</span> {{ job.name }} ({{ workerInfo.host }})</a>'
     + '    </div>'
     + '    <div class="col-md-2">'
@@ -317,7 +333,7 @@ Vue.component('job-history-card',{
     + '    </div>'
     + '  </div>'
     + ' </div>'
-    + ' <task-list v-show="showTaskList" ref="tasklist" v-bind:workerinfo="workerInfo" v-bind:subtasks="subtasks"></task-list>'
+    + ' <task-list v-show="showDetails" ref="tasklist" v-bind:workerinfo="workerInfo" v-bind:subtasks="subtasks"></task-list>'
     + ' <b-modal ref="modalComment" hide-footer title="Comments for Job">'
     + '  <div>'
     + '   <single-job-comment v-for="cmt in job.comments" v-bind:key="cmt.id" v-bind:comment="cmt">'
