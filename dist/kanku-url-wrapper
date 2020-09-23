@@ -28,14 +28,14 @@ KANKU_FILE="$TEMP_DIR/KankuFile"
 USE_GPG=1
 curl -L -o $KANKU_FILE "$URL" || query_exit 1 "Could not download $URL"
 
-curl -L -o "$KANKU_FILE.asc" "$URL.asc"
+OUT=`curl -vo "$KANKU_FILE.asc" "$URL.asc" 2>&1 | grep "HTTP/1.1 404 Not Found"`
 
-if [ $? -gt 0 ];then
+if [ -n "$OUT" ];then
   echo "Could not download detached signature ($URL.asc)"
   echo "It's not recommended to proceed"
   echo "Proceed anyway? (y|n)"
   read sel
-  case sel in
+  case $sel in
     y|Y)
       echo "YOU HAVE BEEN WARNED :-)"
       USE_GPG=0
@@ -53,7 +53,7 @@ if [ "$USE_GPG" -eq "1" ];then
     echo "It's not recommended to proceed"
     echo "Proceed anyway? (y|n)"
     read sel
-    case sel in
+    case $sel in
       y|Y)
 	echo "YOU HAVE BEEN WARNED :-)"
       ;;
