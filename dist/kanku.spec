@@ -555,9 +555,15 @@ update-desktop-database
 %attr(755,root,root) /usr/lib/kanku/kanku-url-wrapper
 %attr(644,root,root) /usr/share/applications/kanku-url-wrapper.desktop
 %attr(644,root,root) /usr/share/mime/packages/kanku.xml
+%dir /usr/share/icons/hicolor
+%dir /usr/share/icons/hicolor/32x32
+%dir /usr/share/icons/hicolor/32x32/apps
 /usr/share/icons/hicolor/32x32/apps/kanku.png
+%dir /usr/share/icons/hicolor/48x48
+%dir /usr/share/icons/hicolor/48x48/apps
 /usr/share/icons/hicolor/48x48/apps/kanku.png
+%dir /usr/share/icons/hicolor/64x64
+%dir /usr/share/icons/hicolor/64x64/apps
 /usr/share/icons/hicolor/64x64/apps/kanku.png
-
 
 %changelog
