@@ -34,10 +34,16 @@ jobs:
     options:
       memory: 8G
       vcpu: 2
-      use_9p: 1
+      use_9p: 0
       #forward_port_list: tcp:22,tcp:443
   -
     use_module: Kanku::Handler::PrepareSSH
+  -
+    use_module: Kanku::Handler::GIT
+    options:
+      giturl:     https://github.com/M0ses/kanku.git
+      destination: /tmp/kanku
+      revision: master
   -
     use_module: Kanku::Handler::ExecuteCommandViaSSH
     options:
@@ -52,7 +58,7 @@ jobs:
         - a2enmod rewrite
         - /usr/share/openqa/script/fetchneedles
         - cp /etc/apache2/vhosts.d/openqa.conf.template /etc/apache2/vhosts.d/openqa.conf
-        - cp /tmp/kanku/configs/openQA/_etc_openqa_client.conf /etc/openqa/client.conf
+        - cp /tmp/kanku/KankuFile.examples/configs/openQA/_etc_openqa_client.conf /etc/openqa/client.conf
         - perl -p -i -e 's/^\s*#?\s*httpsonly\s*=\s*/httpsonly = 0/' /etc/openqa/openqa.ini
         - perl -p -i -e 's/^# method = Fake.*/method = Fake/' /etc/openqa/openqa.ini
         - systemctl start postgresql
@@ -69,4 +75,5 @@ jobs:
         - systemctl start openqa-worker@1
         - systemctl enable openqa-scheduler
         - systemctl start openqa-scheduler
-        - /tmp/kanku/scripts/openQA/start_test
+        - chmod 777 /var/lib/openqa/factory/other
+        - bash -x /tmp/kanku/KankuFile.examples/scripts/openQA/start_test
