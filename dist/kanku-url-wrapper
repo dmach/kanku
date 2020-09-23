@@ -33,7 +33,7 @@ OUT=`curl -vo "$KANKU_FILE.asc" "$URL.asc" 2>&1 | grep "HTTP/1.1 404 Not Found"`
 if [ -n "$OUT" ];then
   echo "Could not download detached signature ($URL.asc)"
   echo "It's not recommended to proceed"
-  echo "Proceed anyway? (y|n)"
+  echo "Proceed anyway? (y|N)"
   read sel
   case $sel in
     y|Y)
@@ -51,7 +51,7 @@ if [ "$USE_GPG" -eq "1" ];then
   if [ $? -gt 0 ];then
     echo "Could not verify signature"
     echo "It's not recommended to proceed"
-    echo "Proceed anyway? (y|n)"
+    echo "Proceed anyway? (y|N)"
     read sel
     case $sel in
       y|Y)
