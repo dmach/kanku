@@ -3,50 +3,9 @@
 URL=$1
 URL=${URL//kanku:\/\//}
 
-#if [ "$KANKU_HANDLER_RUNNING_IN_TERMINAL" != "1" ];then
-#  echo "starting in terminal '$0 $@'" >> /tmp/kanku.log
-#  export KANKU_HANDLER_RUNNING_IN_TERMINAL=1
-#  xdg-terminal "export KANKU_HANDLER_RUNNING_IN_TERMINAL=1;$0 $@"
-#else
-
-  if [ -z "$URL" ];then
-    echo "No url given!"
-    read
-    exit
-  fi
-
-  TEMP_DIR=`mktemp -d`
-  KANKU_FILE="$TEMP_DIR/KankuFile"
-  curl -L -o $KANKU_FILE "$URL"
-
-  cd $TEMP_DIR
-
-  DOMAIN_NAME=`grep "^domain_name:" ./KankuFile`
-  EXISTS=`virsh list --name --all|grep ${DOMAIN_NAME//domain_name:/}`
-
-  if [ -n "$EXISTS" ];then
-    echo "$DOMAIN_NAME already exits!"
-    echo
-    echo "1) reconfigure KankuFile"
-    echo "2) remove domain"
-    echo "*) exit"
-    read sel
-    case $sel in
-      1)
-        echo "Enter new name: "
-        read name
-        perl -p -i -e "s/$DOMAIN_NAME/domain_name: $name/" KankuFile
-      ;;
-      2)
-        kanku destroy
-      ;;
-      *)
-        exit
-      ;;
-    esac
-  fi
-
-  kanku up
+function query_exit {
+  EXIT_CODE=$1
+  [ -n "$2" ] || echo $2
   echo "Keep shell alive? (y|Y|n|N)"
   read sel
   case $sel in
@@ -54,6 +13,83 @@ URL=${URL//kanku:\/\//}
       bash
     ;;
   esac
-#fi
 
-exit 0
+  exit $EXIT_CODE
+}
+
+if [ -z "$URL" ];then
+  echo "No url given!"
+  read
+  exit
+fi
+
+TEMP_DIR=`mktemp -d`
+KANKU_FILE="$TEMP_DIR/KankuFile"
+USE_GPG=1
+curl -L -o $KANKU_FILE "$URL" || query_exit 1 "Could not download $URL"
+
+curl -L -o "$KANKU_FILE.asc" "$URL.asc"
+
+if [ $? -gt 0 ];then
+  echo "Could not download detached signature ($URL.asc)"
+  echo "It's not recommended to proceed"
+  echo "Proceed anyway? (y|n)"
+  read sel
+  case sel in
+    y|Y)
+      echo "YOU HAVE BEEN WARNED :-)"
+      USE_GPG=0
+    ;;
+    *)
+      exit 1
+    ;;
+  esac
+fi
+
+if [ "$USE_GPG" -eq "1" ];then
+  gpg --verify $KANKU_FILE.asc $KANKU_FILE
+  if [ $? -gt 0 ];then
+    echo "Could not verify signature"
+    echo "It's not recommended to proceed"
+    echo "Proceed anyway? (y|n)"
+    read sel
+    case sel in
+      y|Y)
+	echo "YOU HAVE BEEN WARNED :-)"
+      ;;
+      *)
+	exit 1
+      ;;
+    esac
+  fi
+fi
+
+cd $TEMP_DIR
+
+DOMAIN_NAME=`grep "^domain_name:" ./KankuFile`
+EXISTS=`virsh list --name --all|grep ${DOMAIN_NAME//domain_name:/}`
+
+if [ -n "$EXISTS" ];then
+  echo "$DOMAIN_NAME already exits!"
+  echo
+  echo "1) reconfigure KankuFile"
+  echo "2) remove domain"
+  echo "*) exit"
+  read sel
+  case $sel in
+    1)
+      echo "Enter new name: "
+      read name
+      perl -p -i -e "s/$DOMAIN_NAME/domain_name: $name/" KankuFile
+    ;;
+    2)
+      kanku destroy
+    ;;
+    *)
+      exit
+    ;;
+  esac
+fi
+
+kanku up
+query_exit 0
