@@ -26,6 +26,6 @@ const jobResultPage = {
     + '<div>'
     + ' <head-line text="Job Result"></head-line>'
     + ' <job-history-header></job-history-header>'
-    + ' <job-history-card :job="job" :is_admin="is_admin"></job-history-card>'
+    + ' <job-history-card :job="job" :is_admin="is_admin" @updatePage="$emit(\'updatePage\')"></job-history-card>'
     + '</div>'
 };

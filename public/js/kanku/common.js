@@ -326,7 +326,7 @@ Vue.component('job-history-card',{
     + '      <console-log-link v-bind:loglink="workerInfo.loglink"></console-log-link>'
     + '      <job-details-link v-bind:id="job.id"></job-details-link>'
     + '      <comments-link v-show="show_comments" :job="job" ref="commentsLink"></comments-link>'
-    + '      <job-retrigger-link v-show="is_admin" :id="job.id" :is_admin="is_admin"></job-retrigger-link>'
+    + '      <job-retrigger-link v-show="is_admin" :id="job.id" :is_admin="is_admin" @updatePage="$emit(\'updatePage\')"></job-retrigger-link>'
     + '      <pwrand-link v-show="show_pwrand" :job_id="job.id"></pwrand-link>'
     + '    </div>'
     + '  </div>'
@@ -390,6 +390,8 @@ Vue.component('job-retrigger-link',{
       axios.post(url, {is_admin: this.is_admin}).then(function(response) {
         show_messagebox(response.data.state, response.data.msg);
       });
+      this.$router.push({ name: 'job_history', params: { page: 1}, query: { job_states: ['running', 'failed', 'succeed', 'dispatching', 'triggered']}});
+      this.$emit('updatePage');
     },
   },
   template: ''

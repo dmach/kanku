@@ -61,7 +61,7 @@ Vue.component('job-history-list',{
   props: ['jobs', 'is_admin', 'show_comments'],
   template: ''
     + '<div>'
-    + ' <job-history-card v-for="job in jobs" :key="job.id" :job="job" :is_admin="is_admin" :show_comments="show_comments"></job-history-card>'
+    + ' <job-history-card v-for="job in jobs" :key="job.id" :job="job" :is_admin="is_admin" :show_comments="show_comments" @updatePage="$emit(\'updatePage\')"></job-history-card>'
     + '</div>'
 });
 
@@ -71,6 +71,7 @@ const jobHistoryPage = {
     var js = {'succeed':1, 'failed':1,'dispatching':1,'running':1,'scheduled':0,'triggered':0,'skipped':0};
     if (this.$route.query.job_states) {
       var tmp = {};
+      console.log(this.$route.query.job_states);
       this.$route.query.job_states.forEach(function (item, index) { tmp[item] = 1; });
       for (let key in js) {
         js[key] = tmp[key] || 0;
@@ -171,7 +172,7 @@ const jobHistoryPage = {
     + '  <div>'
     + '   <job-history-header></job-history-header>'
     + '   <spinner></spinner>'
-    + '   <job-history-list :jobs="jobs" :is_admin="is_admin" :show_comments="show_comments"></job-history-list>'
+    + '   <job-history-list :jobs="jobs" :is_admin="is_admin" :show_comments="show_comments" @updatePage="refreshPage"></job-history-list>'
     + '  </div>'
     + '  <div id=bottom_pager class=row>'
     + '   <div class="col-md-4"></div>'
