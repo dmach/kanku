@@ -150,20 +150,30 @@ const jobPage = {
   props: ['user_id', 'is_admin'],
   data: function() {
     return {
-      jobs: [],
+      jobs:          [],
       original_jobs: [],
-      filter: this.$route.query.filter,
+      filter:        this.$route.query.filter,
+      page:          1,
+      total_pages:   0,
+      limit:         10,
     };
   },
   methods: {
     refreshPage: function() {
       var url    = uri_base + "/rest/gui_config/job.json";
       var self   = this;
-      var params = { filter: this.filter};
+      var params = {
+        filter: this.filter,
+        limit:  self.limit,
+        page:   this.page,
+      };
       self.jobs  = [];
       $('#spinner').show();
       axios.get(url, { params: params }).then(function(response) {
 	self.jobs = response.data.config;
+        var tp_float = response.data.total_entries / response.data.limit;
+        var tp_int   = Math.floor(tp_float);
+        self.total_pages = (tp_float > tp_int) ? tp_int + 1 : tp_int;
         if (!self.original_jobs) {
           self.original_jobs = Object.assign(self.jobs, self.original_jobs);
         }
@@ -203,8 +213,9 @@ const jobPage = {
     + '  <head-line text="Job"></head-line>'
     + '  <div class="row top_pager">'
     + '   <search-field :filter="filter" @search-term-change="refreshPage" comment="Filter Jobs by regex"></search-field>'
-    + '   <div class="col-md-6">'
+    + '   <div class="col-md-4">'
     + '   </div>'
+    + '   <limit-select @updatePage="refreshPage" selected_limit="limit"></limit-select>'
     + '   <div class="col-md-2">'
     + '     <refresh-button @refreshPage="refreshPage"></refresh-button>'
     + '   </div>'
@@ -213,6 +224,13 @@ const jobPage = {
     + '  <spinner></spinner>'
     + '  </div>'
     + '  <job-card v-for="job in jobs" v-bind:key="job.job_name" v-bind:job="job" :is_admin="is_admin"></job-card>'
+    + '  <div id=bottom_pager class=row>'
+    + '   <div class="col-md-4"></div>'
+    + '   <div class="col-md-4">'
+    + '    <paginator :page="page" :total_pages="total_pages" @updatePage="refreshPage"></paginator>'
+    + '   </div>'
+    + '   <div class="col-md-4"></div>'
+    + '  </div>'
     + ' </div>'
     + ' <div v-else>'
     + '  <h1>Please Login!</h1>'

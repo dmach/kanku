@@ -228,13 +228,37 @@ post '/logout.:format' => require_login sub {
 
 # ROUTES FOR MISC STUFF
 get '/gui_config/job.:format' => sub {
-  my $cfg = Kanku::Config->instance();
-  my @config = ();
-  my @errors = ();
-  my @jobs = $cfg->job_list;
-  my $filter = params->{filter} || '.*';
+  my $cfg           = Kanku::Config->instance();
+  my @config        = ();
+  my @errors        = ();
+  my @jobs          = $cfg->job_list;
+  my $filter        = params->{filter} || '.*';
+  my $limit         = params->{limit};
+  my $page          = params->{page};
+  my @filtered_jobs = ();
+
   foreach my $job_name (sort @jobs) {
-    next if $job_name !~ m/$filter/;
+    push(@filtered_jobs, $job_name) if $job_name =~ m/$filter/;
+  }
+
+  my $total_entries = @filtered_jobs;
+
+  my @_jobs;
+
+  if ($limit) {
+    # limit = 10
+    # page1 = 0:9
+    # page2 = 10:19
+    my $start = $limit * ($page - 1);
+    my $end   = $start + $limit - 1;
+    my $last  = $total_entries - 1;
+    $end = ($end > $last) ? $last : $end;
+    @_jobs = @filtered_jobs[$start..$end];
+  } else {
+    @_jobs = @filtered_jobs;
+  }
+
+  foreach my $job_name (@_jobs) {
     my $job_config = { job_name => $job_name, sub_tasks => []};
     push @config , $job_config;
     my $job_cfg;
@@ -280,7 +304,12 @@ get '/gui_config/job.:format' => sub {
     }
   }
 
-  return {config => \@config , errors => \@errors};
+  return {
+    config        => \@config ,
+    errors        => \@errors,
+    limit         => $limit,
+    total_entries => $total_entries,
+  };
 };
 
 get '/test.:format' => sub {  return {test=>'success'} };

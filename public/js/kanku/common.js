@@ -9,8 +9,6 @@ function show_messagebox(state, msg, timeout=10000) {
   var elem = $("#messagebox");
   var div = $('<div class="alert-' + state +' kanku_alert alert-dismissible fade show" role=alert></div>').append(msg);
   div.append('<button type="button" class="close" data-dismiss="alert">&times;</button>');
-
-
   elem.append(div);
   if(timeout) {
     var intervalID = setTimeout(function() { div.remove(); }, timeout);
@@ -382,6 +380,7 @@ Vue.component('job-details-link',{
     + '  <i class="fas fa-link"></i>'
     + '</router-link>'
 });
+
 Vue.component('job-retrigger-link',{
   props: ['id', 'is_admin'],
   methods: {
@@ -398,6 +397,7 @@ Vue.component('job-retrigger-link',{
     + '  <i class="fas fa-redo-alt"></i>'
     + '</span>'
 });
+
 Vue.component('pwrand-link',{
   props: ['job_id'],
   methods: {
@@ -607,7 +607,7 @@ Vue.component('navigation', {
     + '            <li class="nav-item active">                                    <router-link class="nav-link" to="/job_history/1" >Job History</router-link></li>'
     + '            <li class="nav-item active">                                    <router-link class="nav-link" to="/guest"       >Guest</router-link></li>'
     + '            <li class="nav-item active">                                    <router-link class="nav-link" to="/worker"      >Worker</router-link></li>'
-    + '            <li v-if="(active_roles.User || active_roles.Admin)" class="nav-item active"> <router-link class="nav-link" to="/job"         >Job</router-link></li>'
+    + '            <li v-if="(active_roles.User || active_roles.Admin)" class="nav-item active"> <router-link class="nav-link" to="/job/1"         >Job</router-link></li>'
     + '            <li v-if="roles.length > 0" class="nav-item active">            <router-link class="nav-link" to="/notify"      >Notify</router-link></li>'
     + '          </ul>'
     + '          <admin-switch v-if="active_roles.Admin" @changed-is-admin="$emit(\'changed-is-admin\')"></admin-switch>'
@@ -667,7 +667,78 @@ Vue.component('search-field',{
     + '          <i class="far fa-times-circle"></i>'
     + '       </span>'
     + '    </div>'
+});
 
+Vue.component('paginator', {
+  props: ['page', 'is_admin', 'total_pages'],
+  methods: {
+    nextpage: function() {
+      this.$parent.page++;
+      router.push({ params: { page: this.$parent.page}, query: this.$route.query});
+      this.$emit('updatePage');
+    },
+    prevpage: function() {
+      this.$parent.page--;
+      router.push({ params: { page: this.$parent.page}, query: this.$route.query});
+      this.$emit('updatePage');
+    },
+    firstpage: function() {
+      this.$parent.page = 1;
+      router.push({ params: { page: this.$parent.page}, query: this.$route.query});
+      this.$emit('updatePage');
+    },
+    lastpage: function() {
+      this.$parent.page = this.total_pages;
+      router.push({ params: { page: this.$parent.page}, query: this.$route.query});
+      this.$emit('updatePage');
+    }
+  },
+  computed: {
+    pb_classes: function() { return (this.page > 1) ? ['page-item'] : ['page-item', 'disabled'] },
+    nb_classes: function() { return (this.total_pages > this.page) ? ['page-item'] : ['page-item', 'disabled'] },
+  },
+  template: ''
+    + '<nav aria-label="Pagination">'
+    + '  <ul class="pagination">'
+    + '    <li class="page-item">'
+    + '      <span class="page-link" @click="firstpage()">First</span>'
+    + '    </li>'
+    + '    <li :class="pb_classes">'
+    + '      <span class="page-link" @click="prevpage()">Previous</span>'
+    + '    </li>'
+    + '    <li class="page-item active">'
+    + '      <span class="page-link">'
+    + '        {{ page }}/{{ total_pages }}'
+    + '        <span class="sr-only">(current)</span>'
+    + '      </span>'
+    + '    </li>'
+    + '    <li :class="nb_classes">'
+    + '      <span class="page-link" @click="nextpage()">Next</span>'
+    + '    </li>'
+    + '    <li class="page-item">'
+    + '      <span class="page-link" @click="lastpage()">Last</span>'
+    + '    </li>'
+    + '  </ul>'
+    + '</nav>'
+});
+
+Vue.component('limit-select',{
+  data: function() {
+    return {limit:10}
+  },
+  methods: {
+    setNewLimit: function() {
+      this.$parent.limit = this.limit;
+      this.$emit('updatePage');
+    }
+  },
+  template: ''
+    + '<div @change="setNewLimit()" class="col-md-2">'
+    + '  Show rows:'
+    + '  <select v-model="limit">'
+    + '    <option v-for="option in [5,10,20,50,100]" :value="option">{{ option }}</option>'
+    + '  </select>'
+    + '</div>'
 });
 
 const pageNotFound = {

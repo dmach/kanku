@@ -1,22 +1,3 @@
-Vue.component('limit-select',{
-  data: function() {
-    return {limit:10}
-  },
-  methods: {
-    setNewLimit: function() {
-      this.$parent.limit = this.limit;
-      this.$emit('updateJobHistoryPage');
-    }
-  },
-  template: ''
-    + '<div @change="setNewLimit()" class="col-md-2">'
-    + '  Show rows:'
-    + '  <select v-model="limit">'
-    + '    <option v-for="option in [5,10,20,50,100]" :value="option">{{ option }}</option>'
-    + '  </select>'
-    + '</div>'
-});
-
 Vue.component('search-tooltip-job_history',{
   template: ''
     + '<span class="badge badge-primary" style="padding: 0.6rem;" data-toggle="tooltip" data-placement="bottom" '
@@ -39,7 +20,7 @@ Vue.component('job-state-checkbox',{
       var q2 = this.$route.query || {};
       var q  = {...q2, job_states:this.job_states};
       this.$router.push({ path: this.$router.currentPath, query: q});
-      this.$emit('updateJobHistoryPage');
+      this.$emit('updatePage');
     },
   },
   template: ''
@@ -66,7 +47,7 @@ Vue.component('show-only-latest-results',{
         delete q['show_only_latest_results'];
       }
       this.$router.push({ name: 'job_history', params: {page: 1}, query: q});
-      this.$emit('updateJobHistoryPage');
+      this.$emit('updatePage');
     },
   },
   template: ''
@@ -82,59 +63,6 @@ Vue.component('job-history-list',{
     + '<div>'
     + ' <job-history-card v-for="job in jobs" :key="job.id" :job="job" :is_admin="is_admin" :show_comments="show_comments"></job-history-card>'
     + '</div>'
-});
-
-Vue.component('paginator', {
-  props: ['page', 'is_admin', 'total_pages'],
-  methods: {
-    nextpage: function() {
-      this.$parent.page++;
-      router.push({name: 'job_history', params: { page: this.$parent.page}, query: this.$route.query});
-      this.$emit('updateJobHistoryPage');
-    },
-    prevpage: function() {
-      this.$parent.page--;
-      router.push({name: 'job_history', params: { page: this.$parent.page}, query: this.$route.query});
-      this.$emit('updateJobHistoryPage');
-    },
-    firstpage: function() {
-      this.$parent.page = 1;
-      router.push({name: 'job_history', params: { page: this.$parent.page}, query: this.$route.query});
-      this.$emit('updateJobHistoryPage');
-    },
-    lastpage: function() {
-      this.$parent.page = this.total_pages;
-      router.push({name: 'job_history', params: { page: this.$parent.page}, query: this.$route.query});
-      this.$emit('updateJobHistoryPage');
-    }
-  },
-  computed: {
-    pb_classes: function() { return (this.page > 1) ? ['page-item'] : ['page-item', 'disabled'] },
-    nb_classes: function() { return (this.total_pages > this.page) ? ['page-item'] : ['page-item', 'disabled'] },
-  },
-  template: ''
-    + '<nav aria-label="Pagination">'
-    + '  <ul class="pagination">'
-    + '    <li class="page-item">'
-    + '      <span class="page-link" @click="firstpage()">First</span>'
-    + '    </li>'
-    + '    <li :class="pb_classes">'
-    + '      <span class="page-link" @click="prevpage()">Previous</span>'
-    + '    </li>'
-    + '    <li class="page-item active">'
-    + '      <span class="page-link">'
-    + '        {{ page }}/{{ total_pages }}'
-    + '        <span class="sr-only">(current)</span>'
-    + '      </span>'
-    + '    </li>'
-    + '    <li :class="nb_classes">'
-    + '      <span class="page-link" @click="nextpage()">Next</span>'
-    + '    </li>'
-    + '    <li class="page-item">'
-    + '      <span class="page-link" @click="lastpage()">Last</span>'
-    + '    </li>'
-    + '  </ul>'
-    + '</nav>'
 });
 
 const jobHistoryPage = {
@@ -219,23 +147,23 @@ const jobHistoryPage = {
     + '<div>'
     + '  <head-line text="Job History"></head-line>'
     + '  <div class="row top_pager">'
-    + '    <job-state-checkbox name="succeed"     state_class="badge badge-success" @updateJobHistoryPage="refreshPage"></job-state-checkbox>'
-    + '    <job-state-checkbox name="failed"      state_class="badge badge-danger"  @updateJobHistoryPage="refreshPage"></job-state-checkbox>'
-    + '    <job-state-checkbox name="dispatching" state_class="badge badge-primary" @updateJobHistoryPage="refreshPage"></job-state-checkbox>'
-    + '    <job-state-checkbox name="running"     state_class="badge badge-primary" @updateJobHistoryPage="refreshPage"></job-state-checkbox>'
+    + '    <job-state-checkbox name="succeed"     state_class="badge badge-success" @updatePage="refreshPage"></job-state-checkbox>'
+    + '    <job-state-checkbox name="failed"      state_class="badge badge-danger"  @updatePage="refreshPage"></job-state-checkbox>'
+    + '    <job-state-checkbox name="dispatching" state_class="badge badge-primary" @updatePage="refreshPage"></job-state-checkbox>'
+    + '    <job-state-checkbox name="running"     state_class="badge badge-primary" @updatePage="refreshPage"></job-state-checkbox>'
     + '  </div>'
     + '  <div class="row top_pager">'
-    + '    <job-state-checkbox name="scheduled"   state_class="badge badge-warning" @updateJobHistoryPage="refreshPage"></job-state-checkbox>'
-    + '    <job-state-checkbox name="triggered"   state_class="badge badge-warning" @updateJobHistoryPage="refreshPage"></job-state-checkbox>'
-    + '    <job-state-checkbox name="skipped"     state_class="badge badge-warning" @updateJobHistoryPage="refreshPage"></job-state-checkbox>'
+    + '    <job-state-checkbox name="scheduled"   state_class="badge badge-warning" @updatePage="refreshPage"></job-state-checkbox>'
+    + '    <job-state-checkbox name="triggered"   state_class="badge badge-warning" @updatePage="refreshPage"></job-state-checkbox>'
+    + '    <job-state-checkbox name="skipped"     state_class="badge badge-warning" @updatePage="refreshPage"></job-state-checkbox>'
     + '    <div class="col col-md-3">'
     + '    </div>'
     + '  </div>'
     + '  <div class="row top_pager">'
     + '   <search-field :filter="filter" @search-term-change="refreshPage" comment="Enter search term - SEE Tooltips for details"></search-field>'
     + '   <search-tooltip-job_history></search-tooltip-job_history>'
-    + '   <show-only-latest-results  @updateJobHistoryPage="refreshPage"></show-only-latest-results>'
-    + '   <limit-select @updateJobHistoryPage="refreshPage" selected_limit="limit"></limit-select>'
+    + '   <show-only-latest-results  @updatePage="refreshPage"></show-only-latest-results>'
+    + '   <limit-select @updatePage="refreshPage" selected_limit="limit"></limit-select>'
     + '   <div class="col-md-2">'
     + '    <refresh-button @refreshPage="refreshPage"></refresh-button>'
     + '   </div>'
@@ -248,7 +176,7 @@ const jobHistoryPage = {
     + '  <div id=bottom_pager class=row>'
     + '   <div class="col-md-4"></div>'
     + '   <div class="col-md-4">'
-    + '    <paginator :page="page" :total_pages="total_pages" @updateJobHistoryPage="refreshPage"></paginator>'
+    + '    <paginator :page="page" :total_pages="total_pages" @updatePage="refreshPage"></paginator>'
     + '   </div>'
     + '   <div class="col-md-4"></div>'
     + '  </div>'
