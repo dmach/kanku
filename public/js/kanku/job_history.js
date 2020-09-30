@@ -71,7 +71,6 @@ const jobHistoryPage = {
     var js = {'succeed':1, 'failed':1,'dispatching':1,'running':1,'scheduled':0,'triggered':0,'skipped':0};
     if (this.$route.query.job_states) {
       var tmp = {};
-      console.log(this.$route.query.job_states);
       this.$route.query.job_states.forEach(function (item, index) { tmp[item] = 1; });
       for (let key in js) {
         js[key] = tmp[key] || 0;
