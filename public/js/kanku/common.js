@@ -78,7 +78,7 @@ Vue.component('spinner',{
 Vue.component('to-top-button',{
   methods: {
     toTop: function() {
-      this.$router.go();
+      this.$router.go(0);
     }
   },
   template: ''
@@ -154,27 +154,29 @@ Vue.component('job-history-task-card',{
       this.showDetails = !this.showDetails;
     }
   },
-  template: ''
-    + '<div class="card task_card">'
-    + '  <div class="card-header alert" v-bind:class="task.state_class">'
-    + '    <div class="row">'
-    + '      <div class="col-md-12">'
-    + '    <span v-on:click="toggleDetails()">'
-    + '      <a href="#" v-show="!showDetails">'
-    + '        <i class="fas fa-plus-square"></i>'
-    + '      </a>'
-    + '      <a href="#" v-show="showDetails">'
-    + '        <i class="far fa-minus-square"></i>'
-    + '      </a>'
-    + '    </span>'
-    + '        <span class="badge badge-secondary">{{ task.id }}</span> {{ task.name }}'
-    + '      </div>'
-    + '    </div>'
-    + '  </div>'
-    + '  <div class="card-body" v-show="showDetails">'
-    + '    <task-result v-bind:result="task.result"></task-result>'
-    + '  </div>'
-    + '</div>'
+  template:
+    `
+    <div class="card task_card">
+      <div class="card-header alert" v-bind:class="task.state_class">
+        <div class="row">
+          <div class="col-md-12">
+        <span @click="toggleDetails()">
+          <span v-show="!showDetails">
+            <i class="fas fa-plus-square"></i>
+          </span>
+          <span v-show="showDetails">
+            <i class="far fa-minus-square"></i>
+          </span>
+        </span>
+            <span class="badge badge-secondary">{{ task.id }}</span> {{ task.name }}
+          </div>
+        </div>
+      </div>
+      <div class="card-body" v-show="showDetails">
+        <task-result v-bind:result="task.result"></task-result>
+      </div>
+    </div>
+    `
 });
 
 Vue.component('task-result',{
@@ -306,12 +308,12 @@ Vue.component('job-history-card',{
     + '  <div class="row">'
     + '    <div class="col-md-6">'
     + '    <span v-on:click="toggleDetails()">'
-    + '      <a href="#" v-show="!showDetails">'
+    + '      <span v-show="!showDetails">'
     + '        <i class="fas fa-plus-square"></i>'
-    + '      </a>'
-    + '      <a href="#" v-show="showDetails">'
+    + '      </span>'
+    + '      <span v-show="showDetails">'
     + '        <i class="far fa-minus-square"></i>'
-    + '      </a>'
+    + '      </span>'
     + '    </span>'
     + '      <span class="badge badge-secondary">{{ job.id }}</span> {{ job.name }} ({{ workerInfo.host }})</a>'
     + '    </div>'
