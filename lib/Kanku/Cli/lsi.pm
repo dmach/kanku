@@ -45,7 +45,7 @@ sub run {
   my $res = $prj->fetch_resultlist;
   my $reg ='.*'.$self->name.'.*';
 
-  foreach my $tmp (@{$res->{result}}) {
+  foreach my $tmp (@{$res}) {
     foreach my $pkg (@{$tmp->{status}}) {
       if ($pkg->{code} !~ /disabled|excluded/) {
         if ($pkg->{package} =~ $reg) {
