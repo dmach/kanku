@@ -1,13 +1,15 @@
-https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.centos
-https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.icinga2
-https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.ImageDownload
-https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.kubernetes
-https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.multivm
-https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.openQA
-https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.openstack
-https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.rabbitmq-opensuse
-https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.rockrobo
-https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.simple
-https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.simple_tw
-https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.ubuntu-devel
-https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.vagrant
+# Data Format:
+# url;signed
+https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.centos;0
+https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.icinga2;0
+https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.ImageDownload;0
+https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.kubernetes;0
+https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.multivm;0
+https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.openQA;1
+https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.openstack;0
+https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.rabbitmq-opensuse;0
+https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.rockrobo;0
+https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.simple;0
+https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.simple_tw;0
+https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.ubuntu-devel;0
+https://raw.githubusercontent.com/M0ses/kanku/master/KankuFile.examples/KankuFile.vagrant;0
