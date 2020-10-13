@@ -2,7 +2,7 @@
 Name=Kanku CLI Tool Handler
 GenericName=Kanku CLI Tool
 Comment=Handle URL Scheme kanku://
-Exec=/usr/lib/kanku/kanku-url-wrapper %u
+Exec=kanku urlwrapper --url %u
 Terminal=true
 Type=Application
 MimeType=x-scheme-handler/kanku;

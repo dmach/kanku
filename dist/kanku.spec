@@ -530,30 +530,30 @@ This package contains the documentation files for kanku
 %files doc
 %{_defaultdocdir}/kanku/
 
-%package url-wrapper
+%package urlwrapper
 Summary: Url wrapper for kanku:// urls
 Requires: kanku-cli
 Requires: desktop-file-utils
 Requires: shared-mime-info
+Obsoletes: kanku-url-wrapper
 
-%description url-wrapper
+%description urlwrapper
 A URL wrapper to start kanku from kanku:// urls in the browser
 
-%post url-wrapper
+%post urlwrapper
 update-mime-database /usr/share/mime
 update-desktop-database
 
-%preun url-wrapper
+%preun urlwrapper
 update-mime-database /usr/share/mime
 update-desktop-database
 
-%postun url-wrapper
+%postun urlwrapper
 update-mime-database /usr/share/mime
 update-desktop-database
 
-%files url-wrapper
-%attr(755,root,root) /usr/lib/kanku/kanku-url-wrapper
-%attr(644,root,root) /usr/share/applications/kanku-url-wrapper.desktop
+%files urlwrapper
+%attr(644,root,root) /usr/share/applications/kanku-urlwrapper.desktop
 %attr(644,root,root) /usr/share/mime/packages/kanku.xml
 %dir /usr/share/icons/hicolor
 %dir /usr/share/icons/hicolor/32x32

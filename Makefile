@@ -142,8 +142,7 @@ check: cover critic
 urlwrapper:
 	[ -d $(DESTDIR)/usr/share/applications/ ] || mkdir -p $(DESTDIR)/usr/share/applications/
 	[ -d $(DESTDIR)/usr/share/mime/packages ] || mkdir -p $(DESTDIR)/usr/share/mime/packages
-	install -m 755 dist/kanku-url-wrapper $(DESTDIR)/usr/lib/kanku/kanku-url-wrapper
-	install -m 644 dist/kanku-url-wrapper.desktop $(DESTDIR)/usr/share/applications/kanku-url-wrapper.desktop
+	install -m 644 dist/kanku-urlwrapper.desktop $(DESTDIR)/usr/share/applications/kanku-urlwrapper.desktop
 	install -m 644 dist/x-scheme-handler_kanku.xml $(DESTDIR)/usr/share/mime/packages/kanku.xml
 	[ -d $(DESTDIR)/usr/share/icons/hicolor/32x32/apps ] || mkdir -p $(DESTDIR)/usr/share/icons/hicolor/32x32/apps
 	[ -d $(DESTDIR)/usr/share/icons/hicolor/48x48/apps ] || mkdir -p $(DESTDIR)/usr/share/icons/hicolor/48x48/apps
