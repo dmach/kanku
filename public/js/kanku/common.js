@@ -527,6 +527,11 @@ Vue.component('job-history-header', {
 
 Vue.component('navigation-dropdown', {
   props: ['user_id', 'user_label', 'is_admin'],
+  methods: {
+    onLogin: function() {
+      this.$emit('login');
+    },
+  },
   template: ''
     + '<ul class="navbar-nav ml-auto">'
     + ' <li class="nav-item active dropdown">'
@@ -549,12 +554,14 @@ Vue.component('navigation-dropdown', {
     + '    </div>'
     + '   </div>'
     + '   <div v-else>'
-    + '    <input type=hidden name=return_url value="uri_base + request_path">'
-    + '    <label for="username" class=sr-only>Login Name</label>'
-    + '    <input style="margin-bottom: 5px" id="username" name=username class="form-control" placeholder="Login Name" required autofocus>'
-    + '    <label for="password" class=sr-only>Password</label>'
-    + '    <input style="margin-bottom: 5px;" type="password" name=password id="password" class="form-control" placeholder="Password" required>'
-    + '    <button class="btn btn-success btn-block" @click="$emit(\'login\')">Sign in</button>'
+    + '    <form @submit.prevent="onLogin">'
+    + '      <input type=hidden name=return_url value="uri_base + request_path">'
+    + '      <label for="username" class=sr-only>Login Name</label>'
+    + '      <input style="margin-bottom: 5px" id="username" name=username class="form-control" placeholder="Login Name" required autofocus>'
+    + '      <label for="password" class=sr-only>Password</label>'
+    + '      <input style="margin-bottom: 5px;" type="password" name=password id="password" class="form-control" placeholder="Password" required>'
+    + '      <input class="btn btn-success btn-block" type="submit" value="Sign in">'
+    + '    </form>'
     + '    <hr/>'
     + '    <router-link class="btn btn-primary btn-block" to="/signup">Sign Up</router-link>'
     + '    <router-link class="dropdown-item"  to="/pwreset">Forgot password?</router-link>'
