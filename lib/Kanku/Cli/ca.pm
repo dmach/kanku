@@ -80,15 +80,14 @@ sub run {
     $setup = Kanku::Setup::Server::Distributed->new(
       _ssl     => 1,
       ca_path  => dir($self->ca_path),
+      _apache  => 0,
     );
     $setup->_create_ca();
+    $setup->_create_server_cert();
+    $logger->warn("CA password: ".$setup->ca_pass);
   } else {
     croak('No valid setup mode found');
   }
-
-  $setup->dsn($self->dsn) if $self->dsn;
-
-  return $setup->setup();
 }
 
 __PACKAGE__->meta->make_immutable();
