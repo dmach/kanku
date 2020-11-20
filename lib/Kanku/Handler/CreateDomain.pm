@@ -459,7 +459,7 @@ sub _setup_9p {
       "mkdir -p $mp",
       "echo \"kankushare $mp 9p trans=virtio,version=9p2000.L$noauto 1 0\" >> /etc/fstab",
       "mount -a",
-      "echo 'force_drivers+=\"9p 9pnet 9pnet_virtio\"' >> /etc/dracut.conf.d/98-kanku.conf",
+      "echo 'force_drivers+=\" 9p 9pnet 9pnet_virtio \"' >> /etc/dracut.conf.d/98-kanku.conf",
       "dracut --force",
       # Be aware of the two spaces after delimiter
       'if [ -f /boot/grub2/device.map ] ;then grub2-install `cut -f2 -d\  /boot/grub2/device.map |head`;else /bin/true;fi',
