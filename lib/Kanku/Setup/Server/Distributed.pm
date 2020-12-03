@@ -87,17 +87,11 @@ sub setup {
 
   $self->_configure_libvirtd_access();
 
-  $self->_create_default_pool;
-
-  $self->_create_default_network;
-
   $self->_set_sudoers();
 
   $self->_create_ssh_keys;
 
   $self->_setup_rabbitmq;
-
-  $self->_setup_ovs_hooks;
 
   $self->_setup_nested_kvm;
 
@@ -121,6 +115,14 @@ sub setup {
        cache_dir      => '/var/cache/kanku',
     }
   );
+
+  $logger->info("Created $gconf!");
+
+  $self->_create_default_pool;
+
+  $self->_create_default_network;
+
+  $self->_setup_ovs_hooks;
 
   $logger->info("Server mode setup successfully finished!");
   $logger->info("To make sure libvirtd is coming up properly we recommend a reboot");

@@ -41,8 +41,13 @@ has cf => (
     my $home  = File::HomeDir->my_home;
     my @files = ("$home/.kanku/kanku-config.yml", '/etc/kanku/kanku-config.yml');
     for my $f (@files) {
-      return Kanku::YAML::LoadFile($f) if -f $f;
+      if (-f $f) {
+        $self->logger->debug("Found Config file '$f'!");
+        return Kanku::YAML::LoadFile($f);
+      }
+      $self->logger->debug("Config file '$f' not found!");
     }
+    $self->logger->debug("No config file found! Using empty configuration.");
     return {};
   }
 );
@@ -68,19 +73,21 @@ sub _build_config {
 }
 
 around 'config' => sub {
-  my $orig = shift;
-  my $self = shift;
+  my ($orig, $self) = @_;
+  my $cfg_file      = $self->file->stringify;
 
-  die "Config file '".$self->file->stringify."' not found!\n" if ( ! -f $self->file);
+  if ( ! -f $cfg_file ) {
+     die "Configuration file $cfg_file doesn`t exists\n";
+  }
 
   if (
     $self->file->stat->mtime > $self->last_modified or
     ! $self->$orig
   ) {
     if ( $self->last_modified ) {
-      $self->logger->debug("Modification of config file detected. Re-reading");
+      $self->logger->debug("Modification of config file ($cfg_file) detected. Re-reading");
     } else {
-      $self->logger->debug("Initial read of config file");
+      $self->logger->debug("Initial read of config file '$cfg_file'");
     }
     $self->last_modified($self->file->stat->mtime);
     return $self->$orig( $self->_build_config() );

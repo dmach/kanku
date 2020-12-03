@@ -223,6 +223,8 @@ sub process_template {
      $qemu_kvm = '/usr/bin/qemu-kvm';
   } elsif (-e  '/usr/bin/kvm') {
      $qemu_kvm = '/usr/bin/kvm';
+  } elsif ( $host_feature eq 'aarch64' && -e '/usr/bin/qemu-system-aarch64') {
+     $qemu_kvm = '/usr/bin/qemu-system-aarch64';
   } else {
      die "Could not find qemu-kvm binary!\n";
   }
@@ -347,6 +349,12 @@ sub _generate_disk_xml {
 sub _get_hw_virtualization {
   my $proc = open(my $fh,"<","/proc/cpuinfo") || die "Cannot open /proc/cpuinfo: $!";
   while (<$fh>) { return $1 if /(vmx|svm)/ }
+  open(my $uname, "uname -p|");
+  my $arch = <$uname>;
+  close($uname);
+  chomp $arch;
+  return $arch if ($arch eq "aarch64");
+  return;
 }
 
 

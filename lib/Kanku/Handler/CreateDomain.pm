@@ -41,8 +41,19 @@ has [qw/
       management_interface  management_network
       forward_port_list     images_dir
       short_hostname	    memory
-      network_name          network_bridge
+      network_bridge
 /] => (is => 'rw',isa=>'Str');
+
+has 'network_name' => (
+  is     => 'rw',
+  isa    =>'Str',
+  lazy   => 1,
+  default => sub {
+    my $cfg = Kanku::Config->instance->cf;
+    my $pkg = __PACKAGE__;
+    return $cfg->{$pkg}->{network_name} || 'kanku-devel';
+  },
+);
 
 has 'pool_name' => (
   is     => 'rw',
@@ -203,10 +214,6 @@ sub execute {
   }
 
   $self->logger->debug("Using memory: '$mem'");
-
-  if ( ! $self->network_name ) {
-    $self->network_name($cfg->{'Kanku::Handler::CreateDomain'}->{name} || 'kanku-devel'),
-  }
 
   if ($self->network_bridge) {
     $self->logger->debug("Using option network_bridge : '".$self->network_bridge."'");

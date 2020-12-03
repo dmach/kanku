@@ -427,6 +427,9 @@ sub _setup_nested_kvm {
   } elsif ( -f "/sys/module/kvm_amd/parameters/nested" ) {
     $pfile = "/sys/module/kvm_amd/parameters/nested";
     $kmod  = "kvm-amd";
+  } elsif ( -d "/sys/module/kvm/" ) {
+    $self->logger->info("Could not determine cpu type (intel/amd), but found kvm!");
+    return;
   } else {
     die "No proper cpu type found!\n";
   }

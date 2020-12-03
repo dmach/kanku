@@ -36,6 +36,7 @@ has dod_object => (
       skip_check_package  => $self->skip_check_package,
       project             => $self->project,
       package             => $self->package,
+      arch                => $self->arch,
       api_url             => $self->api_url,
       preferred_extension => $self->preferred_extension,
       use_oscrc           => $self->use_oscrc,
@@ -47,8 +48,9 @@ has ['api_url','project','package'] => (is=>'rw',isa=>'Str',required=>1);
 
 has '+api_url' => (default => 'https://api.opensuse.org/public');
 
-has ['base_url', 'repository', 'preferred_extension'] => (is=>'rw',isa=>'Str');
+has ['base_url', 'repository', 'preferred_extension', 'arch'] => (is=>'rw',isa=>'Str');
 has '+preferred_extension' => (lazy => 1, default => q{});
+has '+arch' => (lazy => 1, default => 'x86_64');
 has _changed => (is=>'rw',isa=>'Bool',default=>0);
 
 has _binary => (is=>'rw',isa=>'HashRef',lazy=>1,default=>sub { { } });

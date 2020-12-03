@@ -132,8 +132,8 @@ sub run {
         },
   );
   @ARGV=(); ## no critic (Variables::RequireLocalizedPunctuationVars)
+  Kanku::Config->initialize();
   if ($self->pool) {
-    Kanku::Config->initialize();
     Kanku::Config->instance->cf->{'Kanku::Handler::CreateDomain'}->{pool_name} = $self->pool;
   }
   my $dispatch = Kanku::Dispatch::Local->new(schema=>$schema);
