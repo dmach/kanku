@@ -18,12 +18,6 @@
 %define kanku_group  kanku
 %define kanku_vardir /var/lib/kanku/
 
-%if %{_arch} == 'aarch64'
-%define qemu_pkg qemu-arm
-%else
-%define qemu_pkg qemu-kvm
-%endif
-
 Name:           kanku
 # Version gets set by obs-service-tar_scm
 Version:        0.0.0
@@ -144,7 +138,7 @@ Recommends: osc
 Recommends: perl(IO::Uncompress::UnXz)
 Recommends: apache2
 Recommends: perl(YAML::PP::LibYAML)
-Requires: libvirt-daemon-qemu %{qemu_pkg} libvirt-daemon-config-network libvirt-daemon-config-nwfilter
+Requires: libvirt-daemon-qemu libvirt-daemon-config-network libvirt-daemon-config-nwfilter
 Requires: sudo
 Requires: perl(DBIx::Class::Fixtures)
 Requires: perl(Test::Simple)
@@ -302,7 +296,7 @@ TODO:
 Summary: Command line client for kanku
 Requires: kanku-common
 Requires: libvirt-client
-Requires(pre): libvirt-daemon libvirt-daemon-driver-qemu %{qemu_pkg}
+Requires(pre): libvirt-daemon libvirt-daemon-driver-qemu
 Requires(pre): sudo
 Requires: perl(Net::AMQP::RabbitMQ)
 Requires: perl(IO::Interactive)
@@ -324,7 +318,7 @@ and in developer mode
 
 %package common-server
 Summary: Common server files or settings for kanku
-Requires(pre): libvirt-daemon libvirt-daemon-driver-qemu %{qemu_pkg}
+Requires(pre): libvirt-daemon libvirt-daemon-driver-qemu
 
 %if 0%{?fedora}
 Requires(pre): shadow-utils
