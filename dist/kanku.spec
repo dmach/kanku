@@ -262,6 +262,7 @@ TODO:
 /usr/lib/kanku/lib/Kanku/Schema/
 /usr/lib/kanku/lib/Kanku/Setup/
 /usr/lib/kanku/lib/Kanku/Util/
+/usr/lib/kanku/lib/Kanku/Util.pm
 /usr/lib/kanku/lib/Kanku/Task/
 /usr/lib/kanku/lib/OpenStack/
 /usr/lib/kanku/lib/Kanku/Config.pm
