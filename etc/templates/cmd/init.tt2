@@ -20,6 +20,7 @@ jobs:
       project: [% project %]
       package: [% package %]
       repository: [% repository %]
+      arch: [% arch %]
       use_oscrc: 0
   -
     use_module: Kanku::Handler::ImageDownload

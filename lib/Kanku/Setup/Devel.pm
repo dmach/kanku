@@ -5,6 +5,7 @@ use Carp;
 use Path::Class qw/dir file/;
 use English qw/-no_match_vars/;
 use File::HomeDir;
+use Kanku::Util;
 with 'Kanku::Setup::Roles::Common';
 with 'Kanku::Roles::Logger';
 
@@ -80,6 +81,7 @@ sub setup {
        use_publickey  => 0,
        distributed    => 0,
        cache_dir      => "$home/.cache/kanku",
+       arch           => Kanku::Util::get_arch(),
     }
   );
 

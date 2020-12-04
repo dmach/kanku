@@ -9,6 +9,7 @@ Kanku::Util::DoD:
 Kanku::Cli::init:
   package: openSUSE-Leap-15.3-JeOS
   repository: images_leap_15.3
+  arch: [% arch %]
 
 plugins:
   DBIC:
