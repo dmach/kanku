@@ -497,7 +497,7 @@ sub remove_domain {
 
     $self->logger->debug("Undefine domain '".$dom->get_name."'");
     $self->_manual_delete_volumes;
-    $dom->undefine;
+    $dom->undefine(Sys::Virt::Domain::UNDEFINE_NVRAM);
     $self->logger->debug("Successfully undefined domain '".$dom->get_name."'");
   } catch {
     die $_->message ."\n";
