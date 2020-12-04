@@ -28,15 +28,13 @@ Kanku::Util::VM::Console:
 #qemu:
 #  user: qemu
 #  images_dir: /var/lib/libvirt/images
-[% IF distributed %]
-Kanku::Handler::CreateDomain:
-  name:   kanku-ovs
-  bridge: kanku-br0
-  iptables_chain:      KANKU_HOSTS
-[% ELSE %]
+
 # Kanku::Handler::CreateDomain:
 #   pool_name: mypool
-[% END %]
+# Kanku::Cli::lsi:
+#   project_name: devel:kanku:images:aarch64
+#   arch: aarch64
+
 [% IF use_publickey %]
 Kanku::Roles::SSH:
   auth_type: publickey
@@ -44,6 +42,11 @@ Kanku::Roles::SSH:
   publickey_path: /etc/kanku/ssh/id_rsa.pub
 [% END %]
 [% IF distributed %]
+Kanku::Handler::CreateDomain:
+  name:   kanku-ovs
+  bridge: kanku-br0
+  iptables_chain:      KANKU_HOSTS
+
 dispatcher: Kanku::Dispatch::RabbitMQ
 
 Kanku::LibVirt::HostList:

@@ -21,6 +21,8 @@ use warnings;
 use MooseX::App::Command;
 extends qw(Kanku::Cli);
 use Net::OBS::Client::Project;
+use Kanku::Config;
+
 
 command_short_description  'list standard kanku images';
 command_long_description   'This command lists the standard kanku images which'.
@@ -36,15 +38,17 @@ option 'name' => (
 
 sub run {
   my $self    = shift;
-  my $prj_name = "devel:kanku:images";
+  my $pkg     = __PACKAGE__;
+  Kanku::Config->initialize();
+  my $prj_name = Kanku::Config->instance->cf->{$pkg}->{project_name} || 'devel:kanku:images';
   my $prj = Net::OBS::Client::Project->new(
     name     => $prj_name,
     apiurl   => 'https://build.opensuse.org/public',
   );
 
-  my $res = $prj->fetch_resultlist;
-  my $reg ='.*'.$self->name.'.*';
-
+  my $res  = $prj->fetch_resultlist;
+  my $reg  = '.*'.$self->name.'.*';
+  my $arch = Kanku::Config->instance->cf->{$pkg}->{arch} || 'x86_64';
   foreach my $tmp (@{$res}) {
     foreach my $pkg (@{$tmp->{status}}) {
       if ($pkg->{code} !~ /disabled|excluded/) {
@@ -57,7 +61,7 @@ sub run {
       project: $prj_name
       package: $pkg->{package}
       repository: $tmp->{repository}
-
+      arch: $arch
 EOF
   ;
       }
