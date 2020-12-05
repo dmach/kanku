@@ -74,6 +74,12 @@ sub setup {
 
   $self->_backup_config_file($gconf);
 
+  my $arch = Kanku::Util::get_arch();
+  my $arch2repo = {
+    x86_64  => 'devel:kanku:images',
+    aarch64 => 'devel:kanku:images:aarch64',
+  };
+
   $self->_create_config_from_template(
     "kanku-config.yml.tt2",
     $gconf,
@@ -81,7 +87,8 @@ sub setup {
        use_publickey  => 0,
        distributed    => 0,
        cache_dir      => "$home/.cache/kanku",
-       arch           => Kanku::Util::get_arch(),
+       arch           => $arch,
+       official_image_repo => $arch2repo->{$arch},
     }
   );
 

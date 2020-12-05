@@ -33,9 +33,9 @@ Kanku::Util::VM::Console:
 
 # Kanku::Handler::CreateDomain:
 #   pool_name: mypool
-# Kanku::Cli::lsi:
-#   project_name: devel:kanku:images:aarch64
-#   arch: aarch64
+Kanku::Cli::lsi:
+  project_name: [% official_image_repo %]
+
 
 [% IF use_publickey %]
 Kanku::Roles::SSH:
