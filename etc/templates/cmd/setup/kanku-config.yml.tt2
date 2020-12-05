@@ -2,6 +2,7 @@
 views_dir: /usr/share/kanku/views
 log_dir: /var/log/kanku
 cache_dir: [% cache_dir %]
+arch: [% arch %]
 
 Kanku::Util::DoD:
   use_oscrc: 0

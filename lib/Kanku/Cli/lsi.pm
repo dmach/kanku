@@ -48,7 +48,7 @@ sub run {
 
   my $res  = $prj->fetch_resultlist;
   my $reg  = '.*'.$self->name.'.*';
-  my $arch = Kanku::Config->instance->cf->{$pkg}->{arch} || 'x86_64';
+  my $arch = Kanku::Config->instance->cf->{arch} || 'x86_64';
   foreach my $tmp (@{$res}) {
     foreach my $pkg (@{$tmp->{status}}) {
       if ($pkg->{code} !~ /disabled|excluded/) {

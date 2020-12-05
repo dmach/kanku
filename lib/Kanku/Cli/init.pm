@@ -173,6 +173,7 @@ sub run {
         package       => $self->package,
         repository    => $self->repository,
         pool          => $self->pool,
+        arch          => Kanku::Config->instance->cf->{'arch'},
   };
 
   my $output = q{};
