@@ -74,7 +74,12 @@ option 'project' => (
     documentation => 'Project name to search for images in OBSCheck',
     cmd_aliases   => ['prj'],
     lazy          => 1,
-    default       => 'devel:kanku:images',
+    default       => sub {
+      Kanku::Config->initialize();
+      my $cfg = Kanku::Config->instance();
+      my $pkg = __PACKAGE__;
+      return $cfg->cf->{$pkg}->{project} || 'devel:kanku:images';
+    },
 );
 
 option 'package' => (
