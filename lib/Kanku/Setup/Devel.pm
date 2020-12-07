@@ -92,6 +92,8 @@ sub setup {
     }
   );
 
+  my ($user, $passwd, $uid, $gid ) = getpwuid(getpwnam($self->user));
+  chown($uid, $gid, $gconf) || die "Could not chown ($uid, $gid, $gconf): $!\n";
 
   $logger->info('Developer mode setup successfully finished!');
   $logger->info('Please reboot to make sure, libvirtd is coming up properly');
