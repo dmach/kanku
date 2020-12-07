@@ -10,7 +10,7 @@ Kanku::Util::DoD:
 Kanku::Cli::init:
   project: [% official_image_repo %]
   package: openSUSE-Leap-15.3-JeOS
-  repository: images_leap_15.3
+  repository: images_leap_15_3
   arch: [% arch %]
 
 plugins:
