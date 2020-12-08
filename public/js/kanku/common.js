@@ -107,7 +107,16 @@ Vue.component('head-line', {
 });
 
 Vue.component('worker-info',{
-  props: ['worker'],
+  props: ['worker', 'result'],
+  computed: {
+    jobError: function() {
+      if (this.result) {
+        var res = JSON.parse(this.result);
+	return res.error_message
+      }
+      return undefined;
+    },
+  },
   template: ''
     + '<div class="worker_info">'
     + '  <div class="row">'
@@ -137,6 +146,11 @@ Vue.component('worker-info',{
     + '  <div class="row" v-show="worker.error">'
     + '    <div class="col-md-12">'
     + '      <pre>{{ worker.error }}</pre>'
+    + '    </div>'
+    + '  </div>'
+    + '  <div class="row" v-show="jobError">'
+    + '    <div class="col-md-12">'
+    + '      <pre>{{ jobError }}</pre>'
     + '    </div>'
     + '  </div>'
     + '</div>'
@@ -227,7 +241,7 @@ Vue.component('task-list',{
   },
   template: ''
     + '<div class="card-body">'
-    + ' <worker-info v-bind:worker="workerinfo"></worker-info>'
+    + ' <worker-info :worker="workerinfo" :result="result"></worker-info>'
     + ' <job-history-task-card v-bind:key="task.id" v-bind:task="task" v-for="task in jobData.subtasks"></job-history-task-card>'
     +'</div>'
 });
@@ -333,7 +347,7 @@ Vue.component('job-history-card',{
     + '    </div>'
     + '  </div>'
     + ' </div>'
-    + ' <task-list v-show="showDetails" ref="tasklist" v-bind:workerinfo="workerInfo" v-bind:subtasks="subtasks"></task-list>'
+    + ' <task-list v-show="showDetails" ref="tasklist" v-bind:workerinfo="workerInfo" v-bind:subtasks="subtasks" v-bind:result="job.result"></task-list>'
     + ' <b-modal ref="modalComment" hide-footer title="Comments for Job">'
     + '  <div>'
     + '   <single-job-comment v-for="cmt in job.comments" v-bind:key="cmt.id" v-bind:comment="cmt">'
