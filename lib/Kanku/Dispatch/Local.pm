@@ -66,24 +66,33 @@ sub run_job {
     $logger->debug("--- trigger_user $un");
     $defaults{final_args}->{domain_name} =~ s{^($un-)?}{$un-}smx if ($un && exists $defaults{final_args}->{domain_name});
     $logger->debug('--- final_args'.$self->dump_it($defaults{final_args}));
-use Data::Dumper;
-print Dumper(\%defaults);
-    $task = Kanku::Task->new(
-      %defaults,
-      options   => $sub_task->{options} || {},
-      schema    => $self->schema,
-      scheduler => $self,
-      args      => $task_args,
-    );
 
-    my $tr = Kanku::Task::Local->new(
-      %defaults,
-      schema          => $self->schema
-    );
+    try {
+      $task = Kanku::Task->new(
+	%defaults,
+	options   => $sub_task->{options} || {},
+	schema    => $self->schema,
+	scheduler => $self,
+	args      => $task_args,
+      );
 
-    $task->run($tr);
+      my $tr = Kanku::Task::Local->new(
+	%defaults,
+	schema          => $self->schema
+      );
 
-    last if ( $task->state eq 'failed' or $job->skipped);
+      $task->run($tr);
+
+      last if ( $task->state eq 'failed' or $job->skipped);
+      $job->state($task->state);
+    } catch {
+      $logger->debug("setting job state to failed: '$_'");
+      $job->state('failed');
+      $job->result(encode_json({error_message=>$_}));
+      # last task failed - so we undefine it
+      $task = undef;
+    };
+
   }
 
   $job->state($task->state);
