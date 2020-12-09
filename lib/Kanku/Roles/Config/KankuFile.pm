@@ -43,7 +43,7 @@ sub job_config {
   my $self      = shift;
   my $job_name  = shift;
 
-  return $self->config->{jobs}->{$job_name};
+  return {tasks=>$self->config->{jobs}->{$job_name}};
 }
 
 sub notifiers_config {
