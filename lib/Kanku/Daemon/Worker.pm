@@ -173,9 +173,12 @@ sub listen_on_queue {
           my @seen_already = grep { $data->{job_id} == $_ } @seen;
           if (! @seen_already) {
             push @seen, $data->{job_id};
-	    if ($data->{arch} eq $self->arch) {
+	    if ($data->{arch} eq $self->arch or $data->{arch} eq 'any') {
+	      $logger->debug("arch matched $data->{arch} - handling advertisement");
               $self->handle_advertisement($data, $kmq);
-	    }
+	    } else {
+	      $logger->debug("arch didn`t match. got $data->{arch} but have ".$self->arch);
+            }
           } else {
 	    $logger->debug("Duplicate job advertisment detected (job_id: $data->{job_id})");
           }
