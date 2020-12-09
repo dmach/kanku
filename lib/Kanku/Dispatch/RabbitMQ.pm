@@ -280,8 +280,11 @@ sub run_job {
     }
     $job->state($last_task->state);
   } catch {
+    $logger->debug("setting job state to failed: '$_'");
     $job->state('failed');
     $job->result(encode_json({error_message=>$_}));
+    # last task failed - so we undefine it
+    $last_task = undef;
   };
 
   $self->notify_queue->send({

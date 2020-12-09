@@ -34,10 +34,10 @@ sub file {
   my @files = ("$home/.kanku/kanku-config.yml", '/etc/kanku/kanku-config.yml');
   for my $f (@files) {
     if (-f $f) {
-      $self->logger->info("Found Config file: $f");
+      $self->logger->trace("Found Config file: $f");
       return Path::Class::File->new($f);
     }
-    $self->logger->debug("Config file: $f not found");
+    $self->logger->trace("Config file: $f not found");
   }
 }
 
@@ -111,12 +111,16 @@ sub job_config {
 }
 
 sub load_job_config {
-  my ($self, $job_name) = @_;
+  my ($self, $job_name, $yml) = @_;
   try {
     my $include = YAML::PP::Schema::Include->new;
     my $yp = YAML::PP->new( schema => [$include] );
     $include->yp($yp);
-    return $yp->load_file("/etc/kanku/jobs/$job_name.yml");
+    if ($yml) {
+      return $yp->load_string($yml);
+    } else {
+      return $yp->load_file("/etc/kanku/jobs/$job_name.yml");
+    }
   } catch {
       die "Error while parsing job config yaml file for job '$job_name':\n$_";
   }
@@ -126,7 +130,7 @@ sub notifiers_config {
   my ($self,$job_name) = @_;
   my ($cfg,$yml);
   $yml = $self->job_config_plain($job_name);
-  $cfg = $self->load_job_config($yml,$job_name);
+  $cfg = $self->load_job_config($job_name, $yml);
 
   if (ref($cfg) eq 'HASH') {
     return $cfg->{notifiers} if (ref($cfg->{notifiers}) eq 'ARRAY');

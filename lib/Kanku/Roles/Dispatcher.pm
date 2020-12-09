@@ -198,7 +198,7 @@ sub execute_notifier {
 
   my $result;
   try {
-    $result = decode_json($task->result)->{error_message} 
+    $result = decode_json($task->result)->{error_message}
               || 'No errors found in task result';
   } catch {
     $result = 'Error while decoding result of task from job '.
@@ -287,8 +287,11 @@ sub start_job {
 
 sub end_job {
   my ($self, $job, $task) = @_;
-
-  $job->state(($job->skipped) ? 'skipped' : $task->state);
+  if ($task) {
+    $job->state(($job->skipped) ? 'skipped' : $task->state);
+  } else {
+    $job->state('skipped') if ($job->skipped);
+  }
   $job->end_time(time());
   $job->update_db();
 
