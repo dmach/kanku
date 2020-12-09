@@ -20,6 +20,7 @@ use Kanku::Config;
 use Kanku::Task::Local;
 use Kanku::Job;
 use Kanku::Airbrake;
+use Kanku::Util;
 
 with 'Kanku::Roles::Logger';
 with 'Kanku::Roles::ModLoader';
@@ -51,6 +52,12 @@ has hostname              => (is=>'rw',
                                 $_[0]->logger->fatal($msg);
                                 croak("$msg\n");
                               },
+);
+
+has arch => (
+  is => 'rw',
+  isa => 'Str',
+  default => sub { return Kanku::Util::get_arch(); },
 );
 
 sub run {
@@ -130,6 +137,7 @@ sub listen_on_queue {
     $logger->error("Could not create queue for exchange $opts{exchange_name}: $_");
   };
   my @seen;
+  $logger->info("Starting worker process (arch: ".$self->arch.")");
   while(1) {
     try {
       my $msg = $kmq->recv(1000);
@@ -165,7 +173,9 @@ sub listen_on_queue {
           my @seen_already = grep { $data->{job_id} == $_ } @seen;
           if (! @seen_already) {
             push @seen, $data->{job_id};
-            $self->handle_advertisement($data, $kmq);
+	    if ($data->{arch} eq $self->arch) {
+              $self->handle_advertisement($data, $kmq);
+	    }
           } else {
 	    $logger->debug("Duplicate job advertisment detected (job_id: $data->{job_id})");
           }

@@ -55,7 +55,7 @@ sub run_job {
 
   my $task;
 
-  foreach my $sub_task (@{$job_definition}) {
+  foreach my $sub_task (@{$job_definition->{tasks}}) {
     my $task_args = shift(@$args) || {};
     my %defaults = (
       job         => $job,

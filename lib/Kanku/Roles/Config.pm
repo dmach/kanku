@@ -102,9 +102,9 @@ sub job_config {
   $cfg = $self->load_job_config($job_name);
 
   if (ref($cfg) eq 'ARRAY') {
-    return $cfg;
+    return {tasks=>$cfg,arch=>'x64_64'};
   } elsif (ref($cfg) eq 'HASH') {
-    return $cfg->{tasks} if (ref($cfg->{tasks}) eq 'ARRAY');
+    return $cfg if (ref($cfg->{tasks}) eq 'ARRAY');
   }
 
   die "No valid job configuration found\n";
