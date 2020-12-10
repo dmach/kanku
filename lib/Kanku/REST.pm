@@ -263,7 +263,7 @@ get '/gui_config/job.:format' => sub {
     push @config , $job_config;
     my $job_cfg;
     try {
-      $job_cfg = $cfg->job_config($job_name);
+      $job_cfg = $cfg->job_config($job_name)->{tasks};
     } catch {
       $job_cfg = $_;
     };
