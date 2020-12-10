@@ -39,6 +39,7 @@ use Kanku::Schema;
 use Kanku::Setup::Devel;
 use Kanku::Setup::Server::Distributed;
 use Kanku::Setup::Server::Standalone;
+use Kanku::Setup::Worker;
 
 command_short_description  'Setup local environment to work as server or developer mode.';
 
@@ -57,6 +58,12 @@ option 'devel' => (
     isa           => 'Bool',
     is            => 'rw',
     documentation => 'Run setup in developer mode',
+);
+
+option 'worker' => (
+    isa           => 'Bool',
+    is            => 'rw',
+    documentation => 'Run setup in worker mode',
 );
 
 option 'user' => (
@@ -190,7 +197,7 @@ sub run {
 
   ### Get information
   # ask for mode
-  $self->_ask_for_install_mode() unless ($self->devel or $self->server);
+  $self->_ask_for_install_mode() unless ($self->devel or $self->server or $self->worker);
 
   my $setup;
 
@@ -220,6 +227,19 @@ sub run {
       interactive     => $self->interactive,
       dns_domain_name => $self->dns_domain_name,
     );
+  } elsif ($self->worker) {
+    $setup = Kanku::Setup::Worker->new(
+#      user            => $self->user,
+#      images_dir      => $self->images_dir,
+#      apiurl          => $self->apiurl,
+#      osc_user        => $self->osc_user,
+#      osc_pass        => $self->osc_pass,
+#      _ssl            => $self->ssl,
+#      _apache         => $self->apache,
+#      _devel          => 1,
+#      interactive     => $self->interactive,
+#      dns_domain_name => $self->dns_domain_name,
+    );
   } else {
     croak('No valid setup mode found');
   }
@@ -237,12 +257,13 @@ Please select installation mode :
 
 (1) server
 (2) devel
+(3) worker
 
 (9) Quit setup
 EOF
 
   while (1) {
-    my $answer = <>;
+    my $answer = <STDIN>;
     chomp $answer;
     exit 0 if ( $answer == 9 );
 
@@ -253,6 +274,11 @@ EOF
 
     if ( $answer == 2 ) {
       $self->devel(1);
+      last;
+    }
+
+    if ( $answer == 3 ) {
+      $self->worker(1);
       last;
     }
   }
