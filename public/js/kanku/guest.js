@@ -138,6 +138,11 @@ const guestPage = {
       axios.get(url, { params: params }).then(function(response) {
         self.guest_list = response.data.guest_list;
         $('#spinner').hide();
+	if (response.data.errors) {
+	  response.data.errors.forEach(function(error) {
+            show_messagebox("danger", error);
+          });
+	}
       });
     },
     sortedGuests: function() {
@@ -167,6 +172,7 @@ const guestPage = {
     + '    </div>'
     + '  </div>'
     + '  <spinner></spinner>'
+    + '  <div v-if="Object.keys(guest_list) < 1">No guests found!</div>'
     + '  <guest-card v-for="guest in sortedGuests()" :show_details="show_details" :key="guest" :data="guest_list[guest]" :is_admin="is_admin"></guest-card>'
     + '</div>'
 };
