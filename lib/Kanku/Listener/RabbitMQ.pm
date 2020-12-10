@@ -96,7 +96,7 @@ sub normalize_trigger_config {
     'repo.publish'          => {}
   };
 
-  my $triggers = $config->{triggers};
+  my $triggers = $config->{triggers} || [];
 
   for my $t_tmp (@{$triggers}) {
     my $package_key = $t_tmp->{project}.'/'.$t_tmp->{package}.'/'.$t_tmp->{repository}.'/'.$t_tmp->{arch};
