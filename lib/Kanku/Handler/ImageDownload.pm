@@ -222,7 +222,6 @@ sub remove_old_images {
        vm_image_file => {'-not_like' => $file},
     }
   );
-  my $ofiles = $self->_old_files;
   foreach my $img ($rs->all()) {
     $logger->debug("removing file: " . $img->vm_image_file);
     unlink $img->vm_image_file;
