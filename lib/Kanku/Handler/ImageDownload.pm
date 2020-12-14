@@ -132,6 +132,8 @@ sub execute {
 
   $self->update_history($tmp_file, $etag);
 
+  $self->remove_old_images($tmp_file);
+
   return {
     state => 'succeed',
     message => "Sucessfully downloaded image to $tmp_file"
@@ -155,6 +157,7 @@ sub _calc_output_file {
 
 sub update_history {
   my ($self, $vm_image_file, $etag) = @_;
+  my $ctx = $self->job()->context();
 
   my $rs = $self->schema->resultset('ImageDownloadHistory')->update_or_create(
     {
@@ -162,6 +165,10 @@ sub update_history {
       vm_image_file   => $vm_image_file,
       download_time   => time(),
       etag            => $etag,
+      project         => $ctx->{obs_project},
+      package         => $ctx->{obs_package},
+      repository      => $ctx->{obs_repository},
+      arch            => $ctx->{obs_arch},
     },
     { key => 'primary' }
   );
@@ -199,6 +206,28 @@ sub get_from_history {
     message => "Sucessfully found vm_image_file '$ctx->{vm_image_file}' in database"
   };
 
+}
+
+sub remove_old_images {
+  my ($self, $file) = @_;
+  my $ctx           = $self->job->context;
+  my $logger        = $self->logger;
+
+  my $rs = $self->schema->resultset('ImageDownloadHistory')->search(
+    {
+       project    => $ctx->{obs_project},
+       package    => $ctx->{obs_package},
+       repository => $ctx->{obs_repository},
+       arch       => $ctx->{obs_arch},
+       vm_image_file => {'-not_like' => $file},
+    }
+  );
+  my $ofiles = $self->_old_files;
+  foreach my $img ($rs->all()) {
+    $logger->debug("removing file: " . $img->vm_image_file);
+    unlink $img->vm_image_file;
+  }
+  $rs->delete;
 }
 
 1;
