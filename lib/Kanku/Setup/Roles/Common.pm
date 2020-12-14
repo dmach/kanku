@@ -110,6 +110,8 @@ EOF
 
   my $dconf = file('/etc/libvirt/libvirtd.conf');
 
+  $self->_backup_config_file($dconf);
+
   my @lines = $dconf->slurp;
   my $user  = $opts{user};
   my $group = 'libvirt';
@@ -124,7 +126,7 @@ EOF
   my $seen={};
   my $regex = '^#?(('.join(q{|}, keys %{$defaults}).').*)';
   for my $line (splice @lines) {
-    if ( $line =~ s/$regex/$1/ ) {
+    if ( $line =~ s/$regex/$2 = '$defaults->{$2}'/ ) {
       $seen->{$2} = 1;
     }
     push @lines, $line;
