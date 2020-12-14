@@ -55,7 +55,7 @@ sub run_job {
 
   my $task;
 
-  foreach my $sub_task (@{$job_definition}) {
+  foreach my $sub_task (@{$job_definition->{tasks}}) {
     my $task_args = shift(@$args) || {};
     my %defaults = (
       job         => $job,
@@ -82,9 +82,8 @@ sub run_job {
       );
 
       $task->run($tr);
-
-      last if ( $task->state eq 'failed' or $job->skipped);
       $job->state($task->state);
+      die $task->result if $task->state eq 'failed';
     } catch {
       $logger->debug("setting job state to failed: '$_'");
       $job->state('failed');
@@ -93,9 +92,9 @@ sub run_job {
       $task = undef;
     };
 
-  }
 
-  $job->state($task->state);
+    last if $job->skipped || !$task;
+  }
 
   $self->end_job($job,$task);
 

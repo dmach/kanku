@@ -49,6 +49,14 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_nullable => 1 },
   "etag",
   { data_type => "text", is_nullable => 1 },
+  "project",
+  { data_type => "text", is_nullable => 1 },
+  "package",
+  { data_type => "text", is_nullable => 1 },
+  "repository",
+  { data_type => "text", is_nullable => 1 },
+  "arch",
+  { data_type => "text", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY

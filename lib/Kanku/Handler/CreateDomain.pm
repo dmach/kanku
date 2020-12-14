@@ -245,6 +245,11 @@ sub execute {
       $self->logger->debug("additional_disk: - after: $file->{file}");
   }
 
+  my $pkg = __PACKAGE__;
+  my $network_name = $self->network_name
+    || Kanku::Config->instance->cf->{$pkg}->{network_name}
+    || 'kanku-devel';
+
   my $vm = Kanku::Util::VM->new(
       vcpu                  => $self->vcpu,
       memory                => $mem,
@@ -258,7 +263,7 @@ sub execute {
       empty_disks           => $self->empty_disks,
       additional_disks      => $self->additional_disks,
       job_id                => $self->job->id,
-      network_name          => $self->network_name,
+      network_name          => $network_name,
       network_bridge        => $self->network_bridge,
       running_remotely      => $self->running_remotely,
       image_file            => $final_file,

@@ -35,8 +35,8 @@ sub list {
     try {
       $vmm = Sys::Virt->new(uri => $host->{remote_url});
     } catch {
-      my $error = "ERROR while connecting '$host->{remote_ip}' " .$_->message;
-      $self->log('error', $error);
+      my $error = "ERROR while connecting '$host->{hostname}' ";
+      $self->log('error', $error . $_->message);
       $self->log('debug', $host);
       push @{$result->{errors}}, $error;
     };

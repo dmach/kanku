@@ -230,6 +230,7 @@ sub run_job {
       {
 	 answer_queue	  => $queue,
 	 job_id	  	  => $job->id,
+	 arch             => $job_definition->{arch} || 'x86_64',
       }
     );
     die "shutdown detected while waiting for applications" if ($self->detect_shutdown);
@@ -264,7 +265,7 @@ sub run_job {
   my $last_task;
 
   try {
-    foreach my $sub_task (@{$job_definition}) {
+    foreach my $sub_task (@{$job_definition->{tasks}}) {
       my $task_args = shift(@$args) || {};
       $last_task = $self->run_task(
 	job       => $job,
@@ -452,7 +453,7 @@ sub advertise_job {
 
   my $data = encode_json({action => 'advertise_job', %$opts});
 
-  $logger->debug("creating new queue: ".$opts->{answer_queue});
+  $logger->debug("creating new queue: ".$opts->{answer_queue}." (arch: ".$opts->{arch}.")");
 
   my $wcnt = 0;
 

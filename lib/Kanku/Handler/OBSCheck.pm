@@ -198,6 +198,8 @@ sub execute {
   $ctx->{obs_password}   = $binary->{obs_password};
   $ctx->{obs_project}    = $self->project;
   $ctx->{obs_package}    = $self->package;
+  $ctx->{obs_repository} = $self->repository;
+  $ctx->{obs_arch}       = $self->arch;
 
   if (!($ctx->{vm_image_url} or $ctx->{obs_direct_url})) {
     croak("Neither vm_image_url nor obs_direct_url found\n"
