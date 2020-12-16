@@ -252,7 +252,7 @@ sub handle_advertisement {
       );
 
       # TODO: Need timeout
-      my $timeout = 1 * 60 * 1000;
+      my $timeout = 10 * 1000;
       $logger->debug("Waiting $timeout for offer_job (job_id: $job_id)");
       my $msg = $job_kmq->recv($timeout);
       if ( $msg ) {
