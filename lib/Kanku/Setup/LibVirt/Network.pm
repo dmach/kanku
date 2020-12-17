@@ -72,6 +72,7 @@ sub prepare_ovs {
 	if ( $? > 0 ) {
 		$self->logger->info("Creating bridge $br");
 		system('ovs-vsctl','add-br',$br);
+                system('ovs-vsctl','set','bridge', $br,'stp_enable=true');
 	} else {
 		$self->logger->info("Bridge $br already exists");
 	}
