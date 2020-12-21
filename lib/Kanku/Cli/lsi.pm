@@ -33,6 +33,7 @@ option 'name' => (
   is            => 'rw',
   cmd_aliases   => 'n',
   documentation => 'filter list by name ',
+  default       => '',
 );
 
 
@@ -49,7 +50,7 @@ sub run {
   my $res  = $prj->fetch_resultlist;
   my $reg  = '.*'.$self->name.'.*';
   my $arch = Kanku::Config->instance->cf->{arch} || 'x86_64';
-  foreach my $tmp (@{$res}) {
+  foreach my $tmp (@{$res->{result}}) {
     foreach my $pkg (@{$tmp->{status}}) {
       if ($pkg->{code} !~ /disabled|excluded/) {
         if ($pkg->{package} =~ $reg) {
