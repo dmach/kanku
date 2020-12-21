@@ -227,7 +227,6 @@ sub retrigger {
   my $jd   = {
     name          => $name,
     args          => $j->args,
-    trigger_user  => $self->current_user->{username},
     state         => 'triggered',
     creation_time => time(),
   };
