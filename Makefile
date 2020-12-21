@@ -40,7 +40,7 @@ _DOCDIR = $(DESTDIR)/$(DOCDIR)
 
 PERL_CRITIC_READY := bin/*
 
-ARCH = $(shell uname -p)
+ARCH = $(shell uname -m)
 
 all:
 
