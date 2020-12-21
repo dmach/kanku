@@ -128,9 +128,7 @@ sub load_job_config {
 
 sub notifiers_config {
   my ($self,$job_name) = @_;
-  my ($cfg,$yml);
-  $yml = $self->job_config_plain($job_name);
-  $cfg = $self->load_job_config($job_name, $yml);
+  my $cfg = $self->load_job_config($job_name);
 
   if (ref($cfg) eq 'HASH') {
     return $cfg->{notifiers} if (ref($cfg->{notifiers}) eq 'ARRAY');
