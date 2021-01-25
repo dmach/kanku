@@ -20,10 +20,10 @@
 
 Name:           kanku
 # Version gets set by obs-service-tar_scm
-Version:        0.0.0
-Release:        0.0
+Version:        0.10.0
+Release:        0
 License:        GPL-3.0
-Summary:        Development and continuous integration made easy
+Summary:        Development and continuous integration
 Url:            https://github.com/M0ses/kanku
 Group:          Productivity/Networking/Web/Utilities
 Source:         %{name}-%{version}.tar.xz
@@ -90,10 +90,6 @@ BuildRequires: perl(UUID)
 BuildRequires: libvirt-daemon
 BuildRequires: desktop-file-utils
 BuildRequires: shared-mime-info
-
-
-BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-
 Requires: kanku-cli
 Requires: kanku-web
 Requires: kanku-worker
@@ -102,20 +98,20 @@ Requires: kanku-dispatcher
 Requires: kanku-triggerd
 
 %description
-kanku is designed to give you a better integration of your kiwi images built
-by the Open Build Service (OBS) in your development and testing workflow.
+kanku is a utility for integration of kiwi images built
+by the Open Build Service (OBS) in a development and testing workflow.
 
-It provides a framework for simple automation of complex setups,
-e.g. to prepare your development environment or run simple tests.
+It provides a framework for automation of setups,
+e.g. to prepare development environments or run simple tests.
 
 %prep
-%setup -q
+%autosetup -p1
 
 %build
 /bin/true
 
 %install
-make install DESTDIR=%{buildroot} DOCDIR=%{_defaultdocdir}/kanku/
+%make_install DOCDIR=%{_defaultdocdir}/kanku/
 %fdupes %{buildroot}/opt/kanku/share
 ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rckanku-web
 ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rckanku-worker
@@ -197,7 +193,6 @@ TODO:
 %tmpfiles_create %_tmpfilesdir/kanku.conf
 
 %files common
-%defattr(-,root,root)
 %doc README.md TODO
 
 %dir /usr/lib/kanku
@@ -307,7 +302,7 @@ Requires: (perl(Passwd::Keyring::Gnome) if gnome-keyring)
 
 %description cli
 Command line client for kanku, mainly used for setup tasks
-and in developer mode
+and in developer mode.
 
 %files cli
 %dir /usr/share/kanku/views/cli/
@@ -331,12 +326,11 @@ Requires(pre): shadow
 %description common-server
 This package contains common server files, settings and dependencies 
 for the kanku server components like kanku-worker, kanku-dispatcher,
-kanku-web, kanku-scheduler and kanku-triggerd
+kanku-web, kanku-scheduler and kanku-triggerd.
 
 %pre common-server
 getent group %{kanku_group} >/dev/null || groupadd -r %{kanku_group}
 getent passwd %{kanku_user} >/dev/null || useradd -r -g %{kanku_group} -G libvirt -d %{kanku_vardir} -s /sbin/nologin -c "user for kanku" %{kanku_user}
-exit 0
 
 %files common-server
 %defattr(-, root, root)
@@ -427,7 +421,7 @@ Requires: perl(Sys::MemInfo)
 Recommends: apache2 
 
 %description worker
-A simple remote worker for kanku based on RabbitMQ
+A remote worker for kanku based on RabbitMQ.
 
 %post worker
 %systemd_post kanku-worker.service
@@ -455,7 +449,7 @@ Requires(pre): sudo
 Recommends: rabbitmq-server
 
 %description dispatcher
-A simple dispatcher for kanku based on RabbitMQ
+A dispatcher for kanku based on RabbitMQ.
 
 %post dispatcher
 %systemd_post kanku-dispatcher.service
@@ -480,7 +474,7 @@ Requires: kanku-common
 Requires: kanku-common-server
 
 %description scheduler
-A simple scheduler for kanku based on RabbitMQ
+A scheduler for kanku based on RabbitMQ.
 
 %post scheduler
 %systemd_post kanku-scheduler.service
@@ -503,7 +497,7 @@ Requires: kanku-common
 Requires: kanku-common-server
 
 %description triggerd
-A simple triggerd for kanku based on RabbitMQ
+A triggerd for kanku based on RabbitMQ.
 
 %post triggerd
 %systemd_post kanku-triggerd.service
@@ -527,7 +521,7 @@ A simple triggerd for kanku based on RabbitMQ
 Summary: Documentation files for kanku
 
 %description doc
-This package contains the documentation files for kanku
+This package contains the documentation files for kanku.
 
 %files doc
 %{_defaultdocdir}/kanku/
@@ -540,7 +534,7 @@ Requires: shared-mime-info
 Obsoletes: kanku-url-wrapper
 
 %description urlwrapper
-A URL wrapper to start kanku from kanku:// urls in the browser
+A URL wrapper to start kanku from kanku:// urls in the browser.
 
 %post urlwrapper
 update-mime-database /usr/share/mime
