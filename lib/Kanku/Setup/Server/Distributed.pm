@@ -113,6 +113,7 @@ sub setup {
        cacertfile     => $self->cacertfile,
        ovs_ip_prefix  => $self->ovs_ip_prefix,
        cache_dir      => '/var/cache/kanku',
+       network_name   => $self->network_name,
     }
   );
 

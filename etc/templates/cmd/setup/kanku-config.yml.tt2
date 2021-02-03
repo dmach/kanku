@@ -32,8 +32,6 @@ Kanku::Util::VM::Console:
 #  user: qemu
 #  images_dir: /var/lib/libvirt/images
 
-# Kanku::Handler::CreateDomain:
-#   pool_name: mypool
 Kanku::Cli::lsi:
   project_name: [% official_image_repo %]
 
@@ -49,6 +47,7 @@ Kanku::Handler::CreateDomain:
   name:   kanku-ovs
   bridge: kanku-br0
   iptables_chain:      KANKU_HOSTS
+  network_name: [% network_name %]
 
 dispatcher: Kanku::Dispatch::RabbitMQ
 
@@ -127,4 +126,7 @@ Kanku::Daemon::TriggerD:
 #          arch: x86_64
 #          jobs:
 #            - obs-server
+[% ELSE %]
+# Kanku::Handler::CreateDomain:
+#   pool_name: mypool
 [% END %]

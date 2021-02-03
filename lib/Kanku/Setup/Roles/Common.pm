@@ -88,6 +88,13 @@ has dns_domain_name => (
     default       => 'kanku-devel',
 );
 
+has network_name => (
+    isa           => 'Str',
+    is            => 'rw',
+    lazy          => 1,
+    default       => sub { $_[0]->_distributed ? 'kanku-ovs' : 'kanku-devel'},
+);
+
 sub _configure_libvirtd_access { ## no critic (Subroutines::ProhibitUnusedPrivateSubroutines)
   my ($self, %opts) = @_;
   my $logger        = $self->logger;
@@ -246,7 +253,7 @@ sub _create_default_network {    ## no critic (Subroutines::ProhibitUnusedPrivat
   my $logger   = $self->logger;
   my $vmm      = Sys::Virt->new(uri => 'qemu:///system');
   my @networks = $vmm->list_all_networks;
-  my $nn       = ($self->_distributed) ? 'kanku-ovs' : 'kanku-devel';
+  my $nn       = $self->network_name();
 
   for my $net (@networks) {
     if ($net->get_name eq $nn) {
