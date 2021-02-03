@@ -186,14 +186,13 @@ Requires: logrotate
 Conflicts: perl-DBD-SQLite-Amalgamation
 
 %description common
-TODO:
- add a useful description
+common config and lib files used in kanku
 
 %post common
 %tmpfiles_create %_tmpfilesdir/kanku.conf
 
 %files common
-%doc README.md TODO
+%doc README.md
 
 %dir /usr/lib/kanku
 %dir /usr/lib/kanku/lib
@@ -358,8 +357,7 @@ Requires: smtp_daemon
 %endif
 
 %description web
-TODO:
- add a useful description
+WebUI for kanku using perl Dancer
 
 %post web
 %systemd_post kanku-web.service
@@ -417,6 +415,12 @@ Requires: perl(UUID)
 Requires: perl(Sys::CPU)
 Requires: perl(Sys::LoadAvg)
 Requires: perl(Sys::MemInfo)
+%if %_arch == "x86_64"
+Requires: qemu-kvm
+%endif
+%if %_arch == "aarch64"
+Requires: qemu-arm
+%endif
 # apache2 is only needed for delivering console logs
 Recommends: apache2 
 
