@@ -415,10 +415,10 @@ Requires: perl(UUID)
 Requires: perl(Sys::CPU)
 Requires: perl(Sys::LoadAvg)
 Requires: perl(Sys::MemInfo)
-%if %_arch == "x86_64"
+%if "%{_arch}" == "x86_64"
 Requires: qemu-kvm
 %endif
-%if %_arch == "aarch64"
+%if "%{_arch}" == "aarch64"
 Requires: qemu-arm
 %endif
 # apache2 is only needed for delivering console logs
