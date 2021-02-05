@@ -28,7 +28,7 @@ with 'Kanku::Roles::Logger';
 
 has ['domain_name','short_hostname','log_file','login_user','login_pass'] => (is=>'rw', isa=>'Str');
 has 'prompt' => (is=>'rw', isa=>'Str',default=>'Kanku-prompt: ');
-has 'prompt_regex' => (is=>'rw', isa=>'Object',default=>sub { qr/^Kanku-prompt: / });
+has 'prompt_regex' => (is=>'rw', isa=>'Object',default=>sub { qr/^Kanku-prompt: /m });
 has _expect_object  => (is=>'rw', isa => 'Object');
 has [qw/bootloader_seen grub_seen user_is_logged_in console_connected/] => (is=>'rw', isa => 'Bool');
 has 'connect_uri' => (is=>'rw', isa=>'Str', default=>'qemu:///system');
@@ -119,8 +119,6 @@ sub login {
   die "No login_user found in config" if (! $user);
   die "No login_pass found in config" if (! $password);
 
-  my $login_counter = 0;
-
   if (! $self->bootloader_seen) {
     $exp->send_slow(1,"\003","\004");
   }
@@ -129,8 +127,6 @@ sub login {
       [ '^\S+ login: ' =>
         sub {
           my $exp = shift;
-
-          #die "login seems to be failed as login_counter greater than zero" if ($login_counter);
           if ( $exp->match =~ /^(\S+) login: / ) {
             $logger->debug("Found match '$1'");
             $self->short_hostname($1);
@@ -138,11 +134,12 @@ sub login {
           }
           $logger->debug(" - Sending username '$user'");
           $exp->send("$user\n");
-          $login_counter++;
-          exp_continue;
         }
       ],
-      [ '^Password: ' =>
+  );
+  $exp->expect(
+      10,
+      [ qr/Password: / =>
         sub {
           my $exp = shift;
           $logger->debug(" - Sending password '$password'");
@@ -159,6 +156,7 @@ sub login {
         }
       ],
   );
+  $exp->send("export TERM=dumb\n");
 
   my $hn = $self->short_hostname();
   my $prompt = $self->prompt_regex;
@@ -173,13 +171,16 @@ sub login {
   );
   $self->user_is_logged_in(1);
   $exp->send("export PS1=\"".$self->prompt."\"\n");
-  $self->prompt_regex(qr/\r\nKanku-prompt: /);
+  $self->prompt_regex(qr/\r\nKanku-prompt: /m);
+  my $count;
   $exp->expect(
       5,
       [
         $self->prompt_regex() => sub {
           my $exp = shift;
           $logger->info(" - Prompt set sucessfully: '".$exp->match."'");
+          $count++;
+          exp_continue unless $count == 2;
         }
       ]
   );
@@ -283,9 +284,9 @@ sub cmd {
           $self->prompt_regex() => sub {
             my $exp=shift;
             my $rc = $exp->before();
-            my @l = split /\r?\n/, $rc;
-            $rc = pop @l;
-            if ( $rc ) {
+            my @l = split /\r\n/, $rc;
+            $rc = int($l[1]);
+            if ($rc) {
               $logger->warn("Execution of command '$cmd' failed with return code '$rc'");
             } else {
               $logger->debug("Execution of command '$cmd' succeed");
