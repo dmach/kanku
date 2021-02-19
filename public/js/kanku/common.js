@@ -277,13 +277,14 @@ Vue.component('job-history-card',{
         host:  tmp[0] || 'localhost',
         pid:   tmp[1] || 0,
         queue: tmp[2] || '',
-        loglink: 'http://'+tmp[0]+'/kanku-console-logs/job-'+this.job.id+'-console.log'
+        loglink: 'http://'+tmp[0]+'/kanku-console-logs/job-'+this.job.id+'-console.log',
       }
     },
     show_pwrand: function() {
       if (this.is_admin && this.job.pwrand && this.job.pwrand !='{}') { return true }
       return false;
     },
+    comment_title: function() { return "Comment for Job "+this.job.id },
   },
   methods: {
     toggleDetails: function() {
@@ -352,7 +353,7 @@ Vue.component('job-history-card',{
     + '  </div>'
     + ' </div>'
     + ' <task-list v-show="showDetails" ref="tasklist" v-bind:workerinfo="workerInfo" v-bind:subtasks="subtasks" v-bind:result="job.result"></task-list>'
-    + ' <b-modal ref="modalComment" hide-footer title="Comments for Job">'
+    + ' <b-modal ref="modalComment" hide-footer :title="comment_title">'
     + '  <div>'
     + '   <single-job-comment v-for="cmt in job.comments" v-bind:key="cmt.id" v-bind:comment="cmt">'
     + '   </single-job-comment>'
