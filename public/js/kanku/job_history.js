@@ -1,6 +1,6 @@
 Vue.component('search-tooltip-job_history',{
   template: ''
-    + '<span class="badge badge-primary" style="padding: 0.6rem;" data-toggle="tooltip" data-placement="bottom" '
+    + '<span class="badge badge-primary" style="padding: 0.6rem;" data-bs-toggle="tooltip" data-bs-placement="bottom" '
     + ' title="<strong>Search by job_name:</strong><br>Use &apos;%&apos; as wildcard<br>'
     + '        <strong>Supported fields:</strong><br>id, state, name, worker<br>'
     + '        <strong>Supported Values:</strong><br>comma separated lists (except worker)<br>'
@@ -134,7 +134,7 @@ const jobHistoryPage = {
         .then(function () {
           $('#spinner').hide();
 	  $(function () {
-	    $('[data-toggle="tooltip"]').tooltip({html:true})
+	    $('[data-bs-toggle="tooltip"]').tooltip({html:true, trigger: 'hover'})
 	  });
         }
       );

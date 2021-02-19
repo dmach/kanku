@@ -91,7 +91,7 @@ Vue.component('job-card',{
     }
   },
   methods: {
-    toggleTaskList: function() {
+    toggleDetails: function() {
       this.showTaskList = !this.showTaskList;
     },
     restoreDefaults: function() {
@@ -113,14 +113,7 @@ Vue.component('job-card',{
   template: ''
     + '<div class="card" style="margin-bottom:5px;">'
     + ' <div class="card-header">'
-    + '  <span v-on:click="toggleTaskList()">'
-    + '    <span v-show="!showTaskList">'
-    + '      <i class="fas fa-plus-square"></i>'
-    + '    </span>'
-    + '    <span v-show="showTaskList">'
-    + '      <i class="far fa-minus-square"></i>'
-    + '    </span>'
-    + '  </span>'
+    + '  <show-details @toggleDetails="toggleDetails()"></show-details>'
     + '  <span class="badge badge-secondary">{{ job.job_name }}</span>'
     + ' </div>'
     + ' <form :id="job.job_name">'

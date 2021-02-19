@@ -84,19 +84,12 @@ Vue.component('guest-card', {
     + ' <div :class="header_classes">'
     + '  <div class="row">'
     + '   <div class="col-md-10">'
-    + '    <span v-on:click="toggleDetails()">'
-    + '      <a href="#" v-show="!showDetails">'
-    + '        <i class="fas fa-plus-square"></i>'
-    + '      </a>'
-    + '      <a href="#" v-show="showDetails">'
-    + '        <i class="far fa-minus-square"></i>'
-    + '      </a>'
-    + '    </span>'
-    + '    <span :class="badge_classes">{{ data.domain_name }} ({{ data.host  }})</span>'
+    + '     <show-details @toggleDetails="toggleDetails()"></show-details>'
+    + '     <span :class="badge_classes">{{ data.domain_name }} ({{ data.host  }})</span>'
     + '   </div>'
     + '   <div class="col-md-2">'
-    + '    <a class="float-right" :href="href_vm"><i class="fas fa-link"/></a>'
-    + '    <a v-if="allowDelete" class="float-right" href="#" @click="triggerRemoveDomain()"><i class="far fa-trash-alt"/></a>'
+    + '    <a class="float-right" :href="href_vm"><i class="fas fa-link" data-bs-toggle="tooltip" data-bs-placement="top" title="Link"/></a>'
+    + '    <a v-show="allowDelete" class="float-right" href="#" @click="triggerRemoveDomain()"><i class="far fa-trash-alt"data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"/></a>'
     + '   </div>'
     + '  </div>'
     + ' </div>'
@@ -110,7 +103,7 @@ Vue.component('guest-card', {
 
 Vue.component('search-tooltip-guest',{
   template: ''
-    + '       <div class="badge badge-primary" style="padding:0.6em" data-toggle="tooltip" data-placement="bottom" '
+    + '       <div class="badge badge-primary" style="padding:0.6em" data-bs-toggle="tooltip" data-bs-placement="bottom" '
     + '         title="<strong>Search by domain or host:</strong><br>use &apos;.*&apos; wildcard<br>'
     + '                <strong>Supported fields:</strong><br>domain, host, worker (alias for host)<br>'
     + '                <strong>Supported Values:</strong><br>perl regex<br>'
@@ -143,6 +136,9 @@ const guestPage = {
             show_messagebox("danger", error);
           });
 	}
+        $(function () {
+          $('[data-bs-toggle="tooltip"]').tooltip({html:true, trigger:'hover'});
+        });
       });
     },
     sortedGuests: function() {
@@ -157,9 +153,6 @@ const guestPage = {
   },
   mounted: function() {
     this.refreshPage();
-    $(function () {
-      $('[data-toggle="tooltip"]').tooltip({html:true})
-    });
   },
   template: ''
     + '<div>'

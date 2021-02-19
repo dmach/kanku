@@ -75,6 +75,24 @@ Vue.component('spinner',{
     + '    </div>'
 });
 
+Vue.component('show-details',{
+  props: ['showDetails'],
+  methods: {
+    toggleDetails: function() {
+      this.$emit("toggleDetails");
+    }
+  },
+  template: ''
+    + '      <span v-on:click="toggleDetails()" style="color:black">'
+    + '        <span v-show="!showDetails">'
+    + '          <i class="fas fa-plus-square" data-bs-toggle="tooltip" data-bs-placement="top" title="Show details"/></i>'
+    + '        </span>'
+    + '        <span v-show="showDetails">'
+    + '          <i class="far fa-minus-square" data-bs-toggle="tooltip" data-bs-placement="top" title="Hide details"/>'
+    + '        </span>'
+    + '      </span>'
+});
+
 Vue.component('to-top-button',{
   methods: {
     toTop: function() {
@@ -174,14 +192,7 @@ Vue.component('job-history-task-card',{
       <div class="card-header alert" v-bind:class="task.state_class">
         <div class="row">
           <div class="col-md-12">
-        <span @click="toggleDetails()">
-          <span v-show="!showDetails">
-            <i class="fas fa-plus-square"></i>
-          </span>
-          <span v-show="showDetails">
-            <i class="far fa-minus-square"></i>
-          </span>
-        </span>
+            <show-details @toggleDetails="toggleDetails()"></show-details>
             <span class="badge badge-secondary">{{ task.id }}</span> {{ task.name }}
           </div>
         </div>
@@ -298,7 +309,7 @@ Vue.component('job-history-card',{
     },
     closeModal: function() {
       this.$refs.modalComment.hide();
-      this.$root.refreshPage();
+      this.$emit('updatePage');
     },
     createJobComment: function() {
       var url    = uri_base+'/rest/job/comment/'+this.job.id+'.json';
@@ -321,14 +332,7 @@ Vue.component('job-history-card',{
     + ' <div class="card-header alert" v-bind:class="job.state_class">'
     + '  <div class="row">'
     + '    <div class="col-md-6">'
-    + '    <span v-on:click="toggleDetails()">'
-    + '      <span v-show="!showDetails">'
-    + '        <i class="fas fa-plus-square"></i>'
-    + '      </span>'
-    + '      <span v-show="showDetails">'
-    + '        <i class="far fa-minus-square"></i>'
-    + '      </span>'
-    + '    </span>'
+    + '      <show-details @toggleDetails="toggleDetails()"></show-details>'
     + '      <span class="badge badge-secondary">{{ job.id }}</span> {{ job.name }} ({{ workerInfo.host }})</a>'
     + '    </div>'
     + '    <div class="col-md-2">'
@@ -342,7 +346,7 @@ Vue.component('job-history-card',{
     + '      <console-log-link v-bind:loglink="workerInfo.loglink"></console-log-link>'
     + '      <job-details-link v-bind:id="job.id"></job-details-link>'
     + '      <comments-link v-show="show_comments" :job="job" ref="commentsLink"></comments-link>'
-    + '      <job-retrigger-link v-show="is_admin" :id="job.id" :is_admin="is_admin" @updatePage="$emit(\'updatePage\')"></job-retrigger-link>'
+    + '      <job-retrigger-link v-show="is_admin" :id="job.id" :is_admin="is_admin"></job-retrigger-link>'
     + '      <pwrand-link v-show="show_pwrand" :job_id="job.id"></pwrand-link>'
     + '    </div>'
     + '  </div>'
@@ -383,7 +387,7 @@ Vue.component('comments-link',{
     }
   },
   template: ''
-    + '<a class="float-right" style="margin-left:5px;" v-on:click="showModal()" data-toggle="tooltip" data-placement="top" title="Comments">'
+    + '<a class="float-right" style="margin-left:5px;" v-on:click="showModal()" data-bs-toggle="tooltip" data-bs-placement="top" title="Comments">'
     + '  <span v-if="comments_length > 0" key="commented"><i class="fas fa-comments"></i></span>'
     + '  <span v-else><i class="far fa-comments" key="uncommented"></i></span>'
     + '</a>'
@@ -392,7 +396,7 @@ Vue.component('comments-link',{
 Vue.component('job-details-link',{
   props: ['id'],
   template: ''
-    + '<router-link class="float-right" style="margin-left:5px;" :to="\'/job_result/\'+id" data-toggle="tooltip" data-placement="top" title="Link to Result">'
+    + '<router-link class="float-right" style="margin-left:5px;" :to="\'/job_result/\'+id" data-bs-toggle="tooltip" data-bs-placement="top" title="Link to Result">'
     + '  <i class="fas fa-link"></i>'
     + '</router-link>'
 });
@@ -417,12 +421,11 @@ Vue.component('job-retrigger-link',{
         params: {page: npage},
         query: o_query,
       });
-      self.$emit('updatePage');
       });
     },
   },
   template: ''
-    + '<span class="float-right" style="margin-left:5px;" @click="retriggerJob()" data-toggle="tooltip" data-placement="top" title="Retrigger">'
+    + '<span class="float-right" style="margin-left:5px;" @click="retriggerJob()" data-bs-toggle="tooltip" data-bs-placement="top" title="Retrigger">'
     + '  <i class="fas fa-redo-alt"></i>'
     + '</span>'
 });
@@ -438,7 +441,7 @@ Vue.component('pwrand-link',{
     },
   },
   template: ''
-    + ' <a class="float-right" style="margin-left:5px;" v-on:click="showModalPwRand()" data-toggle="tooltip" data-placement="top" title="Password">'
+    + ' <a class="float-right" style="margin-left:5px;" v-on:click="showModalPwRand()" data-bs-toggle="tooltip" data-bs-placement="top" title="Password">'
     + '  <i class="fas fa-lock"></i>'
     + ' </a>'
 });
@@ -446,7 +449,7 @@ Vue.component('pwrand-link',{
 Vue.component('console-log-link',{
   props: ['loglink'],
   template: ''
-    + '<a class="float-right" style="margin-left:5px;" :href="loglink" target="_blank" data-toggle="tooltip" data-placement="top" title="Console Log">'
+    + '<a class="float-right" style="margin-left:5px;" :href="loglink" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="Console Log">'
     + ' <i class="fa fa-file-alt"></i>'
     + '</a>'
 });
