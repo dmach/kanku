@@ -298,7 +298,7 @@ Vue.component('job-history-card',{
     },
     closeModal: function() {
       this.$refs.modalComment.hide();
-      this.$root.updatePage();
+      this.$root.refreshPage();
     },
     createJobComment: function() {
       var url    = uri_base+'/rest/job/comment/'+this.job.id+'.json';
