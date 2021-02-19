@@ -6,7 +6,7 @@ const jobResultPage = {
     };
   },
   methods: {
-    updatePage: function() {
+    refreshPage: function() {
       var currentUrl = window.location.pathname;
       var urlParts = currentUrl.split('/');
       var job_id = urlParts.pop();
@@ -20,11 +20,16 @@ const jobResultPage = {
     },
   },
   mounted: function() {
-      this.updatePage();
+      this.refreshPage();
   },
   template: ''
     + '<div>'
     + ' <head-line text="Job Result"></head-line>'
+    + '  <div class="row top_pager">'
+    + '   <div class="col-md-12">'
+    + '    <refresh-button @refreshPage="refreshPage"></refresh-button>'
+    + '   </div>'
+    + '  </div>'
     + ' <job-history-header></job-history-header>'
     + ' <job-history-card :job="job" :is_admin="is_admin" @updatePage="$emit(\'updatePage\')"></job-history-card>'
     + '</div>'
