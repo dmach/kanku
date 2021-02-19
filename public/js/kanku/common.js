@@ -402,22 +402,23 @@ Vue.component('job-retrigger-link',{
   methods: {
     retriggerJob: function() {
       var url  = uri_base + "/rest/job/retrigger/" + this.id + ".json";
+      var self = this;
       axios.post(url, {is_admin: this.is_admin}).then(function(response) {
         show_messagebox(response.data.state, response.data.msg);
-      });
-      var npage = this.$route.params.page;
+      var npage = self.$route.params.page;
       var o_job_states = ['running', 'failed', 'succeed', 'dispatching', 'triggered'];
       var o_query = { "job_states": o_job_states };
-      if (! this.$route.query.show_only_latest_results ) {
+      if (! self.$route.query.show_only_latest_results ) {
         npage = 1;
         o_query['show_only_latest_results'] = true;
       }
-      this.$router.push({
+      self.$router.push({
         name:   'job_history',
         params: {page: npage},
         query: o_query,
       });
-      this.$emit('updatePage');
+      self.$emit('updatePage');
+      });
     },
   },
   template: ''
