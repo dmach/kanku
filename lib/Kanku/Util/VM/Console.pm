@@ -139,6 +139,18 @@ sub login {
   );
   $exp->expect(
       10,
+      # Ugly fix for nasty Fedora (32) behavior
+      [ '^\S+ login: ' =>
+        sub {
+          my $exp = shift;
+          if ( $exp->match =~ /^(\S+) login: / ) {
+            $logger->debug("Found match '$1' again");
+          }
+          $logger->debug(" - Re-Sending username '$user'");
+          $exp->send("$user\n");
+          exp_continue;
+        }
+      ],
       [ qr/Password: / =>
         sub {
           my $exp = shift;
