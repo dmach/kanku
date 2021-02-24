@@ -113,8 +113,12 @@ sub execute {
     "EOF\n"
   );
 
+  # Hack for Fedora 33
+  my $crypto_cfg = '/etc/crypto-policies/back-ends/opensshserver.config';
+  $con->cmd("[ -f $crypto_cfg ] && sed -i -E 's/(PubkeyAcceptedKeyTypes .*)/\\1,ssh-rsa/' $crypto_cfg");
+
   # TODO: make dynamically switchable between systemV and systemd
-  $con->cmd("systemctl start sshd.service");
+  $con->cmd("systemctl restart sshd.service");
 
   $con->cmd("systemctl enable sshd.service");
 
