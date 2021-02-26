@@ -77,7 +77,10 @@ Vue.component('guest-card', {
         return true;
       }
       return false;
-    }
+    },
+    found_ports: function() {
+      return Object.keys(this.data.forwarded_ports).length;
+    },
   },
   template: ''
     + '<div class="card guest-card">'
@@ -95,6 +98,7 @@ Vue.component('guest-card', {
     + ' </div>'
     + ' <div class="card-body" style="padding:5px;" v-show="showDetails">'
     + '  <iface-line v-for="nic in data.nics" v-bind:data="nic" v-bind:key="nic.hwaddr"></iface-line>'
+    + '  <div v-if="!found_ports">No current forwarded ports found!</div>'
     + '  <ipaddr-card v-for="(ports, ipaddr) in data.forwarded_ports" v-bind:ports="ports" v-bind:ipaddr="ipaddr" v-bind:key="ipaddr"></ipaddr-card>'
     + '  </div>'
     + ' </div>'
@@ -160,7 +164,8 @@ const guestPage = {
     + '  <div class="row top_pager">'
     + '    <search-field @search-term-change="refreshPage" :filter="filter" comment="Enter search term - SEE Tooltips for details"></search-field>'
     + '    <div class="col-md-8">'
-    + '    <search-tooltip-guest></search-tooltip-guest>'
+    + '      <search-tooltip-guest></search-tooltip-guest>'
+    + '      <span><b>Hint:</b> The displayed port forwards do not reflect validated services.</span>'
     + '      <refresh-button @refreshPage="refreshPage"></refresh-button>'
     + '    </div>'
     + '  </div>'
