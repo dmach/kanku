@@ -76,10 +76,15 @@ Vue.component('spinner',{
 });
 
 Vue.component('show-details',{
-  props: ['showDetails'],
   methods: {
     toggleDetails: function() {
+      this.showDetails = ! this.showDetails;
       this.$emit("toggleDetails");
+    }
+  },
+  data: function() {
+    return {
+      showDetails: 0
     }
   },
   template: ''
