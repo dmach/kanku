@@ -194,6 +194,9 @@ const jobPage = {
         show_messagebox('danger', "URL: " + url + "<br>" +error, timeout=0);
       }).then(function () {
         $('#spinner').hide();
+        $(function () {
+          $('[data-bs-toggle="tooltip"]').tooltip({html:true, trigger: 'hover'})
+        });
       });
     }
   },
