@@ -53,6 +53,10 @@ get '/' => sub {
     template 'index' , { %{ get_defaults_for_views() } };
 };
 
+get '/help/:page' => sub {
+    template 'help/'.route_parameters->get('page'), { %{ get_defaults_for_views() } };
+};
+
 ### LOGIN / SIGNIN / SIGNUP
 
 sub email_welcome_send {

@@ -54,9 +54,12 @@
 
 </head>
 <body>
-  <div id="vue_app">
-  </div>
-  [% content %]
-  <script src="[% request.uri_base %]/js/kanku/router.js"></script>
+  [% IF (matches = request.path.match('/help/(.*)')) %]
+    [% content %]
+  [% ELSE %]
+    <div id="vue_app">
+    </div>
+    <script src="[% request.uri_base %]/js/kanku/router.js"></script>
+  [% END %]
 </body>
 </html>
