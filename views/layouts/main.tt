@@ -40,6 +40,7 @@
 </script>
 
 <script src="[% request.uri_base %]/js/kanku/common.js"></script>
+<script src="[% request.uri_base %]/js/kanku/help.js"></script>
 <script src="[% request.uri_base %]/js/kanku/admin.js"></script>
 <script src="[% request.uri_base %]/js/kanku/guest.js"></script>
 <script src="[% request.uri_base %]/js/kanku/job_history.js"></script>

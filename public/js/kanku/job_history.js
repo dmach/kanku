@@ -138,7 +138,13 @@ const jobHistoryPage = {
 	  });
         }
       );
-    }
+    },
+    showHelp: function() {
+       var w = this.$refs.modalHelpJobHistory;
+       var v = w.$refs.modalHelpJobHistory;
+       console.log(v);
+       v.show();
+    },
   },
   mounted: function() {
     this.refreshPage();
@@ -156,7 +162,7 @@ const jobHistoryPage = {
     + '    <job-state-checkbox name="scheduled"   state_class="badge badge-warning" @updatePage="refreshPage"></job-state-checkbox>'
     + '    <job-state-checkbox name="triggered"   state_class="badge badge-warning" @updatePage="refreshPage"></job-state-checkbox>'
     + '    <job-state-checkbox name="skipped"     state_class="badge badge-warning" @updatePage="refreshPage"></job-state-checkbox>'
-    + '    <div class="col col-md-3"><a href="./help/job_history" target="_blank">Help</a>'
+    + '    <div class="col col-md-3"><a href="#" @click="showHelp">Help</a>'
     + '    </div>'
     + '  </div>'
     + '  <div class="row top_pager">'
@@ -180,5 +186,6 @@ const jobHistoryPage = {
     + '   </div>'
     + '   <div class="col-md-4"></div>'
     + '  </div>'
+    + '  <help-job-history ref="modalHelpJobHistory"></help-job-history>'
     + '</div>'
 };
