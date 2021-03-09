@@ -153,7 +153,12 @@ const guestPage = {
         return [domain_name];
       }
       return Object.keys(this.guest_list).sort();
-    }
+    },
+    showHelp: function() {
+       var w = this.$refs.modalHelpGuest;
+       var v = w.$refs.modalHelpGuest;
+       v.show();
+    },
   },
   mounted: function() {
     this.refreshPage();
@@ -161,11 +166,12 @@ const guestPage = {
   template: ''
     + '<div>'
     + ' <head-line text="Guest"></head-line>'
+    + ' <help-guest ref="modalHelpGuest"></help-guest>'
     + '  <div class="row top_pager">'
     + '    <search-field @search-term-change="refreshPage" :filter="filter" comment="Enter search term - SEE Tooltips for details"></search-field>'
     + '    <div class="col-md-8">'
-    + '      <search-tooltip-guest></search-tooltip-guest>'
     + '      <span><b>Hint:</b> The displayed port forwards do not reflect validated services.</span>'
+    + '      <help-button @showHelp="showHelp"></help-button>'
     + '      <refresh-button @refreshPage="refreshPage"></refresh-button>'
     + '    </div>'
     + '  </div>'

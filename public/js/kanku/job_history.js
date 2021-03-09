@@ -1,14 +1,3 @@
-Vue.component('search-tooltip-job_history',{
-  template: ''
-    + '<span class="badge badge-primary" style="padding: 0.6rem;" data-bs-toggle="tooltip" data-bs-placement="bottom" '
-    + ' title="<strong>Search by job_name:</strong><br>Use &apos;%&apos; as wildcard<br>'
-    + '        <strong>Supported fields:</strong><br>id, state, name, worker<br>'
-    + '        <strong>Supported Values:</strong><br>comma separated lists (except worker)<br>'
-    + '        <strong>Examples:<br></strong>&apos;id:1,2&apos;, &apos;state:running&apos;, &apos;name=obs-server,kanku-devel&apos;, &apos;obs-server%&apos;">'
-    + ' <i class="fas fa-question-circle fa-2x" ></i>'
-    + '</span>'
-});
-
 Vue.component('job-state-checkbox',{
   props: ['name','state_class'],
   data: function() {
@@ -142,7 +131,6 @@ const jobHistoryPage = {
     showHelp: function() {
        var w = this.$refs.modalHelpJobHistory;
        var v = w.$refs.modalHelpJobHistory;
-       console.log(v);
        v.show();
     },
   },
@@ -162,15 +150,14 @@ const jobHistoryPage = {
     + '    <job-state-checkbox name="scheduled"   state_class="badge badge-warning" @updatePage="refreshPage"></job-state-checkbox>'
     + '    <job-state-checkbox name="triggered"   state_class="badge badge-warning" @updatePage="refreshPage"></job-state-checkbox>'
     + '    <job-state-checkbox name="skipped"     state_class="badge badge-warning" @updatePage="refreshPage"></job-state-checkbox>'
-    + '    <div class="col col-md-3"><a href="#" @click="showHelp">Help</a>'
-    + '    </div>'
+    + '    <div class="col col-md-3"></div>'
     + '  </div>'
     + '  <div class="row top_pager">'
     + '   <search-field :filter="filter" @search-term-change="refreshPage" comment="Enter search term - SEE Tooltips for details"></search-field>'
-    + '   <search-tooltip-job_history></search-tooltip-job_history>'
     + '   <show-only-latest-results  @updatePage="refreshPage"></show-only-latest-results>'
     + '   <limit-select @updatePage="refreshPage" selected_limit="limit"></limit-select>'
-    + '   <div class="col-md-2">'
+    + '   <div class="col-md-3">'
+    + '    <help-button @showHelp="showHelp"></help-button>'
     + '    <refresh-button @refreshPage="refreshPage"></refresh-button>'
     + '   </div>'
     + '  </div>'

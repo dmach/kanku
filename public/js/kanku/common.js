@@ -45,6 +45,13 @@ function calc_additional_job_parameters(job) {
         job.duration             = r[1];
 };
 
+Vue.component('help-button',{
+  template: `
+    <button class="btn btn-primary float-right pull-right" style="margin-left: 5px; padding: 0.6rem;" @click="$emit('showHelp')">
+     <i class="fas fa-question-circle"></i>
+    </button>`
+});
+
 Vue.component('refresh-button',{
   methods: {
     refreshPage: function() {
