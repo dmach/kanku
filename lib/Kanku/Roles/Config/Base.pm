@@ -103,7 +103,7 @@ sub job_list {
   for my $f (@files) {
     push(@result, $1) if ($f =~ /.*\/(.*)\.yml$/);
   }
-  $self->logger->debug("*********** CONFIX @result");
+  $self->logger->trace("*********** CONFIX @result");
   return @result;
 }
 
