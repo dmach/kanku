@@ -49,8 +49,6 @@ Kanku::Handler::CreateDomain:
   iptables_chain:      KANKU_HOSTS
   network_name: [% network_name %]
 
-dispatcher: Kanku::Dispatch::RabbitMQ
-
 Kanku::LibVirt::HostList:
   -
     hostname: localhost
