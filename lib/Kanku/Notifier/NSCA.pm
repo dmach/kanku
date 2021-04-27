@@ -112,7 +112,7 @@ sub notify {
 }
 
 sub _state2status {
-  my ($self, $state) = @_;
+  my ($self) = @_;
   my $status_map = {
     0 		=> $Net::NSCA::Client::STATUS_OK,
     1 		=> $Net::NSCA::Client::STATUS_WARNING,
