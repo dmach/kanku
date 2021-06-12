@@ -45,10 +45,18 @@ sub prepare {
   if ( ! @{$self->public_keys} and ! @{$self->public_key_files} ) {
     $self->logger->debug("No public_keys found, checking home dir");
     for my $kf (
-      "$ENV{HOME}/.ssh/id_rsa.pub",
       "$ENV{HOME}/.ssh/id_dsa.pub",
-      "/etc/kanku/ssh/id_rsa.pub",
+      "$ENV{HOME}/.ssh/id_ecdsa.pub",
+      "$ENV{HOME}/.ssh/id_ecdsa.pub_sk",
+      "$ENV{HOME}/.ssh/id_ed25519.pub",
+      "$ENV{HOME}/.ssh/id_ed25519_sk.pub",
+      "$ENV{HOME}/.ssh/id_rsa.pub",
       "/etc/kanku/ssh/id_dsa.pub",
+      "/etc/kanku/ssh/id_ecdsa.pub",
+      "/etc/kanku/ssh/id_ecdsa_sk.pub",
+      "/etc/kanku/ssh/id_ed25519.pub",
+      "/etc/kanku/ssh/id_ed25519_sk.pub",
+      "/etc/kanku/ssh/id_rsa.pub",
     ) {
       $self->logger->debug("-- Checking $kf");
       if ( -f $kf) {
