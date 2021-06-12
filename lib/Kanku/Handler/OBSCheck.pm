@@ -57,7 +57,7 @@ has _binary => (is=>'rw',isa=>'HashRef',lazy=>1,default=>sub { { } });
 
 has [qw/skip_check_project skip_check_package skip_download/ ] => (is => 'ro', isa => 'Bool',default => 0 );
 has [qw/offline skip_all_checks use_oscrc/ ] => (is => 'rw', isa => 'Bool',default => 0 );
-has [qw/use_oscrc/ ] => (is => 'rw', isa => 'Bool',default => 1);
+has [qw/use_oscrc/ ] => (is => 'rw', isa => 'Bool',default => 0);
 
 
 has gui_config => (
