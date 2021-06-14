@@ -271,36 +271,28 @@ sub process_template {
 
   # specify input filename, or file handle, text reference, etc.
   my $input;
+  my @df=($self->template_file, $self->domain_name, 'default-vm');
+  # cleanup .tt2 if template_file ends with .tt2
+  $df[0] =~s/\.tt2$//;
+  my ($f, undef) = grep { -f "$template_path/$_.tt2" } @df;
 
-  if ( $self->template_file ) {
-    $input = $self->template_file
+  if ($f) {
+    $input = "$f.tt2";
+    $logger->info("Using template file '$template_path/$input'");
   } else {
-    $input = $self->domain_name . '.tt2';
-  }
-
-  my $template_file;
-  $self->logger->debug("Checking for template file '$template_path/default-vm.tt2'");
-  $template_file = "default-vm.tt2" if (-f "$template_path/default-vm.tt2");
-  $self->logger->debug("Checking for template file '$template_path/$input'");
-  $template_file = $input if (-f "$template_path/$input");
-
-  if ( ! $template_file ) {
-    $self->logger->warn("No template file found!");
-    $self->logger->warn("Using internal template!");
+    $logger->warn("No template file found!");
+    $logger->warn("Using internal template!");
     my $template;
     my $start = tell DATA;
     while ( <DATA> ) { $template .= $_ };
     seek DATA, $start,0;
     $input = \$template;
-    $self->logger->trace("template:\n${$input}");
-  } else {
-    $input = $template_file;
-    $self->logger->info("Using template file '$template_file'");
+    $logger->trace("template:\n${$input}");
   }
   my $output = '';
   # process input template, substituting variables
   $template->process($input, $vars, \$output)
-               || die $template->error()->as_string();
+    || die $template->error()->as_string();
   return $output;
 }
 

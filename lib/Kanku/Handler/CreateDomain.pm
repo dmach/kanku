@@ -41,7 +41,7 @@ has [qw/
       management_interface  management_network
       forward_port_list     images_dir
       short_hostname	    memory
-      network_bridge
+      network_bridge        template
 /] => (is => 'rw',isa=>'Str');
 
 has 'network_name' => (
@@ -196,8 +196,9 @@ sub prepare {
 }
 
 sub execute {
-  my $self = shift;
-  my $ctx  = $self->job()->context();
+  my ($self) = @_;
+  my $ctx    = $self->job()->context();
+  my $logger = $self->logger;
 
   my $cfg  = Kanku::Config->instance()->config();
 
@@ -216,13 +217,13 @@ sub execute {
   $self->logger->debug("Using memory: '$mem'");
 
   if ($self->network_bridge) {
-    $self->logger->debug("Using option network_bridge : '".$self->network_bridge."'");
+    $logger->debug("Using option network_bridge : '".$self->network_bridge."'");
   } else {
     $self->network_bridge($cfg->{'Kanku::Handler::CreateDomain'}->{bridge} || 'virbr0'),
-    $self->logger->debug("Using default network_bridge : '".$self->network_bridge."'");
+    $logger->debug("Using default network_bridge : '".$self->network_bridge."'");
   }
 
-  $self->logger->debug("additional_disks:".Dumper($self->additional_disks));
+  $logger->debug("additional_disks:".Dumper($self->additional_disks));
 
 
   my $final_file = ($ctx->{tmp_image_file} ) ? basename($ctx->{tmp_image_file}->filename) : $self->vm_image_file;
@@ -230,7 +231,7 @@ sub execute {
   if ($self->root_disk_size) {
     croak("Using Kanku::Handler::ResizeImage AND root_disk_size is not supported") if $ctx->{tmp_image_file};
     my $img_obj = Kanku::Util::VM::Image->new();
-    $self->logger->debug("CreateDomain: resizing to ". $self->root_disk_size);
+    $logger->debug("CreateDomain: resizing to ". $self->root_disk_size);
     $ctx->{tmp_image_file} = $img_obj->resize_image($final_file, $self->root_disk_size);
     $final_file = $ctx->{tmp_image_file}->filename;
   }
@@ -240,9 +241,9 @@ sub execute {
   $final_file = $vol->get_path();
   for my $file(@{$self->additional_disks}) {
       my ($avol,$aimage) = $self->_create_image_file_from_cache($file);
-      $self->logger->debug("additional_disk: - before: $file->{file}");
+      $logger->debug("additional_disk: - before: $file->{file}");
       $file->{file} = $avol->get_path();
-      $self->logger->debug("additional_disk: - after: $file->{file}");
+      $logger->debug("additional_disk: - after: $file->{file}");
   }
 
   my $pkg = __PACKAGE__;
@@ -276,9 +277,13 @@ sub execute {
   $vm->host_dir_9p($self->host_dir_9p) if ($self->host_dir_9p);
   $vm->accessmode_9p($self->accessmode_9p) if ($self->accessmode_9p);
 
-  if ( $ctx->{vm_template_file} ) {
-    $vm->template_file($ctx->{vm_template_file});
+  my $vmt = $self->template || $ctx->{vm_template_file};
+  if ($vmt) {
+    $logger->info("using template file: $vmt");
+    $vm->template_file($vmt);
   }
+
+  $vm->template_file($self->template) if ($self->template);
 
   $vm->create_domain();
 
@@ -681,6 +686,10 @@ If configured a port_forward_list, it tries to find the next free port and confi
     pool_name             : name of disk pool
 
     root_disk_bus         : disk bus system for root device. Default: virtio
+
+                            Can be virtio, ide, sata or scsi.
+
+    template              : template xml to define VM (has precedence over job context)
 
                             Can be virtio, ide, sata or scsi.
 
