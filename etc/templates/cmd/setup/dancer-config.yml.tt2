@@ -29,9 +29,6 @@ views: /usr/share/kanku/views
 
 environment: production
 
-#template: "simple"
-session: "YAML"
-
 template: "template_toolkit"
 session: "YAML"
 engines:
