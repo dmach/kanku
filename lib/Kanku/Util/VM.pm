@@ -49,6 +49,7 @@ has empty_disks      => ( is => 'rw', isa => 'ArrayRef', default => sub {[]});
 has additional_disks => ( is => 'rw', isa => 'ArrayRef', default => sub {[]});
 has keep_volumes     => ( is => 'rw', isa => 'ArrayRef', default => sub {[]});
 has '+uri'           => ( default => 'qemu:///system');
+has '+template_file' => ( default => q{});
 #has "+ipaddress"  => ( lazy => 1, default => sub { $self->get_ipaddress } );
 
 has vmm => (
