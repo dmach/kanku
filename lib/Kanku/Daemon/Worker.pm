@@ -295,9 +295,10 @@ sub handle_job {
     my $answer = {
 	action        => 'aborted_job',
 	error_message => "Aborted job because of TERM signal",
+        job_id        => $job_id,
     };
 
-    $logger->info("Sending t'aborted_job' because of TERM signal to '".$self->remote_job_queue_name);
+    $logger->info("Sending 'aborted_job' because of TERM signal to '".$self->remote_job_queue_name);
 
     $job_kmq->publish(
       $self->remote_job_queue_name,
@@ -314,6 +315,7 @@ sub handle_job {
 	my $answer = {
 	    action        => 'aborted_job',
 	    error_message => "Aborted job because of daemon shutdown",
+            job_id        => $job_id,
 	};
 
 	$logger->info("Sending action 'aborted_job' because of daemon shutdown to '".$self->remote_job_queue_name);
