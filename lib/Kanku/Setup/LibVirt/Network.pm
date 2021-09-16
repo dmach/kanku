@@ -34,7 +34,7 @@ has dnsmasq_cfg_file => (
 	is => 'rw',
 	isa => 'Object',
 	lazy => 1,
-	default => sub { file('/var/lib/libvirt/dnsmasq/',$_[0]->cfg->{'Kanku::LibVirt::Network::OpenVSwitch'}->{name}.".conf") }
+	default => sub { file('/var/lib/libvirt/dnsmasq/',$_[0]->net_cfg->{name}.".conf") }
 );
 
 has dnsmasq_pid_file => (
@@ -48,14 +48,22 @@ has iptables_chain => (
 	is => 'rw',
 	isa => 'Str',
 	lazy => 1,
-	default => sub { $_[0]->cfg->{'Kanku::LibVirt::Network::OpenVSwitch'}->{iptables_chain} || 'KANKU_HOSTS' }
+	default => sub { $_[0]->net_cfg->{iptables_chain} || 'KANKU_HOSTS' }
+
+);
+
+has net_cfg => (
+	is => 'rw',
+	isa => 'HashRef',
+	lazy => 1,
+	default => sub { {} }
 
 );
 
 sub prepare_ovs {
 	my $self = shift;
 	my $cfg  = $self->cfg;
-	my $ncfg = $self->cfg->{'Kanku::LibVirt::Network::OpenVSwitch'};
+	my $ncfg = $self->net_cfg;
 	my $br   = $ncfg->{bridge};
 	my $vlan = $ncfg->{vlan};
 
@@ -113,7 +121,7 @@ sub prepare_ovs {
 
 sub bridge_down {
 	my $self = shift;
-	my $ncfg = $self->cfg->{'Kanku::LibVirt::Network::OpenVSwitch'};
+	my $ncfg = $self->net_cfg;
 	my $br   = $ncfg->{bridge};
 
 	$self->logger->info("Deleting bridge $br");
@@ -127,8 +135,7 @@ sub bridge_down {
 
 sub prepare_dns {
 	my $self       = shift;
-	my $cfg        = $self->cfg;
-	my $net_cfg    = $cfg->{'Kanku::LibVirt::Network::OpenVSwitch'};
+	my $net_cfg    = $self->net_cfg;
 
 	return if (! $net_cfg->{start_dhcp} );
 
@@ -159,8 +166,7 @@ EOF
 
 sub start_dhcp {
 	my $self       = shift;
-	my $cfg        = $self->cfg;
-	my $net_cfg    = $cfg->{'Kanku::LibVirt::Network::OpenVSwitch'};
+	my $net_cfg    = $self->net_cfg;
 	return if (! $net_cfg->{start_dhcp} );
 
 	$ENV{VIR_BRIDGE_NAME} = $net_cfg->{bridge};
@@ -190,7 +196,7 @@ sub start_dhcp {
 
 sub configure_iptables {
 	my $self	= shift;
-	my $ncfg	= $self->cfg->{'Kanku::LibVirt::Network::OpenVSwitch'};
+	my $ncfg	= $self->net_cfg;
 	$self->logger->debug("Starting configuration of iptables");
 
 	return if (! $ncfg->{is_gateway} );
@@ -256,7 +262,7 @@ sub kill_dhcp {
 
 sub cleanup_iptables {
 	my $self = shift;
-	my $ncfg = $self->cfg->{'Kanku::LibVirt::Network::OpenVSwitch'};
+	my $ncfg = $self->net_cfg;
 	my $rules_to_delete = {
 		'filter' => {
 			'INPUT' 	=> [],

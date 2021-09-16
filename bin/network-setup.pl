@@ -18,32 +18,43 @@ my $logger = Log::Log4perl->get_logger();
 
 my $current_network_name = $ARGV[0];
 my $action               = $ARGV[1];
-my $setup                = Kanku::Setup::LibVirt::Network->new();
-my $net_name             = $setup->cfg->{'Kanku::LibVirt::Network::OpenVSwitch'}->{name};
+my $cfg                  = Kanku::YAML::LoadFile("/etc/kanku/kanku-config.yml");
+my @net_list;
+my $net_cfg;
 
-$logger->debug("ARGS: @ARGV\n");
+if (ref($cfg->{'Kanku::LibVirt::Network::OpenVSwitch'}) eq 'ARRAY') {
+  @net_list = @{$cfg->{'Kanku::LibVirt::Network::OpenVSwitch'}}
+} elsif (ref($cfg->{'Kanku::LibVirt::Network::OpenVSwitch'}) eq 'HASH') {
+  push @net_list, $cfg->{'Kanku::LibVirt::Network::OpenVSwitch'};
+} else {
+   $logger->warn("No valid config found for Kanku::LibVirt::Network::OpenVSwitch");
+   exit 0;
+}
 
+for my $net (@net_list) {
+  next if ($net->{name} ne $current_network_name);
+  $net_cfg = $net;
+}
 
-if ( $current_network_name ne $net_name ) {
-  $logger->info("Current network name ($current_network_name) did not match our network name ($net_name)");
+if ($net_cfg) {
+  my $setup = Kanku::Setup::LibVirt::Network->new(net_cfg=>$net_cfg);
+  if ( $action eq 'start' ) {
+    $setup->prepare_ovs();
+  }
+
+  if ( $action eq 'started' ) {
+    $setup->prepare_dns();
+    $setup->start_dhcp();
+    $setup->configure_iptables();
+  }
+
+  if ( $action eq 'stopped' ) {
+    $setup->kill_dhcp();
+    $setup->cleanup_iptables;
+    $setup->bridge_down;
+  }
   exit 0;
 }
 
-if ( $action eq 'start' ) {
-  $setup->prepare_ovs();
-}
-
-if ( $action eq 'started' ) {
-  $setup->prepare_dns();
-  $setup->start_dhcp();
-  $setup->configure_iptables();
-}
-
-if ( $action eq 'stopped' ) {
-  $setup->kill_dhcp();
-  $setup->cleanup_iptables;
-  $setup->bridge_down;
-}
-
-
+$logger->info("Current network name ($current_network_name) did not found in our configs");
 exit 0;
