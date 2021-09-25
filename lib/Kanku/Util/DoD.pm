@@ -25,7 +25,7 @@ use Net::OBS::Client::Project;
 use Net::OBS::Client::Package;
 use Kanku::Util::CurlHttpDownload;
 use Kanku::Config;
-use Carp;
+use Carp qw/confess/;
 
 with 'Kanku::Roles::Logger';
 with 'Kanku::Roles::Helpers';
@@ -101,6 +101,8 @@ has get_image_file_from_url => (
     my $logger = $self->logger;
 
     $self->get_image_file_from_url_cb(\&_sub_get_image_file_from_url_cb);
+
+    confess("No project set") unless $self->project;
 
     my $build_results = Net::OBS::Client::BuildResults->new(
       project     => $self->project,

@@ -131,6 +131,8 @@ sub execute {
   $dod->base_url($self->base_url)     if $self->base_url;
   $dod->repository($self->repository) if $self->repository;
 
+  $self->logger->debug('Checking project: ' . $dod->project);
+
   my $binary    = $dod->get_image_file_from_url();
 
   my $ctx       = $self->job()->context();
