@@ -25,19 +25,15 @@ jobs:
       # https://build.opensuse.org/project/show/devel:kanku:images
       # to find more official Images
       project: devel:kanku:images
-      repository: images_leap_15_0
-      package: openSUSE-Leap-15.0-JeOS
+      repository: images_leap_15_3
+      package: openSUSE-Leap-15.3-JeOS
       use_oscrc: 0
   -
     use_module: Kanku::Handler::ImageDownload
   -
-    use_module: Kanku::Handler::ResizeImage
-    options:
-      disk_size: 10G
-  -
     use_module: Kanku::Handler::CreateDomain
     options:
-      memory: 2097152
+      memory: 2G
       vcpu: 2
       use_9p: 1
       #root_disk_size: 10737418240
@@ -48,11 +44,14 @@ jobs:
     use_module: Kanku::Handler::ExecuteCommandViaSSH
     options:
       commands:
-        - zypper ar obs://devel:tools devel:tools
-        - zypper ar obs://server:monitoring server:monitoring
-        - zypper ar obs://home:M0ses:branches:server:monitoring home:M0ses:branches:server:monitoring
-        - zypper ar obs://server:database   server:database
-        - zypper -n --no-gpg-check ref -s
+#        - zypper ar obs://devel:tools devel:tools
+#        - zypper ar obs://server:monitoring server:monitoring
+#        - zypper ar obs://home:M0ses:branches:server:monitoring home:M0ses:branches:server:monitoring
+#        - zypper ar obs://server:database   server:database
+        - zypper ar https://download.opensuse.org/repositories/devel:/tools/openSUSE_Leap_15.3/devel:tools.repo
+        - zypper ar https://download.opensuse.org/repositories/server:/monitoring/openSUSE_Leap_15.3/server:monitoring.repo
+        - zypper ar https://download.opensuse.org/repositories/server:/database/openSUSE_Leap_15.3/server:database.repo
+        - zypper -n --gpg-auto-import-keys ref -s
         # packages for debugging only, could be removed in production env
         - zypper -n in vim-data sudo
         # Install packages
