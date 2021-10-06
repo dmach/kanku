@@ -65,6 +65,24 @@ Vue.component('checkbox-input',{
     + '</div>'
 });
 
+Vue.component('password-input',{
+  props: ['gui_config', 'is_admin'],
+  data: function() {
+    return {
+      user_name : user_name,
+      value:      this.gui_config.default,
+    }
+  },
+  template: ''
+    + '<div class="form-group">'
+    + ' <label>{{ gui_config.label }}</label>'
+    + ' <input  class="form-control"'
+    + '        type=password'
+    + '        :name="gui_config.param"'
+    + ' >'
+    + '</div>'
+});
+
 Vue.component('task-card',{
   props: ['task', 'is_admin'],
   data: function() {
@@ -79,6 +97,7 @@ Vue.component('task-card',{
     + ' <div v-for="c in task.gui_config">'
     + '  <text-input v-if="c.type == \'text\'" v-bind:gui_config=c :is_admin="is_admin"></text-input>'
     + '  <checkbox-input v-if="c.type == \'checkbox\'" v-bind:gui_config=c></checkbox-input>'
+    + '  <password-input v-if="c.type == \'password\'" v-bind:gui_config=c></password-input>'
     + ' </div>'
     + '</div>'
 });

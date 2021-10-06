@@ -290,8 +290,8 @@ get '/gui_config/job.:format' => sub {
         $tmp = $can->();
 
         foreach my $opt (@{$tmp}) {
-          $defaults->{$opt->{param}} = $sub_tasks->{options}->{$opt->{param}};
-          $opt->{default} = $sub_tasks->{options}->{$opt->{param}};
+          $opt->{default} = ($opt->{secure}) ? '' : $sub_tasks->{options}->{$opt->{param}};
+          $defaults->{$opt->{param}} = ($opt->{secure}) ? '' : $sub_tasks->{options}->{$opt->{param}};
         }
         push @{$job_config->{sub_tasks}},
             {

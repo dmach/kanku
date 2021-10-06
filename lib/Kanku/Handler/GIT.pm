@@ -29,6 +29,7 @@ with 'Kanku::Roles::SSH';
 
 has [qw/  giturl          revision    destination
           remote_url      cache_dir
+	  gituser         gitpass     _giturl
     /] => (is=>'rw',isa=>'Str');
 
 has [ 'submodules' , 'mirror' ] => (is=>'rw',isa=>'Bool');
@@ -40,39 +41,51 @@ has gui_config => (
   default => sub {
       [
         {
-          param => 'giturl',
-          type  => 'text',
-          label => 'Git URL'
+          param  => 'giturl',
+          type   => 'text',
+          label  => 'Git URL (required)',
         },
         {
-          param => 'destination',
-          type  => 'text',
-          label => 'Destination'
+          param  => 'gituser',
+          type   => 'text',
+          label  => 'Git User',
         },
         {
-          param => 'revision',
-          type  => 'text',
-          label => 'Revision'
+          param  => 'gitpass',
+          type   => 'password',
+          label  => 'Git Password',
+          secure => 1,
         },
         {
-          param => 'mirror',
-          type  => 'checkbox',
-          label => 'Mirror mode'
+          param  => 'destination',
+          type   => 'text',
+          label  => 'Destination',
         },
         {
-          param => 'remote_url',
-          type  => 'text',
-          label => 'Remote Url (only for mirror mode)'
+          param  => 'revision',
+          type   => 'text',
+          label  => 'Revision',
+        },
+        {
+          param  => 'mirror',
+          type   => 'checkbox',
+          label  => 'Mirror mode',
+        },
+        {
+          param  => 'remote_url',
+          type   => 'text',
+          label  => 'Remote Url (only for mirror mode)',
         },
       ];
   }
 );
 
-
 sub prepare {
   my $self = shift;
 
   die "No giturl given"  if (! $self->giturl );
+
+  $self->_giturl($self->_calc_giturl());
 
   $self->_prepare_mirror if ( $self->mirror );
 
@@ -83,6 +96,22 @@ sub prepare {
     code => 0,
     message => "Preparation successful"
   };
+}
+
+sub _calc_giturl {
+  my ($self) = @_;
+
+  if ($self->giturl =~ m#^(https?)\://(.*)#) {
+    my $proto   = "$1://";
+    my $gitpass = '';
+    my $gituser = $self->gituser;
+    my $url     = $2;
+    $gituser .= ':'.$self->gitpass if ($self->gitpass);
+    $gituser .= '@' if ($gituser);
+    return "$proto$gituser$url";
+  }
+
+  return $self->giturl();
 }
 
 sub _prepare_mirror {
@@ -103,7 +132,7 @@ sub _prepare_mirror {
   my @cmd;
 
   if ( -d $mirror_dir ) {
-    @cmd = ( 'git', '-C', $mirror_dir->stringify,'remote','update' );
+    @cmd = ('git', '-C', $mirror_dir->stringify, 'remote', 'update');
   } else {
     if ( ! -d $mirror_dir->parent ) {
       $self->logger->info(sprintf("Creating parent for mirror dir '%s'",$mirror_dir->parent));
@@ -113,7 +142,10 @@ sub _prepare_mirror {
   }
 
   $self->logger->info("Running command '@cmd'");
-  run \@cmd ,\$io[0],\$io[1],\$io[2] || die "git $?\n";
+  run \@cmd , \$io[0], \$io[1], \$io[2] || die "git $?\n";
+  $self->logger->debug("_prepare_mirror - stdout: $io[0]");
+  $self->logger->debug("_prepare_mirror - stderr: $io[1]");
+  $self->logger->debug("_prepare_mirror - err___: $io[2]");
 }
 
 sub execute {
@@ -121,26 +153,33 @@ sub execute {
   my $results = [];
   my $ssh2    = $self->connect();
   my $ip      = $self->ipaddress;
-
+  my $pass    = $self->gitpass;
+  
   # clone git repository
-  my $cmd_clone     = "git clone " .  $self->giturl . ( ( $self->destination ) ? " " . $self->destination : '');
+  try {
+    my $cmd_clone = "git clone ".$self->_giturl.(( $self->destination ) ? " " . $self->destination : '');
 
-  $self->exec_command($cmd_clone);
-
-  my $git_dest      = ( $self->destination ) ? " -C " . $self->destination : '';
+    $self->exec_command($cmd_clone);
+  } catch {
+    my $err = $_;
+    $self->logger->debug("PASS: $pass");
+    $err =~ s/$pass/<password>/;
+    die "$err";
+  };
+  my $git_dest  = ( $self->destination ) ? "-C " . $self->destination : '';
 
   # checkout specific revision if revision given
   if ( $self->revision ) {
-      my $cmd_checkout  = "git".$git_dest." checkout " .  $self->revision;
+      my $cmd_checkout  = "git ".$git_dest." checkout " .  $self->revision;
 
       $self->exec_command($cmd_checkout);
   }
 
   if ( $self->submodules ) {
-      my $cmd_submodule_init = "git".$git_dest." submodule init";
+      my $cmd_submodule_init = "git ".$git_dest." submodule init";
       $self->exec_command($cmd_submodule_init);
 
-      my $cmd_submodule_update = "git".$git_dest." submodule update";
+      my $cmd_submodule_update = "git ".$git_dest." submodule update";
       $self->exec_command($cmd_submodule_update);
   }
 
