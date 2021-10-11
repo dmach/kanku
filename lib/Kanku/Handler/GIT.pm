@@ -23,6 +23,7 @@ use Path::Class qw/file dir/;
 use namespace::autoclean;
 use IPC::Run qw/run/;
 use URI;
+use Try::Tiny;
 
 with 'Kanku::Roles::Handler';
 with 'Kanku::Roles::SSH';
@@ -85,9 +86,12 @@ sub prepare {
 
   die "No giturl given"  if (! $self->giturl );
 
-  $self->_giturl($self->_calc_giturl());
-
-  $self->_prepare_mirror if ( $self->mirror );
+  if ( $self->mirror ) {
+    $self->_prepare_mirror;
+    $self->_giturl($self->giturl);
+  } else {
+    $self->_giturl($self->_calc_giturl($self->giturl));
+  }
 
   # inherited by Kanku::Roles::SSH
   $self->get_defaults();
@@ -99,9 +103,9 @@ sub prepare {
 }
 
 sub _calc_giturl {
-  my ($self) = @_;
+  my ($self, $giturl) = @_;
 
-  if ($self->giturl =~ m#^(https?)\://(.*)#) {
+  if ($giturl =~ m#^(https?)\://(.*)#) {
     my $proto   = "$1://";
     my $gitpass = '';
     my $gituser = $self->gituser;
@@ -111,7 +115,7 @@ sub _calc_giturl {
     return "$proto$gituser$url";
   }
 
-  return $self->giturl();
+  return $giturl;
 }
 
 sub _prepare_mirror {
@@ -138,14 +142,11 @@ sub _prepare_mirror {
       $self->logger->info(sprintf("Creating parent for mirror dir '%s'",$mirror_dir->parent));
       $mirror_dir->parent->mkpath;
     }
-    @cmd = ( 'git', 'clone', '--mirror', $remote_uri->as_string, $mirror_dir->stringify );
+    @cmd = ( 'git', 'clone', '--mirror', $self->_calc_giturl($remote_uri->as_string), $mirror_dir->stringify );
   }
 
   $self->logger->info("Running command '@cmd'");
   run \@cmd , \$io[0], \$io[1], \$io[2] || die "git $?\n";
-  $self->logger->debug("_prepare_mirror - stdout: $io[0]");
-  $self->logger->debug("_prepare_mirror - stderr: $io[1]");
-  $self->logger->debug("_prepare_mirror - err___: $io[2]");
 }
 
 sub execute {
@@ -154,16 +155,16 @@ sub execute {
   my $ssh2    = $self->connect();
   my $ip      = $self->ipaddress;
   my $pass    = $self->gitpass;
+  my $user    = $self->gituser;
   
   # clone git repository
   try {
     my $cmd_clone = "git clone ".$self->_giturl.(( $self->destination ) ? " " . $self->destination : '');
-
     $self->exec_command($cmd_clone);
   } catch {
     my $err = $_;
-    $self->logger->debug("PASS: $pass");
-    $err =~ s/$pass/<password>/;
+    $err =~ s/$pass/<gitpass>/;
+    $err =~ s/$user/<gituser>/;
     die "$err";
   };
   my $git_dest  = ( $self->destination ) ? "-C " . $self->destination : '';
@@ -235,6 +236,10 @@ SEE ALSO L<Kanku::Roles::SSH>
   mirror      : boolean, if set to 1, use mirror mode
 
   giturl      : url to clone git repository from (in mirror mode use local cache)
+
+  gituser     : user for authentication
+
+  gitpass     : password for authentication
 
   revision    : revision to checkout in git working copy
 
