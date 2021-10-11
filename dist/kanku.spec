@@ -175,6 +175,7 @@ Requires:       perl(Archive::Cpio)
 Requires:       perl(LWP::Protocol::https)
 Requires:       perl(Mail::Sendmail)
 Requires:       perl(UUID)
+Requires:       openssl(cli)
 
 Conflicts:      perl-DBD-SQLite-Amalgamation
 
