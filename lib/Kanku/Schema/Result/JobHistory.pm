@@ -153,6 +153,12 @@ __PACKAGE__->has_many(
   { "foreign.job_id" => "self.id" },
 );
 
+__PACKAGE__->has_many(
+  "wait_for",
+  "Kanku::Schema::Result::JobWaitFor",
+  { "foreign.job_id" => "self.id" },
+);
+
 sub TO_JSON {
   my $self = shift;
   my $rv = {};
