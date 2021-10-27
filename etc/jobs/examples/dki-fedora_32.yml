@@ -1,0 +1,40 @@
+tasks:
+  -
+    use_module: Kanku::Handler::SetJobContext
+    options:
+      domain_name: dki-fedora_32
+      login_user: root
+      login_pass: kankudai
+  -
+    use_module: Kanku::Handler::RemoveDomain
+  -
+    use_module: Kanku::Handler::CleanupIPTables
+  -
+    use_module: Kanku::Handler::OBSCheck
+    options:
+      api_url: https://api.opensuse.org/public
+      project: devel:kanku:images
+      package: Fedora-32
+      repository: images_fedora_32
+  -
+    use_module: Kanku::Handler::ImageDownload
+  -
+    use_module: Kanku::Handler::CreateDomain
+    options:
+      memory: 2G
+      vcpu: 1
+      management_interface: lan0
+      installation:
+        -
+          expect: Fedora
+          send_enter: 1
+  -
+    use_module: Kanku::Handler::PrepareSSH
+  -
+    use_module: Kanku::Handler::PortForward
+    options:
+      forward_port_list: tcp:22
+  -
+    use_module: Kanku::Handler::CleanupIPTables
+  -
+    use_module: Kanku::Handler::RemoveDomain

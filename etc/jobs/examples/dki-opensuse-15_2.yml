@@ -1,0 +1,41 @@
+tasks:
+  -
+    use_module: Kanku::Handler::SetJobContext
+    options:
+      domain_name: dki-opensuse-15-2
+      login_user: root
+      login_pass: kankudai
+  -
+    use_module: Kanku::Handler::RemoveDomain
+  -
+    use_module: Kanku::Handler::CleanupIPTables
+  -
+    use_module: Kanku::Handler::OBSCheck
+    options:
+      api_url: https://api.opensuse.org/public
+      project: devel:kanku:images
+      package: openSUSE-Leap-15.2-JeOS
+      repository: images_leap_15_2
+  -
+    use_module: Kanku::Handler::ImageDownload
+  -
+    use_module: Kanku::Handler::CreateDomain
+    options:
+      memory: 2G
+      vcpu: 1
+  -
+    use_module: Kanku::Handler::PrepareSSH
+  -
+    use_module: Kanku::Handler::PortForward
+    options:
+      forward_port_list: tcp:22
+  -
+    use_module: Kanku::Handler::ExecuteCommandViaConsole
+    options:
+      commands:
+        - rcnetwork restart
+        - hostname -f
+  -
+    use_module: Kanku::Handler::CleanupIPTables
+  -
+    use_module: Kanku::Handler::RemoveDomain
