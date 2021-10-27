@@ -45,6 +45,7 @@
 <script src="[% request.uri_base %]/js/kanku/guest.js"></script>
 <script src="[% request.uri_base %]/js/kanku/job_history.js"></script>
 <script src="[% request.uri_base %]/js/kanku/job.js"></script>
+<script src="[% request.uri_base %]/js/kanku/job_group.js"></script>
 <script src="[% request.uri_base %]/js/kanku/job_result.js"></script>
 <script src="[% request.uri_base %]/js/kanku/notify.js"></script>
 <script src="[% request.uri_base %]/js/kanku/settings.js"></script>

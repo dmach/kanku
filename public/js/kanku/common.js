@@ -660,6 +660,7 @@ Vue.component('navigation', {
     + '            <li class="nav-item active">                                    <router-link class="nav-link" to="/guest"       >Guest</router-link></li>'
     + '            <li class="nav-item active">                                    <router-link class="nav-link" to="/worker"      >Worker</router-link></li>'
     + '            <li v-if="(active_roles.User || active_roles.Admin)" class="nav-item active"> <router-link class="nav-link" to="/job/1"         >Job</router-link></li>'
+    + '            <li v-if="(active_roles.Admin)" class="nav-item active"> <router-link class="nav-link" to="/job_group/1"   >Job Group</router-link></li>'
     + '            <li v-if="roles.length > 0" class="nav-item active">            <router-link class="nav-link" to="/notify"      >Notify</router-link></li>'
     + '          </ul>'
     + '          <admin-switch v-if="active_roles.Admin" @changed-is-admin="$emit(\'changed-is-admin\')"></admin-switch>'

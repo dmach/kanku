@@ -256,7 +256,17 @@ sub get_todo_list {
   my $todo = [];
   my $rs = $schema->resultset('JobHistory')->search({state=>['scheduled','triggered']},{ order_by => { -asc => 'creation_time' }} );
 
-  while ( my $ds = $rs->next )   {
+
+  JOB: while ( my $ds = $rs->next )   {
+    my @awf; # all wait for
+    my $wait_for = $ds->wait_for();
+    while (my $jwf = $wait_for->next) {
+      my $njwf = $jwf->wait_for;
+      if ($njwf->state =~ /^(scheduled|triggered|running|dispatching)$/) {
+        $self->logger->debug("Job ".$ds->id." is still waiting for Job ".$njwf->id);
+	next JOB;
+      }
+    }
     push (
       @$todo,
       Kanku::Job->new(

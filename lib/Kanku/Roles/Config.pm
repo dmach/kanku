@@ -148,4 +148,41 @@ sub job_config_plain {
   return $content;
 }
 
+sub job_group_config {
+  my ($self, $name) = @_;
+  my ($cfg, $yml);
+  #$yml = $self->job_group_config_plain($name);
+  $cfg = $self->load_job_group_config($name);
+
+  if (ref($cfg) eq 'HASH') {
+    return $cfg if (ref($cfg->{groups}) eq 'ARRAY');
+  }
+
+  die "No valid job configuration found\n";
+}
+
+sub load_job_group_config {
+  my ($self, $name, $yml) = @_;
+  try {
+    my $include = YAML::PP::Schema::Include->new;
+    my $yp = YAML::PP->new( schema => [$include] );
+    $include->yp($yp);
+    if ($yml) {
+      return $yp->load_string($yml);
+    } else {
+      return $yp->load_file("/etc/kanku/job_groups/$name.yml");
+    }
+  } catch {
+      die "Error while parsing job config yaml file for job '$name':\n$_";
+  }
+}
+
+sub job_group_config_plain {
+  my ($self, $name) = @_;
+  my $conf_file = Path::Class::File->new("/etc/kanku/job_groups/$name.yml");
+  my $content   = $conf_file->slurp();
+
+  return $content;
+}
+
 1;

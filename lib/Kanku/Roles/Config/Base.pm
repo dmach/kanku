@@ -1,4 +1,4 @@
-# Copyright (c) 2015 SUSE LLC
+# Copyright (c) 2021 SUSE LLC
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
@@ -103,7 +103,16 @@ sub job_list {
   for my $f (@files) {
     push(@result, $1) if ($f =~ /.*\/(.*)\.yml$/);
   }
-  $self->logger->trace("*********** CONFIX @result");
+  return @result;
+}
+
+sub job_group_list {
+  my $self  = shift;
+  my @files = dir('/etc/kanku/job_groups')->children;
+  my @result;
+  for my $f (@files) {
+    push(@result, $1) if ($f =~ /.*\/(.*)\.yml$/);
+  }
   return @result;
 }
 

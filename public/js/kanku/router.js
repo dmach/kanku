@@ -12,6 +12,7 @@ const routes = [
   { path: '/login'               , component: pwSetPage     },
   { name: 'job'        , path: '/job/:page'         , component: jobPage        },
   { name: 'job_history', path: '/job_history/:page' , component: jobHistoryPage },
+  { name: 'job_group'  , path: '/job_group/:page'   , component: jobGroupPage   },
 ];
 
 const router = new VueRouter({

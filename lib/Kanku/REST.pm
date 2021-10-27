@@ -24,6 +24,7 @@ use Kanku::REST::Admin::Role;
 use Kanku::REST::JobComment;
 use Kanku::REST::Guest;
 use Kanku::REST::Job;
+use Kanku::REST::JobGroup;
 use Kanku::REST::Worker;
 
 prepare_serializer_for_format;
@@ -96,6 +97,70 @@ put '/job/comment/:comment_id.:format' => require_any_role [qw/Admin User/] =>  
 del '/job/comment/:comment_id.:format' => require_any_role [qw/Admin User/] =>  sub {
   my $jco = Kanku::REST::JobComment->new(app_opts());
   return $jco->remove;
+};
+
+# ROUTES FOR JOBGROUPS
+
+post '/job_group/trigger/:name.:format' => require_any_role [qw/Admin/] =>  sub {
+  my $jg = Kanku::REST::JobGroup->new(app_opts());
+  return $jg->trigger;
+};
+
+get '/gui_config/job_group.:format'  => requires_role Admin => sub {
+  my $cfg           = Kanku::Config->instance();
+  my @job_groups    = $cfg->job_group_list;
+  my $filter        = params->{filter} || '.*';
+  my $limit         = params->{limit};
+  my $page          = params->{page};
+  my @config        = ();
+  my @errors        = ();
+  my @filtered_job_groups = ();
+
+  foreach my $name (sort @job_groups) {
+    push(@filtered_job_groups, $name) if $name =~ m/$filter/;
+  }
+
+  my $total_entries = @filtered_job_groups;
+
+  my @_job_groups;
+
+  if ($limit) {
+    # limit = 10
+    # page1 = 0:9
+    # page2 = 10:19
+    my $start = $limit * ($page - 1);
+    my $end   = $start + $limit - 1;
+    my $last  = $total_entries - 1;
+    $end = ($end > $last) ? $last : $end;
+    @_job_groups = @filtered_job_groups[$start..$end];
+  } else {
+    @_job_groups = @filtered_job_groups;
+  }
+
+  foreach my $name (@_job_groups) {
+    my $job_group_config = { name => $name, groups => []};
+    push @config , $job_group_config;
+    my $job_group_cfg;
+    try {
+      $job_group_cfg = $cfg->job_group_config($name);
+    } catch {
+      $job_group_cfg = $_;
+    };
+
+    if (ref($job_group_cfg) ne 'HASH') {
+      push @errors, "Error while parsing config file of job group '$name': $job_group_cfg";
+      next;
+    }
+
+    $job_group_config->{groups} = $job_group_cfg->{groups};
+  }
+
+  return {
+    config        => \@config ,
+    errors        => \@errors,
+    limit         => $limit,
+    total_entries => $total_entries,
+  };
 };
 
 # ROUTES FOR GUESTS

@@ -1,0 +1,11 @@
+groups:
+  -
+    description: First group of jobs
+    jobs:
+      - dki-opensuse-15_3
+      - dki-opensuse-15_2
+  -
+    description: Second group of jobs
+    jobs:
+      - dki-opensuse-15_1
+      - dki-opensuse-15_0
