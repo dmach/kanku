@@ -1,9 +1,9 @@
 Vue.component('job-group-card',{
-  props: ['job_group', 'is_admin'],
+  props: ['job_group', 'is_admin', 'job_group_init'],
   data: function() {
     this.restoreSettings();
     return {
-      allJobs: this.allJobs,
+      allJobs: this.allJobs || [],
       showGroupList: 0
     }
   },
@@ -21,6 +21,8 @@ Vue.component('job-group-card',{
       localStorage.setItem("kanku_job_group", currentSettingsString);
     },
     restoreSettings: function() {
+      console.log("Started restoreSettings");
+      console.log("job_group: " + this.job_group.name);
       var currentSettingsString = localStorage.getItem("kanku_job_group");
       var currentSettings;
       if (!currentSettingsString) {
@@ -28,19 +30,35 @@ Vue.component('job-group-card',{
 	this.restoreDefaults();
       } else {
 	currentSettings = JSON.parse(currentSettingsString);
-        this.allJobs = currentSettings[this.job_group.name];
+        if (!currentSettings[this.job_group.name]) {
+          this.restoreDefaults();
+        } else {
+          this.allJobs = currentSettings[this.job_group.name];
+        }
       }
+      console.log("restoreSettings this.allJobs :");
+      console.log(this.allJobs);
     },
     restoreDefaults: function() {
+      console.log("Started restoreDefaults");
       this.allJobs = new Array();
-      var jgl =  Object.keys(this.job_group).length;
+      console.log("Started restoreDefaults for "+this.job_group.name);
+      console.log(this.job_group);
+      var jgl =  Object.keys(this.job_group.groups).length;
+      console.log("jgl:")
+      console.log(jgl)
       for (let i=0; i < jgl;i++) {
+        console.log("blah (i): "+i);
+        console.log(this.job_group.groups[i]);
 	this.allJobs[i]=new Array();
-	var groups_count = this.job_group.groups.length;
+	var groups_count = this.job_group.groups[i].jobs.length;
 	for (let a=0; a < groups_count;a++) {
+          console.log("blah (i)(a): "+a);
 	  this.allJobs[i][a]=true;
 	}
       }
+      console.log("restoreDefaults this.allJobs:");
+      console.log(this.allJobs);
       this.saveSettings();
     },
     triggerJobGroup: function() {
