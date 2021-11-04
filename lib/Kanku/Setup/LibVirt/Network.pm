@@ -179,7 +179,7 @@ dhcp-hostsfile=/var/lib/libvirt/dnsmasq/$net_cfg->{name}.hostsfile
 addn-hosts=/var/lib/libvirt/dnsmasq/$net_cfg->{name}.addnhosts
 EOF
 ;
-    $self->dnsmasq_conf_file($net_cfg->{name})->spew($dns_config);
+    $self->dnsmasq_cfg_file($net_cfg->{name})->spew($dns_config);
   }
 }
 
