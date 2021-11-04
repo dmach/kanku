@@ -305,6 +305,15 @@ sub end_job {
   $job->end_time(time());
   $job->update_db();
 
+  if ( $job->state eq 'failed') {
+    my $schema  = $self->schema;
+    my $rs = $schema->resultset('JobWaitFor')->search({wait_for_job_id=>$job->id});
+    my $todo = [];
+    while ( my $ds = $rs->next )   {
+      $ds->job->update({state=>'skipped'});
+    }
+  }
+
   $self->logger->debug("Finished job: ".$job->name." (".$job->id.") with state '".$job->state."'");
 }
 
