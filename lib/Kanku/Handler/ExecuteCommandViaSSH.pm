@@ -102,6 +102,7 @@ Here is an example how to configure the module in your jobs file or KankuFile
       privatekey_path: /home/m0ses/.ssh/id_rsa
       passphrase: MySecret1234
       username: kanku
+      ipaddress: 192.168.199.17
       commands:
         - rm /etc/shadow
 
