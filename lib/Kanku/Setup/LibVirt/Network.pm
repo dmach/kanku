@@ -46,6 +46,12 @@ has net_cfg => (
   default => sub { {} },
 );
 
+has name => (
+  is => 'rw',
+  isa => 'Str',
+  required => 1,
+);
+
 sub dnsmasq_cfg_file {
   my ($self, $name) = @_;
   confess("No name given") unless $name;
@@ -83,6 +89,8 @@ sub prepare_ovs {
     my $br   = $ncfg->{bridge};
     my $vlan = $ncfg->{vlan};
 
+    die "missing vlan for bridge $ncfg->{bridge} in your kanku-config.yml for network ".$self->name unless $vlan;
+
     # Standard mtu size is 1500 bytes
     # VXLAN header is 50 bytes
     # 1500 - 50 = 1450
@@ -91,28 +99,20 @@ sub prepare_ovs {
     my $out;
     my $fh;
 
-    system('ovs-vsctl','br-exists',$br);
 
-    if ( $? > 0 ) {
-      $self->logger->info("Creating bridge $br");
-      system('ovs-vsctl','add-br',$br);
-      system('ovs-vsctl','set','bridge', $br,'stp_enable=true');
-    } else {
-      $self->logger->info("Bridge $br already exists");
-    }
+    $self->logger->info("Creating bridge $br");
+    system('ovs-vsctl', '--may-exist', 'add-br', $br);
+    system('ovs-vsctl', 'set', 'bridge', $br, 'stp_enable=true');
 
     my $port_counter = 0;
     for my $remote ( @{$lvhl->get_remote_ips} ) {
       $self->logger->info("Setting up connection for $remote");
       my $port = "$vlan-$port_counter";
-      system('ovs-vsctl','port-to-br',$port);
-      if ( $? > 0 ) {
-        $self->logger->info("Adding port $port on bridge $br");
-        system('ovs-vsctl','add-port',$br,$port);
-        system('ovs-vsctl','set','Interface',$port,'type=vxlan',"options:remote_ip=$remote");
-      } else {
-        $self->logger->info("Port $port already exists on bridge $br");
-      }
+      $self->logger->info("Adding port $port on bridge $br");
+      system('ovs-vsctl', '--may-exist', 'add-port', $br, $port);
+      my @cmd = ('ovs-vsctl','set','Interface',$port,'type=vxlan',"options:remote_ip=$remote");
+      push @cmd, "options:dst_port=$ncfg->{dst_port}" if $ncfg->{dst_port};
+      system(@cmd);
       $port_counter++;
     }
 
@@ -138,6 +138,7 @@ sub prepare_ovs {
 sub bridge_down {
   my $self = shift;
   my $bridges = $self->bridges;
+  $self->logger->debug("Stopping bridges of network '".$self->name."'");
   for my $ncfg (@$bridges)  {
     my $br   = $ncfg->{bridge};
 
@@ -154,11 +155,16 @@ sub bridge_down {
 sub prepare_dns {
   my ($self)  = @_;
   my $bridges = $self->bridges;
+  my $name = $self->name;
 
   for my $net_cfg (@$bridges) {
     next if (! $net_cfg->{start_dhcp} );
 
-    my $pid_file = $self->dnsmasq_pid_file($net_cfg->{name})->stringify ;
+    my $pid_file  = $self->dnsmasq_pid_file($name)->stringify ;
+    my $addnfile  = "/var/lib/libvirt/dnsmasq/$name.addnhosts";
+    my $addn      = (-f $addnfile) ? "addn-hosts=$addnfile" : q{};
+    my $hostsfile = "/var/lib/libvirt/dnsmasq/$name.hostsfile";
+    my $host      = (-f $hostsfile) ? "dhcp-hostsfile=$hostsfile" : q{} ;
 
     my $dns_config = <<EOF
 ##WARNING:  THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT ARE LIKELY TO BE
@@ -175,17 +181,18 @@ interface=$net_cfg->{bridge}
 dhcp-range=$net_cfg->{dhcp_range}
 dhcp-no-override
 dhcp-lease-max=253
-dhcp-hostsfile=/var/lib/libvirt/dnsmasq/$net_cfg->{name}.hostsfile
-addn-hosts=/var/lib/libvirt/dnsmasq/$net_cfg->{name}.addnhosts
+$host
+$addn
 EOF
 ;
-    $self->dnsmasq_cfg_file($net_cfg->{name})->spew($dns_config);
+    $self->dnsmasq_cfg_file($name)->spew($dns_config);
   }
 }
 
 sub start_dhcp {
   my ($self) = @_;
   my $bridges = $self->bridges;
+  my $name    = $self->name;
 
   for my $net_cfg (@$bridges) {
     next if (! $net_cfg->{start_dhcp} );
@@ -204,7 +211,11 @@ sub start_dhcp {
     } else {
       # Child runs this block
       setsid or die "Can't start a new session: $!";
-      my @cmd = ('/usr/sbin/dnsmasq',"--conf-file=/var/lib/libvirt/dnsmasq/$net_cfg->{name}.conf","--leasefile-ro","--dhcp-script=/usr/lib64/libvirt/libvirt_leaseshelper");
+      my $conf = $self->dnsmasq_cfg_file($name);
+      my @cmd = ('/usr/sbin/dnsmasq',
+	         "--conf-file=$conf",
+		 "--leasefile-ro",
+		 "--dhcp-script=/usr/lib64/libvirt/libvirt_leaseshelper");
       $self->logger->debug("@cmd");
       system(@cmd);
       exit 0;
@@ -273,16 +284,14 @@ sub configure_iptables {
 
 sub kill_dhcp {
   my ($self) = @_;
-  my $bridges = $self->bridges;
-  for my $ncfg (@$bridges) {
-    my $pid_file = $self->dnsmasq_pid_file($ncfg->{name});
-    next if ( ! -f $pid_file );
 
-    my $pid = $pid_file->slurp;
-    $self->logger->debug("Killing dnsmasq with pid $pid");
+  my $pid_file = $self->dnsmasq_pid_file($self->name);
+  return if ( ! -f $pid_file );
 
-    kill 'TERM', $pid;
-  }
+  my $pid = $pid_file->slurp;
+  $self->logger->debug("Killing dnsmasq with pid $pid");
+
+  kill 'TERM', $pid;
 }
 
 sub cleanup_iptables {

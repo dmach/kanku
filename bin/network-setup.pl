@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 use Log::Log4perl;
+use Try::Tiny;
 
 BEGIN {
   unshift @::INC, ($ENV{KANKU_LIB_DIR} || '/usr/lib/kanku/lib');
@@ -22,6 +23,8 @@ my $cfg                  = Kanku::YAML::LoadFile("/etc/kanku/kanku-config.yml");
 my @net_list;
 my $net_cfg;
 
+$logger->info("$0 started with network '$current_network_name' -> '$action'");
+
 if (ref($cfg->{'Kanku::LibVirt::Network::OpenVSwitch'}) eq 'ARRAY') {
   @net_list = @{$cfg->{'Kanku::LibVirt::Network::OpenVSwitch'}}
 } elsif (ref($cfg->{'Kanku::LibVirt::Network::OpenVSwitch'}) eq 'HASH') {
@@ -37,22 +40,28 @@ for my $net (@net_list) {
 }
 
 if ($net_cfg) {
-  my $setup = Kanku::Setup::LibVirt::Network->new(net_cfg=>$net_cfg);
-  if ( $action eq 'start' ) {
-    $setup->prepare_ovs();
-  }
+  my $setup = Kanku::Setup::LibVirt::Network->new(net_cfg=>$net_cfg,name=>$current_network_name);
+  try {
+    if ( $action eq 'start' ) {
+      $setup->prepare_ovs();
+    }
 
-  if ( $action eq 'started' ) {
-    $setup->prepare_dns();
-    $setup->start_dhcp();
-    $setup->configure_iptables();
-  }
+    if ( $action eq 'started' ) {
+      $setup->prepare_dns();
+      $setup->start_dhcp();
+      $setup->configure_iptables();
+    }
 
-  if ( $action eq 'stopped' ) {
-    $setup->kill_dhcp();
-    $setup->cleanup_iptables;
-    $setup->bridge_down;
-  }
+    if ( $action eq 'stopped' ) {
+      $setup->kill_dhcp();
+      $setup->cleanup_iptables;
+      $setup->bridge_down;
+    }
+  } catch {
+    $logger->error("$0 $current_network_name $action failed:");
+    $logger->error($_);
+    die "Died because of previous errors - have a look into /var/log/kanku/network-setup.log for detailed information.\n";
+  };
   exit 0;
 }
 
