@@ -25,7 +25,7 @@ use Net::OBS::Client::Project;
 use Net::OBS::Client::Package;
 use Kanku::Util::CurlHttpDownload;
 use Kanku::Config;
-use Carp qw/confess/;
+use Carp qw/confess croak/;
 
 with 'Kanku::Roles::Logger';
 with 'Kanku::Roles::Helpers';
