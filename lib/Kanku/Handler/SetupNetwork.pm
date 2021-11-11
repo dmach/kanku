@@ -52,6 +52,8 @@ has '_con' => (
   },
 );
 
+has '_requires_restart' => (is=>'rw', isa=>'Bool', default=>0);
+
 sub prepare {
   my $self = shift;
   my $ctx  = $self->job()->context();
@@ -85,14 +87,19 @@ sub execute {
 
   $self->_configure_routes;
 
-  $con->logout();
-
   my $vm = Kanku::Util::VM->new(
     domain_name => $self->domain_name,
     job_id      => $self->job->id
   );
 
   $ctx->{ipaddress} = $vm->get_ipaddress();
+
+  if ($self->_requires_restart) {
+    $con->cmd_timeout(-1);
+    $con->cmd("reboot");
+  } else {
+    $con->logout();
+  }
 
   return {
     code    => 0,
@@ -185,7 +192,6 @@ sub _configure_interfaces {
     my $if_command    = "ifup $interface";
     $logger->debug("ifup command:\n$if_command");
     $con->cmd($if_command);
-
   }
 
   $con->cmd("systemctl enable --now wickedd");
@@ -196,6 +202,8 @@ sub _configure_persistent_udev_rules {
   my $con                      = $self->_con;
   my $rename                   = $cfg->{rename};
 
+  return unless ($rename);
+
   # SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="52:54:00:33:79:73", ATTR{type}=="1", KERNEL=="eth*", NAME="pbu"
   # /etc/udev/rules.d/70-persistent-net.rules
   my $mac = $self->_mac_table->{$interface} || $self->_mac_table->{$rename};
@@ -203,9 +211,11 @@ sub _configure_persistent_udev_rules {
     $self->logger->debug("No mac found for $interface/$rename");
     return;
   }
+  $con->cmd("rm -f /etc/sysconfig/network/ifcfg-$interface");
   my $string='SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="'.$mac.'", ATTR{type}=="1", KERNEL=="eth*", NAME="'.$rename.'"';
   my $fn = "/etc/udev/rules.d/70-persistent-net-$rename.rules";
   $con->cmd("echo '$string' > $fn");
+  $self->_requires_restart(1) if ($rename ne $interface);
 }
 
 sub _get_interface_info {
