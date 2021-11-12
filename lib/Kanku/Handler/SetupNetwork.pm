@@ -54,6 +54,8 @@ has '_con' => (
 
 has '_requires_restart' => (is=>'rw', isa=>'Bool', default=>0);
 
+sub distributable { 1 };
+
 sub prepare {
   my $self = shift;
   my $ctx  = $self->job()->context();
