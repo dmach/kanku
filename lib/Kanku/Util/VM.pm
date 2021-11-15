@@ -449,6 +449,8 @@ sub get_ipaddress {
     $self->management_interface($opts{management_interface})
   }
 
+  $self->logger->debug("Running remotely: '".$self->running_remotely."'");
+
   if ((($opts{mode} || '' ) eq 'console') or $self->running_remotely) {
     return $self->_get_ip_from_console();
   } else {
@@ -457,7 +459,6 @@ sub get_ipaddress {
     } catch {
       return $self->_get_ip_from_console();
     }
-
   }
 }
 
@@ -686,7 +687,7 @@ sub _get_ip_from_dhcp {
 
       sleep 1;
 
-      $self->logger->debug("Could not get ip address form interface.");
+      $self->logger->debug("Could not get ip address from interface using net-dhcp-leases.");
       $self->logger->debug("Waiting another $wait seconds for network to come up");
 
   }

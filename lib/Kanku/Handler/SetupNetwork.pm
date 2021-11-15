@@ -27,7 +27,7 @@ with 'Kanku::Roles::Handler';
 
 
 has [qw/domain_name login_user login_pass/] => (is=>'rw',isa=>'Str',lazy=>1,default=>'');
-has 'interfaces' => (is=>'rw',isa=>'HashRef');
+has 'interfaces' => (is=>'rw',isa=>'ArrayRef', default=>sub{[]});
 has 'resolv' => (is=>'rw',isa=>'HashRef|Undef');
 has 'routes' => (
   is      =>'rw',
@@ -53,6 +53,8 @@ has '_con' => (
 );
 
 has '_requires_restart' => (is=>'rw', isa=>'Bool', default=>0);
+has '_get_ipaddress_required' => (is=>'rw', isa=>'Bool', default=>1);
+has '_management_interface' => (is=>'rw', isa=>'Str', default=>q{});
 
 sub distributable { 1 };
 
@@ -90,18 +92,26 @@ sub execute {
   $self->_configure_routes;
 
   my $vm = Kanku::Util::VM->new(
-    domain_name => $self->domain_name,
-    job_id      => $self->job->id
+    domain_name          => $self->domain_name,
+    job_id               => $self->job->id,
+    console              => $con,
+    running_remotely     => $self->running_remotely,
+    management_interface => $self->_management_interface,
   );
 
-  $ctx->{ipaddress} = $vm->get_ipaddress();
+  if ($self->_get_ipaddress_required) {
+    my $vm = Kanku::Util::VM->new(
+      domain_name          => $self->domain_name,
+      job_id               => $self->job->id,
+      console              => $con,
+      running_remotely     => $self->running_remotely,
+      management_interface => $self->_management_interface,
+    );
 
-  if ($self->_requires_restart) {
-    $con->cmd_timeout(-1);
-    $con->cmd("reboot");
-  } else {
-    $con->logout();
+    $ctx->{ipaddress} = $vm->get_ipaddress();
   }
+
+  $con->logout();
 
   return {
     code    => 0,
@@ -111,10 +121,9 @@ sub execute {
 
 sub prepare__mac_table {
   my ($self, $cfg, $iinfo) = @_;
-  for my $interface ( keys(%{$self->interfaces}) ) {
-    my $cfg          = $self->interfaces->{$interface};
+  for my $cfg (@{$self->interfaces}) {
     for my $i (@$iinfo) {
-      if ($i->{ifname} eq $interface) {
+      if ($i->{ifname} eq $cfg->{if_name}) {
 	$self->_mac_table->{$i->{ifname}}  = $i->{address};
 	$self->_mac_table->{$i->{address}} = $i->{ifname};
       }
@@ -129,21 +138,30 @@ sub _configure_resolver {
   return undef if (ref($self->resolv) ne 'HASH');
 
   my $config_str  = "";
+  my @nameserver;
+  my @searchlist;
   my $config_file = "/etc/resolv.conf";
 
   for my $key ( keys(%{$self->resolv}) ) {
     if ($key eq 'nameserver') {
       for my $dns ( @{$self->resolv()->{$key}} ) {
         $config_str .= "nameserver $dns\\n";
+        push @nameserver, $dns;
       }
     } else {
-        $config_str .= "$key ".$self->resolv()->{$key}."\\n";
+      my $val = $self->resolv()->{$key};
+      $self->logger->debug("_configure_resolver $key - $val");
+      $config_str .= "$key $val\\n";
+      push @searchlist, $val if $key eq "search";
     }
   }
 
   my $resolv_conf = 'echo -en "'.$config_str.'" >'.$config_file;
-
   $con->cmd($resolv_conf);
+  my $nw_cfg = "/etc/sysconfig/network/config";
+  $con->cmd("perl -p -i -e 's/.*NETCONFIG_DNS_STATIC_SEARCHLIST=.*/NETCONFIG_DNS_STATIC_SEARCHLIST=\"@searchlist\"/' $nw_cfg ||/bin/true");
+  $con->cmd("perl -p -i -e 's/.*NETCONFIG_DNS_STATIC_SERVERS=.*/NETCONFIG_DNS_STATIC_SERVERS=\"@nameserver\"/' $nw_cfg ||/bin/true");
+  $con->cmd("netconfig update -f || /bin/true");
 
   return 1;
 }
@@ -160,6 +178,8 @@ sub _configure_routes {
     my $nm   = $r->{netmask} || '-';
     my $dev  = $r->{device}  || '-';
     $string .= $key.' '.$r->{gw}.' '.$nm.' '.$dev.'\n';
+    $con->cmd("ip route del $key || /bin/true");
+    $con->cmd("ip route add $key via $r->{gw}");
   }
   $con->cmd("echo -en \"$string\" > $cfg_file");
 }
@@ -170,12 +190,12 @@ sub _configure_interfaces {
   my $logger = $self->logger;
 
   $logger->debug("Starting _configure_interfaces");
-
-  for my $interface ( keys(%{$self->interfaces}) ) {
-    $logger->debug("Configuring interface $interface");
-    my $cfg          = $self->interfaces->{$interface};
+  for my $cfg (@{$self->interfaces}) {
+    my $interface    = $cfg->{if_name};
     my $final_ifname = $cfg->{rename} || $interface;
+    $logger->debug("Configuring interface $interface (final_ifname: $final_ifname)");
     if ($cfg->{rename}) {
+      $con->cmd("ifdown $interface");
       $self->_configure_persistent_udev_rules($interface, $cfg);
     }
     my $config_str  = "";
@@ -187,11 +207,22 @@ sub _configure_interfaces {
       my $val = $acfg->{$key};
       $config_str .= "$key=\"$val\"\\n";
     }
+
+    if ($acfg->{is_mgmt_if}) {
+      $self->_management_interface($final_ifname);
+      if ($acfg->{IPADDR}) {
+        my @ip = split('/', $acfg->{IPADDR},2);
+        my $ctx  = $self->job()->context();
+        $ctx->{ipaddress} = $ip[0];
+        $self->_get_ipaddress_required(0);
+      }
+    }
+
     my $create_config = 'echo -en "'.$config_str.'" > '.$config_file;
     $logger->debug("Create config command:\n$create_config");
     $con->cmd($create_config);
 
-    my $if_command    = "ifup $interface";
+    my $if_command    = "ifup $final_ifname";
     $logger->debug("ifup command:\n$if_command");
     $con->cmd($if_command);
   }
@@ -214,10 +245,21 @@ sub _configure_persistent_udev_rules {
     return;
   }
   $con->cmd("rm -f /etc/sysconfig/network/ifcfg-$interface");
-  my $string='SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="'.$mac.'", ATTR{type}=="1", KERNEL=="eth*", NAME="'.$rename.'"';
-  my $fn = "/etc/udev/rules.d/70-persistent-net-$rename.rules";
+  # Remove persistent rules to avoid confusion with our rules
+  $con->cmd("rm -f /etc/udev/rules.d/70-persistent-net.rules");
+
+  # The NAME attribute needs the colon to prevent later rules
+  # from overwriting the given values
+  my $string='SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="'.$mac.'", ATTR{type}=="1", KERNEL=="eth*", NAME:="'.$rename.'"';
+
+  # Place our persistent net rules before 70-persistent-net.rules
+  # (using 00-persistent-net-$rename.rules) to make sure that these
+  # rules are executed first
+  # The "NAME:=" attribute from $string will prevent overwriting our names
+  #
+  my $fn = "/etc/udev/rules.d/00-persistent-net-$rename.rules";
   $con->cmd("echo '$string' > $fn");
-  $self->_requires_restart(1) if ($rename ne $interface);
+  $con->cmd("ip link set $interface name $rename");
 }
 
 sub _get_interface_info {
