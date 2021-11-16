@@ -70,15 +70,33 @@ Kanku::LibVirt::HostList:
 
 
 Kanku::LibVirt::Network::OpenVSwitch:
-  name:                 kanku-ovs
-  bridge:               kanku-br0
-  vlan:                 kanku-vlan1
-  host_ip:              [% ovs_ip_prefix %].1
-  network:              [% ovs_ip_prefix %].0/24
-  dhcp_range:           [% ovs_ip_prefix %].66,[% ovs_ip_prefix %].254
-  start_dhcp:           1
-  is_gateway:           1
-  iptables_chain:       KANKU_HOSTS
+  -
+    name:                 kanku-ovs
+    iptables_chain:       KANKU_HOSTS
+    bridges:
+      -
+        bridge:           kanku-br0
+	vlan:             kanku-vlan0
+	host_ip:          [% ovs_ip_prefix %].1
+	network:          [% ovs_ip_prefix %].0/24
+	dhcp_range:       [% ovs_ip_prefix %].66,[% ovs_ip_prefix %].254
+	start_dhcp:       1
+	is_gateway:       1
+#  -
+#    name:                 ibsworker
+#    iptables_chain:       KANKU_HOSTS
+#    bridges:
+#      -
+#        bridge:               kanku-br1
+#        vlan:                 kanku-vlan1
+#        host_ip:              172.16.0.254
+#        network:              172.16.0.0/24
+#        dhcp_range:           172.16.255.1,172.16.255.254
+#        start_dhcp:           1
+#        is_gateway:           1
+#        mtu:                  1500
+#        dst_port:             4790
+
 
 Kanku::Daemon::Scheduler:
   -

@@ -1,0 +1,12 @@
+groups:
+  -
+    description: Test opensuse kanku jobs first
+    jobs:
+      - kanku-devel
+      - kanku-server
+  -
+    description: Test kanku jobs for other distros
+    jobs:
+      - kanku-devel-debian-unstable
+      - kanku-devel-fedora
+      - kanku-devel-ubuntu
