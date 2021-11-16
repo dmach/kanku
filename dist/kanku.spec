@@ -175,7 +175,7 @@ Requires:       perl(Archive::Cpio)
 Requires:       perl(LWP::Protocol::https)
 Requires:       perl(Mail::Sendmail)
 Requires:       perl(UUID)
-%if 0{?suse_version}
+%if 0%{?suse_version}
 Requires:       openssl(cli)
 %else
 Requires:       openssl
