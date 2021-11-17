@@ -14,6 +14,7 @@
 * [setup] allow multiple networks when setting up ovs
   * [EXAMPLE CONFIG:](etc/templates/cmd/setup/kanku-config.yml.tt2#L72)
 * [web] initial version of 'secure' fields in gui_config
+* [handler] new option `login_timeout:` in CreateDomain for long running image boot process
 
 ## Example configs
 

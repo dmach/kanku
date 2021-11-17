@@ -169,6 +169,12 @@ has default_console_timeout => (
   lazy    => 1,
   default => 600,
 );
+
+has login_timeout => (
+  is      => 'rw',
+  isa     => 'Int',
+);
+
 sub distributable { 1 };
 
 sub prepare {
@@ -292,6 +298,7 @@ sub execute {
   my $con = $vm->console();
 
   $con->cmd_timeout($self->default_console_timeout);
+  $con->login_timeout($self->login_timeout) if $self->login_timeout;
 
   if (@{$self->installation}) {
     $self->_handle_installation($con);
@@ -692,6 +699,11 @@ If configured a port_forward_list, it tries to find the next free port and confi
     template              : template xml to define VM (has precedence over job context)
 
                             Can be virtio, ide, sata or scsi.
+
+    default_console_timeout : default timeout for console commands (default: 600 sec)
+
+    login_timeout         : timeout to wait from bootloader to login prompt (boot time) (default: 300 sec)
+
 
 =head1 CONTEXT
 

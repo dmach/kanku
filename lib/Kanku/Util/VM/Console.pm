@@ -35,6 +35,7 @@ has 'connect_uri' => (is=>'rw', isa=>'Str', default=>'qemu:///system');
 has ['job_id'] => (is=>'rw', isa=>'Int|Undef');
 
 has ['cmd_timeout'] => (is=>'rw', isa=>'Int', default => 600);
+has ['login_timeout'] => (is=>'rw', isa=>'Int', default => 300);
 
 sub init {
   my $self = shift;
@@ -111,11 +112,11 @@ sub init {
 }
 
 sub login {
-  my $self      = shift;
-  my $exp       = $self->_expect_object();
-  my $timeout   = 300;
-  my $logger    = $self->logger();
-
+  my $self       = shift;
+  my $exp        = $self->_expect_object();
+  my $timeout    = $self->login_timeout;
+  my $logger     = $self->logger();
+  my $login_seen = 0;
 
   my $user      = $self->login_user;
   my $password  = $self->login_pass;
@@ -126,6 +127,7 @@ sub login {
   if (! $self->bootloader_seen) {
     $exp->send_slow(1,"\003","\004");
   }
+  $logger->debug("Waiting $timeout for login: prompt");
   $exp->expect(
     $timeout,
       [ '^\S+ login: ' =>
@@ -136,11 +138,13 @@ sub login {
             $self->short_hostname($1);
             $self->prompt_regex(qr/$1:.*\s+#/);
           }
+          $login_seen=1;
           $logger->debug(" - Sending username '$user'");
           $exp->send("$user\n");
         }
       ],
   );
+  die "No login prompt seen within $timeout sec!\n" unless $login_seen;
   $exp->expect(
       10,
       # Ugly fix for nasty Fedora (32) behavior
