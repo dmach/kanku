@@ -1,5 +1,14 @@
 # kanku release notes 0.11.0
 
+## ATTENTION
+
+This new version needs an upgrade of the database schema to version 17.
+Please use
+```
+kanku db --upgrade <--devel|--server>
+```
+to proceed with the database upgrade.
+
 ## New features
 
 * new feature "Job Groups"
@@ -18,19 +27,10 @@
 
 ## Example configs
 
-* new configs for dki (devel:kanku:images) jobs
+* new configs for [dki (devel:kanku:images)](https://build.opensuse.org/project/show/devel:kanku:images) jobs
 * updated icinga Kankufile to openSUSE 15.3
 
 ## Bug fixes
 
 * [setup] fix dancer config template - removed duplicate session key
 * [core] improved handling of VM template files
-
-# ATTENTION
-
-This new version needs an upgrade of the database schema to version 17.
-Please use
-```
-kanku db --upgrade <--devel|--server>
-```
-to proceed with the database upgrade.
