@@ -1,4 +1,4 @@
-<html><head><title>Kanku::Schema::Result::UserRole</title>
+<html><head><title>Kanku::Schema::Result::JobWaitFor;</title>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" >
 </head>
 <body class='pod'>
@@ -23,7 +23,7 @@
 name="NAME"
 >NAME</a></h1>
 
-<p>Kanku::Schema::Result::UserRole</p>
+<p>Kanku::Schema::Result::JobWaitFor;</p>
 
 <h1><a class='u'
 name="TABLE:_user_roles"
@@ -34,16 +34,16 @@ name="ACCESSORS"
 >ACCESSORS</a></h1>
 
 <h2><a class='u'
-name="user_id"
->user_id</a></h2>
+name="job_id"
+>job_id</a></h2>
 
 <pre>  data_type: &#39;integer&#39;
   is_foreign_key: 1
   is_nullable: 0</pre>
 
 <h2><a class='u'
-name="role_id"
->role_id</a></h2>
+name="wait_for_job_id"
+>wait_for_job_id</a></h2>
 
 <pre>  data_type: &#39;integer&#39;
   is_foreign_key: 1
@@ -54,11 +54,11 @@ name="PRIMARY_KEY"
 >PRIMARY KEY</a></h1>
 
 <ul>
-<li><a href="#user_id" class="podlinkpod"
->&#34;user_id&#34;</a></li>
+<li><a href="#job_id" class="podlinkpod"
+>&#34;job_id&#34;</a></li>
 
-<li><a href="#role_id" class="podlinkpod"
->&#34;role_id&#34;</a></li>
+<li><a href="#wait_for_job_id" class="podlinkpod"
+>&#34;wait_for_job_id&#34;</a></li>
 </ul>
 
 <h1><a class='u'
@@ -71,8 +71,8 @@ name="role"
 
 <p>Type: belongs_to</p>
 
-<p>Related object: <a href="./Kanku%3A%3ASchema%3A%3AResult%3A%3ARole.html" class="podlinkpod"
->Kanku::Schema::Result::Role</a></p>
+<p>Related object: <a href="https://metacpan.org/pod/Kanku%3A%3ASchema%3A%3AResult%3A%3AJob" class="podlinkpod"
+>Kanku::Schema::Result::Job</a></p>
 
 <h2><a class='u'
 name="user"
@@ -80,8 +80,8 @@ name="user"
 
 <p>Type: belongs_to</p>
 
-<p>Related object: <a href="./Kanku%3A%3ASchema%3A%3AResult%3A%3AUser.html" class="podlinkpod"
->Kanku::Schema::Result::User</a></p>
+<p>Related object: <a href="https://metacpan.org/pod/Kanku%3A%3ASchema%3A%3AResult%3A%3AJob" class="podlinkpod"
+>Kanku::Schema::Result::Job</a></p>
 
 <!-- end doc -->
 
