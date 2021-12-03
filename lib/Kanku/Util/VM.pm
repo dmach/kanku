@@ -44,7 +44,7 @@ has [qw/
 has job_id           => ( is => 'rw', isa => 'Int' );
 has root_disk        => ( is => 'rw', isa => 'Object' );
 has use_9p           => ( is => 'rw', isa => 'Bool' );
-has running_remotely => ( is => 'rw', isa => 'Bool' );
+has running_remotely => ( is => 'rw', isa => 'Bool', default => 0 );
 has empty_disks      => ( is => 'rw', isa => 'ArrayRef', default => sub {[]});
 has additional_disks => ( is => 'rw', isa => 'ArrayRef', default => sub {[]});
 has keep_volumes     => ( is => 'rw', isa => 'ArrayRef', default => sub {[]});
