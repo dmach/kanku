@@ -32,7 +32,7 @@ sub has_role {
   my ($self, $role) = @_;
   my $cu = $self->current_user;
   my $has_role = scalar grep { $_ eq $role } (keys %{$cu->{role_id} || {}}, @{$cu->{roles} || []});
-  $self->log("debug", "User $cu->{username} has_role $role: $has_role");
+  $self->log("debug", 'User '.($cu->{username}||q{}).'has_role '.($role||q{}).': '.($has_role||q{}));
   return $has_role;
 }
 
