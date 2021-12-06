@@ -43,6 +43,13 @@ option 'user' => (
   default       => 'kanku',
 );
 
+option 'ipaddress' => (
+  isa           => 'Str',
+  is            => 'rw',
+  cmd_aliases   => 'i',
+  documentation => 'IP address to connect to',
+);
+
 sub run {
   my ($self) = @_;
   my $cfg    = $self->cfg;
@@ -53,7 +60,7 @@ sub run {
   my $state = $vm->state;
 
   if ( $state eq 'on' ) {
-    my $ip    = $cfg->config->{ipaddress} || $vm->get_ipaddress;
+    my $ip    = $self->ipaddress || $cfg->config->{ipaddress} || $vm->get_ipaddress;
     my $user  = $self->user;
 
     $self->ipaddress($ip);
