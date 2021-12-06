@@ -85,6 +85,8 @@ sub execute {
       login_user  => $self->login_user,
       login_pass  => $self->login_pass,
       job_id      => $self->job->id,
+      log_file    => $ctx->{log_file} || q{},
+      log_stdout  => defined ($ctx->{log_stdout}) ? $ctx->{log_stdout} : 1,
   );
 
   my $con = $vm->console();

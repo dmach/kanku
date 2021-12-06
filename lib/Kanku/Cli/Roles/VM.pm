@@ -32,4 +32,17 @@ option 'file' => (
   documentation => 'KankuFile to use',
 );
 
+option 'log_file' => (
+  isa           => 'Str',
+  is            => 'rw',
+  documentation => 'path to logfile for Expect output',
+);
+
+option 'log_stdout' => (
+  isa           => 'Bool',
+  is            => 'rw',
+  documentation => 'log Expect output to stdout - (default: 1)',
+  default       => 1,
+);
+
 1;

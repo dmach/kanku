@@ -113,7 +113,9 @@ has console => (
         domain_name => $self->domain_name,
         login_user  => $self->login_user,
         login_pass  => $self->login_pass,
-        job_id      => $self->job_id
+        job_id      => $self->job_id,
+	log_file    => $self->log_file,
+	log_stdout  => $self->log_stdout,
       );
 
       $con->init();
@@ -178,6 +180,9 @@ has '_controllers' => (
 has skip_memory_checks => ( is => 'rw', isa => 'Bool' );
 
 has 'root_disk_bus'  => (is => 'rw', isa => 'Str');
+
+has 'log_file'       => (is => 'rw', isa => 'Str',  default => q{});
+has 'log_stdout'     => (is => 'rw', isa => 'Bool', default => 1);
 
 
 sub process_template {

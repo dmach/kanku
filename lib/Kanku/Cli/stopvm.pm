@@ -44,7 +44,12 @@ sub run {
   my $logger  = Log::Log4perl->get_logger;
   my $dn      = $self->domain_name;
 
-  my $vm = Kanku::Util::VM->new(domain_name => $dn);
+  my $vm      = Kanku::Util::VM->new(
+    domain_name => $dn,
+    log_file    => $self->log_file,
+    log_stdout  => $self->log_stdout,
+  );
+
   $logger->debug("Searching for domain: $dn");
   if ($vm->dom) {
     $logger->info("Stopping domain: $dn");

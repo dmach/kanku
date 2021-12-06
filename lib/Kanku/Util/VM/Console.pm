@@ -30,12 +30,13 @@ has ['domain_name','short_hostname','log_file','login_user','login_pass'] => (is
 has 'prompt' => (is=>'rw', isa=>'Str',default=>'Kanku-prompt: ');
 has 'prompt_regex' => (is=>'rw', isa=>'Object',default=>sub { qr/^Kanku-prompt: /m });
 has _expect_object  => (is=>'rw', isa => 'Object');
-has [qw/bootloader_seen grub_seen user_is_logged_in console_connected/] => (is=>'rw', isa => 'Bool');
+has [qw/bootloader_seen grub_seen user_is_logged_in console_connected log_stdout/] => (is=>'rw', isa => 'Bool');
 has 'connect_uri' => (is=>'rw', isa=>'Str', default=>'qemu:///system');
 has ['job_id'] => (is=>'rw', isa=>'Int|Undef');
 
 has ['cmd_timeout'] => (is=>'rw', isa=>'Int', default => 600);
 has ['login_timeout'] => (is=>'rw', isa=>'Int', default => 300);
+has '+log_stdout' => (default=>1);
 
 sub init {
   my $self = shift;
@@ -53,7 +54,9 @@ sub init {
   $exp->restart_timeout_upon_receive(1);
   $exp->debug($cfg->{$pkg}->{debug} || 0);
 
-  if ($cfg->{$pkg}->{log_to_file} && $self->job_id) {
+  if ($self->log_file) {
+    $exp->log_file($self->log_file);
+  } elsif ($cfg->{$pkg}->{log_to_file} && $self->job_id) {
     $logger->debug("Config -> $pkg (log_to_file): $cfg->{$pkg}->{log_to_file}");
 
     my $lf = file($cfg->{$pkg}->{log_dir},"job-".$self->job_id."-console.log");
@@ -62,8 +65,10 @@ sub init {
     }
     $logger->debug("Setting logfile '".$lf->stringify()."'");
     $exp->log_file($lf->stringify());
-    $exp->log_stdout(0);
+    $self->log_stdout(0);
   }
+
+  $exp->log_stdout($self->log_stdout);
 
   $self->_expect_object($exp);
   $exp->spawn($command, @parameters)

@@ -92,7 +92,12 @@ sub run {
 
   $self->job_name($cfg->config->{default_job}) if ! $self->job_name;
   my $dn = $self->domain_name;
-  my $vm = Kanku::Util::VM->new(domain_name => $dn);
+  my $vm      = Kanku::Util::VM->new(
+    domain_name => $dn,
+    log_file    => $self->log_file,
+    log_stdout  => $self->log_stdout,
+  );
+
   $logger->debug("Searching for domain: $dn");
   if ($vm->dom) {
     $logger->fatal("Domain $dn already exists");
@@ -129,6 +134,8 @@ sub run {
           skip_all_checks    => $self->skip_all_checks    || 0,
           skip_check_project => $self->skip_check_project || 0,
           skip_check_package => $self->skip_check_package || 0,
+          log_file    => $self->log_file,
+          log_stdout  => $self->log_stdout,
         },
   );
   @ARGV=(); ## no critic (Variables::RequireLocalizedPunctuationVars)

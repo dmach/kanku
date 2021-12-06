@@ -278,6 +278,8 @@ sub execute {
       root_disk_bus         => $self->root_disk_bus,
       skip_memory_checks    => $self->skip_memory_checks,
       pool_name             => $self->pool_name,
+      log_file              => $ctx->{log_file} || q{},
+      log_stdout            => defined ($ctx->{log_stdout}) ? $ctx->{log_stdout} : 1,
   );
 
   $vm->host_dir_9p($self->host_dir_9p) if ($self->host_dir_9p);

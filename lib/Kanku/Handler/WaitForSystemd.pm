@@ -51,6 +51,8 @@ sub execute {
         login_pass  => $self->login_pass(),
         job_id      => $self->job->id,
         cmd_timeout => $self->timeout,
+        log_file    => $ctx->{log_file} || q{},
+        log_stdout  => defined ($ctx->{log_stdout}) ? $ctx->{log_stdout} : 1,
   );
 
   $con->init();

@@ -95,7 +95,9 @@ sub execute {
     login_user  => $self->login_user(),
     login_pass  => $self->login_pass(),
     debug       => $cfg->{'Kanku::Util::VM::Console'}->{debug} || 0,
-    job_id      => $self->job->id
+    job_id      => $self->job->id,
+    log_file    => $ctx->{log_file} || q{},
+    log_stdout  => defined ($ctx->{log_stdout}) ? $ctx->{log_stdout} : 1,
   );
 
   $con->init();
