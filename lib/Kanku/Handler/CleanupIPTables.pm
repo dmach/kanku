@@ -17,7 +17,6 @@
 package Kanku::Handler::CleanupIPTables;
 
 use Moose;
-use Kanku::Util::VM;
 use Kanku::Util::IPTables;
 use Try::Tiny;
 use Carp;
