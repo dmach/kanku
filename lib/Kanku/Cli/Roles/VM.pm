@@ -36,6 +36,7 @@ option 'log_file' => (
   isa           => 'Str',
   is            => 'rw',
   documentation => 'path to logfile for Expect output',
+  default       => q{},
 );
 
 option 'log_stdout' => (
