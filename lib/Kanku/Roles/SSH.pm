@@ -194,9 +194,12 @@ sub connect {
   }
 
   if ( ! $ssh2->auth_ok()  ) {
-
+    my $msg = "";
     my @err = $ssh2->error;
-    croak("Could not authenticate! @err\n");
+    if ( $self->auth_type eq 'agent' ) {
+      $msg = " Have you added your ssh key to ssh-agent by running ssh-add?";
+    }
+    croak("Could not authenticate!$msg @err\n");
   }
 
   return $ssh2;
