@@ -157,7 +157,6 @@ sub run {
           try {
             $indata->{result}->{result} = decode_base64($indata->{result}->{result}) if ($indata->{result}->{result});
             $result = $indata->{result};
-             $logger->debug("Content of \$indata->result->{result}: $indata->{result}->{result}");
           } catch {
             $logger->fatal("Error while decoding base64: $_");
             $logger->debug(Dumper($indata));

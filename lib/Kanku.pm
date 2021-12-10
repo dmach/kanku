@@ -167,10 +167,10 @@ sub check_filters {
 
   my $key;
   $key = $dd->{'type'}.'-enable';
-  $log->trace("Step 0 $key: $fd->{$key}");
+
   return 0 if (exists $fd->{$key} && ! $fd->{$key});
   $key = $dd->{'type'}.'-'.$dd->{'event'};
-  $log->trace("Step 1 $key $fd->{$key}");
+
   return 0 if (exists $fd->{$key} && ! $fd->{$key});
   if ($dd->{'result'}) {
      $key = $dd->{'type'}.'-'.$dd->{'event'}.'-'.$dd->{'result'};
