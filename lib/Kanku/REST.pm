@@ -275,6 +275,12 @@ post '/login.:format' => sub {
   }
 };
 
+get 'login' => sub {
+  return {
+    errors        => ['Your are not logged in!'],
+  };
+};
+
 post '/logout.:format' => require_login sub {
     my $uid    = userinfo()->{id},
     my $token  = params->{kanku_notify_session};
