@@ -61,7 +61,7 @@ sub run {
 
   if ( $state eq 'on' ) {
     my $ip    = $self->ipaddress || $cfg->config->{ipaddress} || $vm->get_ipaddress;
-    my $user  = $self->user;
+    my $user  = $cfg->config->{login_user} || $self->user;
 
     $self->ipaddress($ip);
     $self->username($user);
