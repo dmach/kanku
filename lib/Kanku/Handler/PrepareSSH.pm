@@ -122,6 +122,7 @@ sub execute {
     "$str\n" .
     "EOF\n"
   );
+  $con->cmd("chown kanku:users -R /home/kanku/.ssh/");
 
   # Hack for Fedora 33
   my $crypto_cfg = '/etc/crypto-policies/back-ends/opensshserver.config';
