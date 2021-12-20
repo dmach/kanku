@@ -40,7 +40,9 @@ option 'user' => (
   is            => 'rw',
   cmd_aliases   => 'u',
   documentation => 'Login user to use for ssh',
-  default       => 'kanku',
+  default       => sub {
+    return $_[0]->cfg->config->{ssh_user} || 'kanku';
+  },
 );
 
 option 'ipaddress' => (
