@@ -47,7 +47,7 @@ sub prepare {
     for my $kf (
       "$ENV{HOME}/.ssh/id_dsa.pub",
       "$ENV{HOME}/.ssh/id_ecdsa.pub",
-      "$ENV{HOME}/.ssh/id_ecdsa.pub_sk",
+      "$ENV{HOME}/.ssh/id_ecdsa_sk.pub",
       "$ENV{HOME}/.ssh/id_ed25519.pub",
       "$ENV{HOME}/.ssh/id_ed25519_sk.pub",
       "$ENV{HOME}/.ssh/id_rsa.pub",
