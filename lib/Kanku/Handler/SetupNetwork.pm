@@ -43,6 +43,7 @@ has '_con' => (
   lazy=>1,
   default=>sub {
     my ($self) = @_;
+    my $ctx    = $self->job()->context();
     return Kanku::Util::VM::Console->new(
         domain_name => $self->domain_name,
         login_user  => $self->login_user(),
